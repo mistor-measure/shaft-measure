@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מדידת מסתורים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#1c4e9d">
+<style>
+:root{--bg:#eef2f7;--card:#fff;--soft:#f5f7fb;--tx:#142033;--mu:#64718a;--bd:#dde3ec;--bd2:#c6cfdc;--pr:#1c4e9d;--prh:#163f82;--prs:#e7eefb;--prt:#fff;
+--ok:#e9f7ee;--okb:#1f8f55;--wn:#fff5da;--wnb:#c98700;--bad:#fdeaea;--badb:#d23434;--ln:#1c4e9d;--mk:#ff4fa3;
+--sh:0 1px 2px rgba(20,40,80,.05),0 6px 18px rgba(20,40,80,.06);--nav:64px;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e131a;--card:#171e28;--soft:#1c2531;--tx:#e8edf4;--mu:#95a2b6;--bd:#2a3546;--bd2:#3b4859;--pr:#6ea0f0;--prh:#8db5f5;--prs:#1c2b44;--prt:#0b1220;--ok:#14301f;--okb:#45c27b;--wn:#352b10;--wnb:#e6b422;--bad:#3a1a1a;--badb:#f07171;--ln:#8fb4f5;--sh:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e131a;--card:#171e28;--soft:#1c2531;--tx:#e8edf4;--mu:#95a2b6;--bd:#2a3546;--bd2:#3b4859;--pr:#6ea0f0;--prh:#8db5f5;--prs:#1c2b44;--prt:#0b1220;--ok:#14301f;--okb:#45c27b;--wn:#352b10;--wnb:#e6b422;--bad:#3a1a1a;--badb:#f07171;--ln:#8fb4f5;--sh:none;color-scheme:dark}
+*,*:before,*:after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Heebo","Segoe UI",Arial,sans-serif;font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent;
+ padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 20px)}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* כותרת */
+header{background:var(--card);border-bottom:1px solid var(--bd);padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:grid;grid-template-columns:1fr auto;gap:10px 8px;align-items:center}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--pr);color:var(--prt);display:grid;place-items:center;flex:none}
+.brand h1{font-size:18px;margin:0;line-height:1.15;font-weight:800}
+.brand small{display:block;color:var(--mu);font-size:12.5px;font-weight:500}
+.hact{display:flex;gap:6px}
+#sel{grid-column:1/-1;order:3;font-weight:600}
+
+/* ניווט – בטלפון בתחתית המסך, בהישג האגודל */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:var(--card);border-top:1px solid var(--bd);padding:0 8px env(safe-area-inset-bottom,0px);box-shadow:0 -4px 18px rgba(20,40,80,.07)}
+.tabs button{flex:1;flex-direction:column;gap:2px;height:var(--nav);min-height:0;border:0;border-radius:0;background:none;color:var(--mu);font-size:12.5px;font-weight:600;padding:0;position:relative}
+.tabs button .ic{display:grid;place-items:center;width:56px;height:30px;border-radius:15px;transition:background .2s}
+.tabs button.on{color:var(--pr)}.tabs button.on .ic{background:var(--prs)}
+main{padding:16px;max-width:1100px;margin:0 auto}
+
+/* כרטיסים */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.card h2{font-size:16px;margin:0 0 14px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card h2 small{font-weight:500;color:var(--mu);font-size:13px}
+.hintx{color:var(--mu);font-size:13px;margin-top:8px}.hintx:empty{display:none}
+
+/* שדות */
+select,input,textarea,button{font:inherit;color:var(--tx)}
+input:not([type=checkbox]):not([type=range]):not([type=file]),select,textarea{display:block;width:100%;background:var(--card);border:1.5px solid var(--bd2);border-radius:10px;padding:10px 12px;min-height:48px;font-size:16px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--pr)!important;box-shadow:0 0 0 3px var(--prs)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%2364718a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:34px!important;cursor:pointer}
+textarea{min-height:96px;resize:vertical;line-height:1.5}
+input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=date]{min-width:0}
+input::placeholder,textarea::placeholder{color:var(--mu);opacity:.75}
+input[type=range]{width:100%;accent-color:var(--pr);margin:8px 0 0;height:28px}
+label{display:block;font-size:13px;font-weight:600;color:var(--mu)}
+label>input,label>select,label>textarea{margin-top:6px}
+.g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}
+.g .w{grid-column:1/-1}
+
+/* כפתורים */
+button,label.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border-radius:10px;border:1.5px solid var(--bd2);background:var(--card);color:var(--tx);font-weight:600;font-size:15px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,transform .06s;user-select:none}
+button:active,label.btn:active{transform:scale(.97)}
+button.p{background:var(--pr);border-color:var(--pr);color:var(--prt)}
+button.dng{color:var(--badb);background:var(--bad);border-color:transparent}
+:focus-visible{outline:3px solid #ff8a00!important;outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:-1px;padding:0;border:0}
+.skipl{position:absolute;top:-80px;right:8px;z-index:99;background:var(--pr);color:var(--prt);padding:10px 14px;border-radius:10px;font-weight:700}.skipl:focus{top:8px}
+.selrow{grid-column:1/-1;order:3;display:flex;gap:6px;min-width:0}.selrow #sel{flex:1;min-width:0;order:0!important;grid-column:auto!important;max-width:none!important}
+.selrow button.ic2{padding:0;width:48px;min-height:48px;font-size:18px;flex:none}
+@media (min-width:900px){.selrow{grid-column:auto;order:0;max-width:480px;justify-self:end;width:100%}}
+.toast{position:fixed;left:12px;right:12px;bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 12px);margin:auto;max-width:520px;background:#142033;color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:200;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none}
+.toast.show{opacity:1;transform:none}.toast.ok{background:#1d6b3a}.toast.bad{background:#a51d1d}
+@media (min-width:900px){.toast{bottom:20px}}
+@media (prefers-reduced-motion:reduce){.toast,.tabs button .ic,label.ck input,label.ck input:before{transition:none}}
+dialog{width:min(calc(100vw - 16px),900px);max-height:calc(100dvh - 16px);padding:0;border:0;border-radius:16px;background:var(--card);color:var(--tx);overflow:hidden}
+dialog[open]{display:flex;flex-direction:column}dialog::backdrop{background:rgba(10,15,25,.6)}
+.dh{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--bd)}.dh h2{margin:0;font-size:17px;flex:1}
+.db{padding:12px;overflow:auto;flex:1;background:var(--bg)}
+.df{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--bd);padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}.df button{flex:1 1 140px}
+#pvd{width:min(calc(100vw - 16px),1100px);height:calc(100dvh - 16px)}
+.pvt{display:flex;align-items:center;gap:6px;padding:6px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}.pvt button{width:44px;padding:0;font-size:18px}.pvt .gap{flex:1}
+.pvt output{min-width:92px;text-align:center;font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}.pvt #pvzl{min-width:58px;color:var(--mu)}
+.pvt output{white-space:nowrap}@media (max-width:400px){.pvt #pvzl{display:none}}
+@media (max-width:480px){.pvt{flex-wrap:nowrap;gap:2px;padding:6px 8px}.pvt button{width:40px}.pvt output{min-width:0;font-size:13px;padding:0 2px}.pvt #pvzl{min-width:0}}
+.pv{container-type:size;scroll-behavior:smooth;padding:16px 12px}
+.pv figure{margin:0 auto 18px;width:100%;scroll-margin-top:12px}.pv[data-z=fit] figure{width:min(100%,calc((100cqh - 34px) * .7071))}
+.pv svg{display:block;width:100%;height:auto;background:#fff;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 6px 18px rgba(0,0,0,.14)}.pv figcaption{text-align:center;font-size:12.5px;color:var(--mu);margin-top:6px}
+.pv .ld{display:grid;place-items:center;height:100%;color:var(--mu);font-weight:600}
+@media (prefers-reduced-motion:reduce){.pv{scroll-behavior:auto}}
+.pv [data-sig]{cursor:pointer}.pv [data-sig]:hover rect{stroke:var(--pr);stroke-width:2}
+/* חתימת לקוח – כרטיס במסך השליחה + משטח חתימה במסך מלא */
+.sigbox{display:flex;align-items:center;justify-content:center;width:100%;height:120px;margin-top:10px;border:2px dashed var(--bd2);border-radius:12px;background:#fff;color:#7a8597;font-weight:600;cursor:pointer;padding:6px}
+.sigbox.on{border-style:solid;border-color:var(--bd)}.sigbox img{max-width:100%;max-height:100%;object-fit:contain}
+.sigmeta{display:flex;gap:8px;align-items:center;margin-top:8px;color:var(--mu);font-size:13px}.sigmeta span{flex:1}
+#sigd{inset:0;margin:0;width:auto;height:auto;max-width:none;max-height:none;border-radius:0}
+#sigd .db{display:flex;flex-direction:column;gap:10px;padding:12px}
+.sigpad{position:relative;flex:1;min-height:180px;background:#fff;border:1.5px solid var(--bd2);border-radius:12px;overflow:hidden;touch-action:none}
+.sigpad canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.sigpad .bl{position:absolute;left:6%;right:6%;bottom:26%;border-bottom:1.5px solid #c6cfdc;pointer-events:none}
+.sigpad .bl:after{content:'✕';position:absolute;right:0;bottom:4px;color:#9aa6b8;font-size:18px}
+.sigpad .ph{position:absolute;inset:0;display:grid;place-items:center;color:#a0aaba;font-size:18px;font-weight:600;pointer-events:none}
+@media (hover:hover){button:hover,label.btn:hover{border-color:var(--pr)}button.p:hover{background:var(--prh);border-color:var(--prh)}.tabs button:hover{color:var(--pr)}}
+
+/* מתגים */
+.tgs{display:grid;gap:8px;margin-top:16px}
+label.ck{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;min-height:52px;border:1.5px solid var(--bd);border-radius:12px;background:var(--soft);color:var(--tx);font-size:15px;cursor:pointer}
+label.ck input{-webkit-appearance:none;appearance:none;width:48px;height:28px;border-radius:14px;background:var(--bd2);border:0;margin:0;position:relative;flex:none;cursor:pointer;transition:background .2s}
+label.ck input:before{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+label.ck input:checked{background:var(--okb)}label.ck input:checked:before{transform:translateX(-20px)}
+
+/* סקיצה */
+.skbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+#skzl{margin-bottom:12px}
+.skw{display:flex;gap:12px;align-items:flex-start}.skw canvas{flex:1;min-width:0}
+.skbar button.on{background:var(--pr);color:var(--prt);border-color:var(--pr)}
+.cmpr{display:inline-flex}.cmpr button{width:44px;padding:0;font-size:19px}.cmpr button:first-child{border-radius:0 10px 10px 0}.cmpr button:last-child{border-radius:10px 0 0 10px;margin-right:-1.5px}
+/* מסך מלא לסקיצה: רק הציור + סרגל כלים דק בכל צד; בטלפון עומד המסך מסובב (כשאין נעילת כיוון) */
+html.skfs,html.skfs body{overflow:hidden}
+.rail,.fly{display:none}
+#skc.fs{position:fixed;inset:0;z-index:60;margin:0;padding:0;border:0;border-radius:0;background:var(--bg)}
+#skc.fs>h2,#skc.fs .skbar,#skc.fs #skzl,#skc.fs .tools,#skc.fs .hintx{display:none!important}
+#skc.fs .skin{position:absolute;inset:0;display:flex;align-items:center;gap:6px;padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+#skc.fs.rot .skin{inset:auto;top:0;left:100%;width:100vh;width:100dvh;height:100vw;transform-origin:0 0;transform:rotate(90deg)}
+#skc.fs .skw{flex:1;align-self:stretch;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+#skc.fs .skw canvas{flex:none;margin:0;border:0;border-radius:8px;box-shadow:0 2px 16px rgba(20,40,80,.16)}
+#skc.fs .rail{display:flex;flex-direction:column;gap:4px;flex:none;max-height:100%;overflow-y:auto;scrollbar-width:none;padding:5px;background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh)}
+#skc.fs .r1{order:-1}#skc.fs .r2{order:2}
+.rail button,.fly button{width:40px;height:40px;min-height:0;padding:0;font-size:17px;line-height:1;border-radius:10px;flex:none}
+.rail button.on,.fly button.on:not(.sw){background:var(--pr);color:var(--prt);border-color:var(--pr)}
+.rail .x{background:var(--tx);color:var(--card);border-color:var(--tx);font-size:18px}
+.rail .sep{height:1px;background:var(--bd);margin:2px 4px;flex:none}
+.rail i,.fly i{display:block;margin:auto;border-radius:50%;background:currentColor}#rcol i{width:22px;height:22px;box-shadow:0 0 0 2px var(--card),0 0 0 3px var(--bd2)}
+#skc.fs .fly:not([hidden]){display:flex;position:absolute;z-index:2;gap:6px;padding:6px;background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:0 6px 24px rgba(20,40,80,.22)}
+.fly .sw{border:2px solid var(--card);box-shadow:0 0 0 1px var(--bd2)}.fly .sw.on{box-shadow:0 0 0 3px var(--pr)}
+canvas{display:block;width:100%;height:auto;border:1.5px dashed var(--bd2);border-radius:12px;touch-action:none;background:#fff}
+.tools{display:grid;grid-template-columns:repeat(3,40px);gap:6px;flex:none;padding:8px;background:var(--soft);border:1px solid var(--bd);border-radius:12px}
+.tools button{width:40px;height:40px;min-height:0;padding:0;font-size:17px;line-height:1;border-radius:9px}
+.tools button.on{background:var(--pr);color:var(--prt);border-color:var(--pr)}.tools .sw{border:2px solid var(--card);box-shadow:0 0 0 1px var(--bd2)}.tools .sw.on{box-shadow:0 0 0 3px var(--pr)}
+.tools .sep{grid-column:1/-1;height:1px;background:var(--bd)}
+
+/* מדידות */
+.shafts{position:sticky;top:0;z-index:15;display:flex;gap:8px;overflow-x:auto;padding:10px 16px;margin:-16px -16px 14px;background:var(--bg);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.shafts::-webkit-scrollbar{display:none}
+.shafts button{border-radius:999px;min-height:40px;padding:0 16px;flex:none}
+.shafts button.on{background:var(--pr);color:var(--prt);border-color:var(--pr)}
+.shafts #addS{border-style:dashed;color:var(--pr)}
+.mlay{display:grid;gap:14px}
+.mside>.card:last-child{margin-bottom:0}
+.shh{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.shh .sname{flex:1;min-width:0}
+.sname{font-size:20px!important;font-weight:800}
+.ib{min-height:48px;padding:0 12px;font-size:14px;gap:5px;flex:none}.ib svg.i{width:18px;height:18px}
+.secs{margin-top:14px;border:1px solid var(--bd);border-radius:12px;background:var(--soft);overflow:hidden}
+details.sec{background:none}details.sec+details.sec{border-top:1px solid var(--bd)}
+details.sec>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:10px 14px;min-height:50px;cursor:pointer;font-weight:700;font-size:15px}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary .hint{flex:1;min-width:0;color:var(--mu);font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+details.sec>summary:after{content:"";width:8px;height:8px;border:solid var(--mu);border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-4px;flex:none;transition:transform .2s}
+details.sec[open]>summary:after{transform:rotate(-135deg);margin-top:4px}
+details.sec>.pad{padding:4px 14px 14px}
+.cvs{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--mu);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px}.cvs:empty{display:none}
+.cnt{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--wnb);color:#fff;font-size:12.5px;font-weight:700}.cnt:empty{display:none}.cnt.b{background:var(--badb)}
+#fix{display:grid;gap:6px}
+.fix{padding:8px 12px;border-radius:10px;font-size:13.5px;background:var(--soft);border:1px solid var(--bd)}
+.fix.warn{background:var(--wn);border-color:transparent;border-inline-start:4px solid var(--wnb)}
+.fix.bad{background:var(--bad);border-color:transparent;border-inline-start:4px solid var(--badb)}
+.fix.okk{background:var(--ok);border-color:transparent;border-inline-start:4px solid var(--okb)}
+.allok{display:inline-flex;align-items:center;gap:6px;color:var(--okb);background:var(--ok);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px}
+.flh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 4px 10px}
+.flh h2{font-size:16px;margin:0;font-weight:700}.flh span{font-size:13px;color:var(--mu);font-weight:600}
+.grid{display:grid;gap:10px}
+.cell{position:relative;border:1px solid var(--bd);border-inline-start:5px solid var(--bd2);border-radius:14px;padding:10px 12px;background:var(--card);display:flex;flex-direction:column;gap:10px;box-shadow:var(--sh);transition:border-color .2s,background .2s}
+.cell.ok{border-inline-start-color:var(--okb)}.cell.warn{border-color:var(--wnb);background:var(--wn)}.cell.bad{border-color:var(--badb);background:var(--bad)}
+.cell.mk{box-shadow:0 0 0 3px var(--mk)}
+.ctop{display:flex;gap:6px;align-items:center}
+.fln{width:48px;height:44px;flex:none;border-radius:10px;background:var(--soft);color:var(--tx);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.fln small{font-size:10px;font-weight:600;color:var(--mu);margin-bottom:3px}.fln b{font-size:19px;font-weight:800}
+.cell.ok .fln{background:var(--ok);color:var(--okb)}.cell.warn .fln{background:var(--card);color:var(--wnb)}.cell.bad .fln{background:var(--card);color:var(--badb)}
+.ctop .shp{flex:1;min-width:0;min-height:40px;font-size:14px;padding:4px 10px 4px 30px;background-position:left 10px center;font-weight:600}
+.cell .x{min-height:40px;padding:0 10px;font-size:13px;color:var(--mu);border-radius:9px}
+.cell.skip .x.skp{background:var(--badb);border-color:var(--badb);color:#fff}
+.cell.mk .x.mkb{background:var(--mk);border-color:var(--mk);color:#fff}
+.cbody{display:flex;gap:10px;align-items:center}
+.sv svg{width:54px;height:58px;flex:none;display:block}
+.ins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;flex:1;min-width:0}
+.fi{font-size:11.5px;text-align:center}
+.fi input{text-align:center;font-size:18px!important;font-weight:700;padding:6px 4px!important;min-height:44px!important;margin-top:3px}
+.cfoot{display:flex;gap:8px;align-items:center}
+.cfoot .nt{flex:1;min-width:0;min-height:40px!important;font-size:14px!important;padding:6px 12px!important;background:var(--soft);border-color:var(--bd)}
+.phv{flex:none;font-size:13px;font-weight:700;color:var(--okb);background:var(--ok);border-radius:999px;padding:6px 12px;white-space:nowrap}.phv:empty{display:none}
+.cell .x.angb.on{background:var(--prs);border-color:var(--pr);color:var(--pr)}
+.angr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.angr .fi input{font-size:16px!important;min-height:40px!important}
+.angr .angh{grid-column:1/-1;font-size:12px;color:var(--mu)}
+.cell.skip .cbody,.cell.skip .phv,.cell.skip .shp,.cell.skip .mkb,.cell.skip .angb,.cell.skip .angr{opacity:.3;pointer-events:none}
+.cell.skip{background:var(--soft);border-style:dashed}
+
+/* סיכום */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--soft);border:1px solid var(--bd);border-radius:12px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:24px;font-weight:800;line-height:1.2}.stat span{font-size:12px;color:var(--mu);font-weight:600}
+.stat.w b{color:var(--wnb)}.stat.b b{color:var(--badb)}
+.banner{padding:12px 14px;border-radius:12px;font-weight:700;margin-bottom:12px}
+.banner.ok{background:var(--ok);color:var(--okb)}.banner.warn{background:var(--wn)}.banner.bad{background:var(--bad);color:var(--badb)}
+.tblw{overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border-bottom:1px solid var(--bd);padding:10px 8px;text-align:center}
+th{background:var(--soft);font-size:12.5px;color:var(--mu);font-weight:700}tr:last-child td{border-bottom:0}td:first-child{font-weight:700;text-align:right}
+.sendacts{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sendacts button{min-height:52px}.sendacts .wide{grid-column:1/-1}
+#ms{display:block;font-weight:600;color:var(--okb);font-size:14px;margin-top:10px}#ms:empty{display:none}
+#tx{min-height:240px;font-size:14px}
+.att{display:flex;gap:10px;align-items:center;border-top:1px solid var(--bd);padding:10px 0}
+.att .th{width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--soft);border-radius:10px;overflow:hidden}
+.att .th img{width:100%;height:100%;object-fit:cover}.att a{color:var(--pr);word-break:break-all;font-weight:600}.att .sz{font-size:12px;color:var(--mu)}
+.att input{min-height:40px!important;margin-top:4px;padding:6px 10px!important;font-size:14px!important}.att button{width:44px;padding:0;flex:none}
+#atl{margin-top:8px}
+
+@media (max-width:700px){
+ .skw{flex-direction:column;align-items:stretch}
+ .tools{display:flex;flex-wrap:wrap;justify-content:center}
+ .tools button{width:42px;height:42px;flex:none}.tools .sep{width:1px;height:26px;align-self:center;flex:none;margin:0 2px}
+}
+@media (min-width:700px){
+ .g{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}.g .w{grid-column:span 2}.g .full{grid-column:1/-1}
+ .tgs{grid-template-columns:repeat(3,1fr)}
+ .ins{grid-template-columns:repeat(auto-fill,minmax(90px,130px))}
+ .ctop .shp{flex:0 1 220px}.ctop .skp{margin-inline-start:auto}
+ .sendacts{grid-template-columns:repeat(4,1fr)}.sendacts .wide{grid-column:auto}
+}
+@media (min-width:900px){
+ body{padding-bottom:32px}
+ header{grid-template-columns:auto 1fr auto;padding:14px 24px}#sel{grid-column:auto;order:0;max-width:380px;justify-self:end}
+ .tabs{position:sticky;top:0;bottom:auto;justify-content:center;box-shadow:none;border-top:0;border-bottom:1px solid var(--bd);padding:0 24px}
+ .tabs button{flex:0 0 auto;flex-direction:row;gap:6px;height:54px;padding:0 20px;font-size:15px}
+ .tabs button .ic{width:auto;height:auto;background:none!important}
+ .tabs button.on:after{content:"";position:absolute;bottom:0;left:12px;right:12px;height:3px;border-radius:3px 3px 0 0;background:var(--pr)}
+ main{padding:20px 24px}
+ .shafts{top:55px;margin:-20px -24px 16px;padding:10px 24px}
+ /* מדידות: הגדרות הפיר בעמודה צדדית נעוצה, הקומות לידה */
+ .mlay{grid-template-columns:380px minmax(0,1fr);align-items:start;gap:20px}
+ .mside{position:sticky;top:122px;max-height:calc(100vh - 136px);overflow-y:auto;scrollbar-width:thin;border-radius:16px}
+ .mside .g{grid-template-columns:repeat(2,minmax(0,1fr))}.mside .g .w{grid-column:1/-1}
+}
+#pr{display:none}[hidden]{display:none!important}
+@page{size:A4;margin:0} /* דף A4 בלי שוליים – כל SVG ממלא דף אחד בדיוק */
+@media print{html,body{margin:0;padding:0;background:#fff}body>*:not(#pr){display:none!important}#pr{display:block;color:#000;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}#pr svg{width:210mm;height:296.5mm;display:block;break-after:page;page-break-after:always;break-inside:avoid}#pr svg:last-child{break-after:auto;page-break-after:auto}}
+</style>
+</head>
+<body>
+<a class="skipl" href="#main">דלג לתוכן</a>
+<header>
+<div class="brand"><span class="logo"><svg class="i" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/></svg></span>
+<div><h1>מדידת מסתורים</h1><small>טופס מדידה דיגיטלי</small></div></div>
+<div class="selrow"><select id="sel" aria-label="בחירת פרויקט"></select><button id="imp" class="ic2" aria-label="ייבוא PDF שיוצא מהאפליקציה, לעריכה" title="ייבוא PDF לעריכה"><span aria-hidden="true">📂</span></button><button id="delp" class="ic2 dng" aria-label="מחיקת הפרויקט הנוכחי" title="מחיקת הפרויקט"><span aria-hidden="true">🗑</span></button></div>
+<div class="hact"><button id="demo">דוגמה</button><button class="p" id="newp">+ חדש</button></div>
+<input type="file" id="pdff" accept="application/pdf,.pdf" hidden>
+</header>
+<nav class="tabs" role="tablist" aria-label="מסכים">
+<button data-t="d" class="on"><span class="ic"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M9 12h6M9 16h4"/></svg></span>פרטים</button>
+<button data-t="m"><span class="ic"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/><path d="M3 9h7M3 15h7M14 8.5h7"/></svg></span>מדידות</button>
+<button data-t="s"><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></span>סיכום ושליחה</button>
+</nav>
+<noscript><div class="card" style="margin:16px;border-color:var(--badb);background:var(--bad)"><h2>האפליקציה נפתחה בתצוגה מקדימה ולכן לא פועלת</h2>וואטסאפ ותיקיית הקבצים מציגים קובץ HTML בלי להפעיל אותו. שמרו את הקובץ בטלפון ופתחו אותו בדפדפן: ⋮ ← "פתח באמצעות" ← Chrome (או Samsung Internet). אם אין אפשרות כזו בטלפון – אפשר לפתוח את האפליקציה גם בקישור:<br><a href="https://claude.ai/artifact/UtZV4CAugvTHpmJazBAgvi" style="color:var(--pr);font-weight:700;word-break:break-all">https://claude.ai/artifact/UtZV4CAugvTHpmJazBAgvi</a></div></noscript>
+<main id="main" tabindex="-1" style="outline:none">
+<section id="t-d" role="tabpanel" aria-labelledby="tab-d"></section>
+<section id="t-m" role="tabpanel" aria-labelledby="tab-m" hidden></section>
+<section id="t-s" role="tabpanel" aria-labelledby="tab-s" hidden></section>
+</main>
+<div id="pr" aria-hidden="true"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<dialog id="pvd" aria-labelledby="pvd-t">
+ <div class="dh"><h2 id="pvd-t">תצוגה מקדימה של הדוח</h2><button id="pvx" style="width:44px;padding:0" aria-label="סגירת התצוגה המקדימה">✕</button></div>
+ <div class="pvt" role="toolbar" aria-label="ניווט ותצוגה">
+  <button id="pvprev" aria-label="העמוד הקודם" title="העמוד הקודם">›</button><output id="pvn" aria-live="polite">–</output><button id="pvnext" aria-label="העמוד הבא" title="העמוד הבא">‹</button>
+  <span class="gap"></span>
+  <button id="pvzo" aria-label="הקטנה" title="הקטנה">−</button><output id="pvzl">דף שלם</output><button id="pvzi" aria-label="הגדלה" title="הגדלה">+</button>
+ </div>
+ <div class="db pv" id="pvb" data-z="fit" tabindex="0" aria-label="עמודי הדוח"></div>
+ <div class="df"><button class="p" id="pvpdf">⬇ הורדת PDF</button><button id="pvc">סגירה ועריכה</button></div>
+</dialog>
+<dialog id="sigd" aria-labelledby="sigd-t">
+ <div class="dh"><h2 id="sigd-t">חתימת הלקוח</h2><button id="sigx" style="width:44px;padding:0" aria-label="סגירה בלי לשמור">✕</button></div>
+ <div class="db"><label>שם החותם (לא חובה)<input id="sign" autocomplete="name" placeholder="שם הלקוח"></label>
+  <div class="sigpad" id="sigpad"><div class="bl"></div><div class="ph" id="sigph">חתמו כאן באצבע או בעכבר</div><canvas id="sigc" aria-label="משטח חתימה"></canvas></div></div>
+ <div class="df"><button class="p" id="sigok">✓ שמירת החתימה</button><button id="sigclr">נקה</button><button id="sigcn">ביטול</button></div>
+</dialog>
+<div id="jserr" class="card" hidden style="margin:16px;border-color:var(--badb);background:var(--bad);white-space:pre-wrap;word-break:break-word"></div>
+<script>/* דיווח תקלה על המסך – בטלפון אין קונסול; צלמו את ההודעה ושלחו */
+window.addEventListener('error',function(e){var b=document.getElementById('jserr');if(!b)return;b.hidden=false;b.textContent='⚠️ תקלה באפליקציה (צלמו מסך ושלחו):\n'+(e.message||e)+(e.lineno?' · שורה '+e.lineno:'')+'\n'+navigator.userAgent});
+window.addEventListener('unhandledrejection',function(e){var b=document.getElementById('jserr');if(!b)return;b.hidden=false;b.textContent='⚠️ תקלה באפליקציה (צלמו מסך ושלחו):\n'+((e.reason&&e.reason.message)||e.reason)+'\n'+navigator.userAgent});</script>
+<dialog id="ask" aria-labelledby="ask-t" aria-describedby="ask-m">
+ <div class="dh"><h2 id="ask-t"></h2></div>
+ <div class="db"><p id="ask-m" style="margin:0;white-space:pre-line"></p></div>
+ <div class="df" id="ask-b"></div>
+</dialog>
+<script>
+const TYPES={s:{n:'מסתורים ישרים',a:'ישר',f:['h','w']},u:{n:'ח – שלוש צלעות',a:'ח',f:['h','f','r','l']},rr:{n:'ר – חזית + צד ימין',a:'ר ימין',f:['h','f','r']},rl:{n:'ר הפוך – חזית + צד שמאל',a:'ר שמאל',f:['h','f','l']}};
+const RUNS=['','רציף','בודד']; // רציף = רץ לאורך כל הבניין; הגדרה נפרדת מצורת הפיר
+const LAB={h:'גובה',w:'רוחב',f:'חזית',r:'ימין',l:'שמאל',p:'פודסט'};
+// מיקום המסתור ביחס לפודסט (לפי פרטי ALUKAL): h = פתח נטו בין פודסטים, k = איזה חלק מעובי הפודסט המסתור מכסה
+const COV={stop:{n:'מפסיק פודסט – בתוך הפתח',a:'מפסיק פודסט',k:0,f:'מסתור = פתח'},half:{n:'מכסה חצי עובי פודסט',a:'חצי פודסט',k:.5,f:'מסתור = פתח + ½ פודסט'},
+ full:{n:'מכסה פודסט – מבחוץ',a:'מכסה פודסט',k:1,f:'מסתור = פתח + פודסט'},out:{n:'מבחוץ – רציף לכל הגובה',a:'מבחוץ רציף',k:1,f:'מסתור = פתח + פודסט · רציף = גובה כולל − מרווח עליון'}};
+const cvk=S=>S.cov??cur.cov??'',pT=S=>S.pt||cur.pt||'';
+const FF=(S,c)=>{const F=TYPES[ty(S,c)].f,k=cvk(S);return k&&COV[k].k?[...F,'p']:F}; // שדות הקומה: עם עובי פודסט כשהמסתור מכסה אותו
+const lb=(S,k)=>k=='h'&&cvk(S)?'פתח':LAB[k];
+// זווית סגירה: מסתירה את הפרופילים מהחלון השכן. רוחב (ס״מ) לכל צד; בפיר = ברירת מחדל, בקומה = דורס (0 = בלי)
+const ANG=[['t','למעלה'],['b','למטה'],['r','ימין'],['l','שמאל']];
+const angOf=(S,c)=>{const a={},s=S.ang||{},f=(c&&c.ang)||{};ANG.forEach(([k])=>{const v=has(f[k])?+f[k]:+s[k]||0;if(v>0)a[k]=v});return a};
+const angOwn=c=>!!c.ang&&ANG.some(([k])=>has(c.ang[k]));
+const angL=a=>ANG.filter(([k])=>a[k]).map(([k,l])=>l+' '+a[k]);
+const angRows=(a,p)=>{const x=angL(a);if(!x.length)return[];const r=['זווית: '+x.slice(0,2).join(' · ')];if(x.length>2)r.push(x.slice(2).join(' · '));if(p)r.push(p);return r}; // שורות קצרות לסרטוט (עמודה צרה)
+const angT=(a,p)=>{const x=angL(a);return x.length?'זווית סגירה: '+x.join(' · ')+(p?' ('+p+')':''):''};
+function ph(S,c0){const k=cvk(S),c=eh(S,c0),e=v=>v===''||v==null;if(!k||e(c.h))return null; // גובה מסתור מחושב
+ const q=COV[k].k;if(q&&e(c.p))return null;return Math.round((+c.h+q*(+c.p||0))*10)/10}
+function covSvg(k){if(!COV[k])return''; // חתך: קיר, פודסט עליון ותחתון, המסתור בכחול
+ const R='fill="#d62f2f" fill-opacity=".22" stroke="#d62f2f" stroke-width="1.5"',x=k=='stop'?47:61,[a,b]={stop:[22,70],half:[22,76],full:[22,82],out:[14,94]}[k];
+ return`<svg viewBox="0 0 80 96" width="60" height="72" style="flex:none"><rect x="4" y="2" width="6" height="92" ${R}/><rect x="10" y="10" width="44" height="12" ${R}/><rect x="10" y="70" width="44" height="12" ${R}/>
+ <line x1="${x}" y1="${a}" x2="${x}" y2="${b}" stroke="var(--ln)" stroke-width="4" stroke-linecap="round"/>${[0,1,2,3,4,5].map(i=>`<line x1="${x}" x2="${x+(k=='stop'?-6:6)}" y1="${a+4+i*(b-a-8)/5}" y2="${a+i*(b-a-8)/5}" stroke="var(--ln)" stroke-width="1.5"/>`).join('')}</svg>`}
+const MODES=['','ישב מלא','1/2 גובה','באוויר','פנים-חוץ'],DIRS=['','צפונית','דרומית','מזרחית','מערבית'];
+const HF=[['code','מק״ט פרויקט'],['company','שם חברה'],['site','אתר'],['addr','כתובת אתר'],['pm','מנהל פרויקט באתר + טלפון'],['wk','מנהל עבודה + טלפון'],['surveyor','מודד'],['form','מס׳ טופס מדידה'],['due','תאריך מסירה לתכנון','date'],['next','צפי למדידה נוספת','date'],['date','תאריך מדידה','date'],['ral','גוון (RAL)'],['gap','מרווח אור'],['model','דגם מסתור'],['shade','הצללה']];
+const HG_W=['company','site','addr','pm','wk']; // שדות ארוכים – שורה מלאה בטלפון
+const NOTES=[['plan','הנחיות לתכנון'],['prod','הנחיות לייצור'],['integ','הנחיות לאינטגרציה'],['inst','הנחיות להתקנה'],['gen','הערות כלליות']];
+const WTOL=3,HTOL=25; // סטייה מותרת (ס״מ): רוחב מול חציון הפיר, גובה מול קומות סמוכות
+let DB=[],cur=null,shaft=0,tab='d',saveT;
+const $=s=>document.querySelector(s);
+const med=a=>{a=a.slice().sort((x,y)=>x-y);return a.length?(a[(a.length-1)>>1]+a[a.length>>1])/2:null};
+const ty=(S,c)=>(c&&c.t)||S.t||cur.type;
+const rn=S=>S.run||cur.run||'';
+const eh=(S,c)=>{const e=v=>v===''||v==null;if(e(c.h)&&S.fh)c={...c,h:S.fh};if(e(c.p)&&pT(S))c={...c,p:pT(S)};return c}; // גובה קבוע / עובי פודסט של הפיר – חלים על כל קומה שלא הוזן בה ערך משלה
+const own=(c,F)=>F.some(k=>c[k]!==''&&c[k]!=null); // האם הוזן בקומה ערך כלשהו (לא כולל גובה קבוע)
+function tot(S){if(!S.th)return null; // גובה כולל לפיר (מדידת לייזר) בטווח קומות, מול סכום גובהי הקומות
+ const a=S.tb??cur.bot,b=S.tt??cur.top,ns=fl().filter(n=>n>=Math.min(a,b)&&n<=Math.max(a,b)),hs=ns.map(n=>{const c=S.fl[n]||{};return c.skip?null:+eh(S,c).h||null});
+ const sum=hs.reduce((x,v)=>x+(v||0),0),miss=hs.filter(v=>v==null).length;
+ return{a:Math.min(a,b),b:Math.max(a,b),n:ns.length,avg:ns.length?Math.round(S.th/ns.length*10)/10:null,sum,miss,d:miss?null:sum-S.th}}
+const totT=S=>{const T=tot(S);return T?`גובה כולל ${S.th} (קומות ${T.a}–${T.b})`:''};
+function load(){try{DB=JSON.parse(localStorage.getItem('mdd1')||'[]')}catch(e){DB=[]}
+ DB.forEach(p=>{if(p.type=='c'){p.type='s';p.run=p.run||'רציף'} // המרה: 'רציף' היה בעבר סוג פיר
+  (p.shafts||[]).forEach(S=>{if(S.t=='c'){S.t='s';S.run=S.run||'רציף'}
+   if(S.mode=='מכסה פודסט'){S.mode='';if(S.cov==null)S.cov='full'}/* המרה: 'מכסה פודסט' עבר משדה "ציון חשוב" לשדה "פודסט" */Object.values(S.fl||{}).forEach(c=>{if(c.t=='c')c.t='s'})})});
+ DB=Array.isArray(DB)?DB.filter(p=>p&&typeof p=='object'&&Array.isArray(p.shafts)):[]; // נתונים פגומים לא מפילים את האפליקציה
+ DB.forEach(p=>{p.h=p.h||{};p.n=p.n||{};if(!TYPES[p.type])p.type='s';if(!Number.isFinite(+p.top))p.top=9;if(!Number.isFinite(+p.bot))p.bot=1;p.top=+p.top;p.bot=+p.bot;if(p.top<p.bot)[p.top,p.bot]=[p.bot,p.top];if(!p.shafts.length)p.shafts.push({name:'פיר 1',fl:{}});p.shafts.forEach(S=>S.fl=S.fl||{})});
+ if(!DB.length)DB.push(newP());cur=DB[0]}
+/* קבצים (תמונות ומסמכים) נשמרים ב-IndexedDB – localStorage קטן מדי בשבילם */
+const IDB=(()=>{let p;const db=()=>p||(p=new Promise((ok,no)=>{const r=indexedDB.open('mdd1-files',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}));
+ const tx=(m,f)=>db().then(d=>new Promise((ok,no)=>{const t=d.transaction('f',m),q=f(t.objectStore('f'));t.oncomplete=()=>ok(q.result);t.onerror=()=>no(t.error)}));
+ return{get:k=>tx('readonly',s=>s.get(k)),put:(k,v)=>tx('readwrite',s=>s.put(v,k)),del:k=>tx('readwrite',s=>s.delete(k))}})();
+const b2u=b=>new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(b)});
+const b2img=b=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=URL.createObjectURL(b)});
+async function shrink(f,max,q){const im=await b2img(f),k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas'); // הקטנת תמונות מהטלפון
+ c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(im.src);
+ return new Promise(ok=>c.toBlob(ok,'image/jpeg',q))}
+const fsz=n=>n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+let SKO='',skCache={},shareFiles=[]; // SKO = הסקיצה המורכבת (תמונה + ציור) לפלטים
+let lastPdf=null;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const has=v=>v!==''&&v!=null;
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)}; // תאריך מקומי (לא UTC)
+const fmtD=v=>/^\d{4}-\d\d-\d\d$/.test(v||'')?v.slice(8,10)+'/'+v.slice(5,7)+'/'+v.slice(0,4):(v||'');
+const pname=p=>(p.h.code||'פרויקט חדש')+(p.h.company?' – '+p.h.company:'');
+const fids=p=>[p.skImg&&p.skImg.id,...(p.att||[]).map(x=>x.id)].filter(Boolean); // קבצי IndexedDB של פרויקט
+function flush(){clearTimeout(saveT);saveT=null;try{localStorage.setItem('mdd1',JSON.stringify(DB));return true}catch(e){if(!flush.warned){flush.warned=1;toast('השמירה במכשיר נכשלה – מומלץ להוריד PDF לפני סגירה.','bad')}return false}} // הודעה פעם אחת, לא בכל הקלדה
+function save(){lastPdf=null;clearTimeout(saveT);saveT=setTimeout(flush,300)}
+addEventListener('pagehide',()=>{if(saveT)flush()}); // סגירה מהירה של האפליקציה לא מאבדת את ההקלדה האחרונה
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&saveT)flush()});
+function newP(){return{id:Date.now(),type:'s',top:9,bot:1,h:{date:today()},shafts:[{name:'פיר 1',bld:'',mode:'',fl:{}}],n:{},sketch:'',shapes:[],att:[]}}
+function fl(){const a=[];for(let i=cur.top;i>=cur.bot;i--)a.push(i);return a}
+function selRender(){$('#sel').innerHTML=DB.map((p,i)=>`<option value="${i}">${esc(pname(p)+(p.h.date?' · '+fmtD(p.h.date):''))}</option>`).join('');$('#sel').value=DB.indexOf(cur)}
+function toast(m,k){const t=$('#toast');t.textContent=m;t.className='toast show '+(k||'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',k=='bad'?6500:3500)}
+function ask(title,msg,btns){return new Promise(res=>{const d=$('#ask'); // חלון אישור נגיש עם כמה תשובות
+ if(!d.showModal){res(confirm(title+'\n'+msg)?btns[0][0]:null);return}
+ $('#ask-t').textContent=title;$('#ask-m').textContent=msg;const f=$('#ask-b');f.innerHTML='';
+ btns.forEach(([v,l,cls])=>{const b=document.createElement('button');b.textContent=l;if(cls)b.className=cls;b.onclick=()=>{res(v);d.close()};f.append(b)});
+ d.onclose=()=>res(null);d.showModal()})}
+function askText(title,ph){return new Promise(res=>{const d=$('#ask'); // שדה טקסט בתוך האפליקציה (prompt() חסום בקישור המפורסם)
+ if(!d.showModal){res(prompt(title));return}
+ $('#ask-t').textContent=title;const m=$('#ask-m'),i=document.createElement('input');m.textContent='';i.id='ask-in';i.placeholder=ph||'';i.setAttribute('aria-label',title);m.append(i);
+ const f=$('#ask-b'),ok=document.createElement('button'),cn=document.createElement('button');let v=null;f.innerHTML='';
+ ok.className='p';ok.textContent='הוספה';ok.onclick=()=>{v=i.value;d.close()};cn.textContent='ביטול';cn.onclick=()=>d.close();f.append(ok,cn);
+ i.onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();ok.click()}};d.onclose=()=>res(v);d.showModal();i.focus()})}
+const HOSTED=()=>!!(window.claude&&window.claude.use); // בקישור המפורסם ב-Claude: שמירת קבצים דרך אישור של Claude; הדפסה ושיתוף מערכת חסומים
+$('#sel').onchange=e=>{flush();cur=DB[e.target.value];shaft=0;all()};
+$('#demo').onclick=()=>{cur=sample();DB.unshift(cur);shaft=0;flush();selRender();setTab('s');all();toast('נטען פרויקט דוגמה','ok')};
+$('#newp').onclick=()=>{cur=newP();DB.unshift(cur);shaft=0;flush();selRender();setTab('d');all();toast('נוצר פרויקט חדש','ok')};
+$('#delp').onclick=async()=>{if(await ask('מחיקת פרויקט','למחוק את "'+pname(cur)+'" מהמכשיר, כולל הקבצים המצורפים?\nלא ניתן לבטל. מומלץ לייצא PDF לפני המחיקה.',[['del','מחק לצמיתות','dng'],[null,'ביטול']])!='del')return;
+ const gone=cur;DB.splice(DB.indexOf(gone),1);const keep=new Set(DB.flatMap(fids));fids(gone).forEach(id=>{if(!keep.has(id))IDB.del(id).catch(()=>{})});
+ if(!DB.length)DB.push(newP());cur=DB[0];shaft=0;flush();setTab('d');all();toast('הפרויקט נמחק')};
+$('#imp').onclick=()=>$('#pdff').click();
+$('#pdff').onchange=e=>{const f=e.target.files[0];e.target.value='';importFile(f)};
+const TABS=['d','m','s'];
+document.querySelectorAll('.tabs button').forEach(b=>{b.id='tab-'+b.dataset.t;b.setAttribute('role','tab');b.setAttribute('aria-controls','t-'+b.dataset.t);b.onclick=()=>setTab(b.dataset.t);
+ b.onkeydown=e=>{let i=TABS.indexOf(tab),j=i;if(e.key=='ArrowLeft')j=i+1;else if(e.key=='ArrowRight')j=i-1;else if(e.key=='Home')j=0;else if(e.key=='End')j=TABS.length-1;else return; // חיצים בין לשוניות (RTL)
+  e.preventDefault();j=(j+TABS.length)%TABS.length;setTab(TABS[j]);$('#tab-'+TABS[j]).focus()}});
+document.addEventListener('keydown',e=>{const l=e.target.closest&&e.target.closest('label.btn');if(l&&(e.key=='Enter'||e.key==' ')){e.preventDefault();l.querySelector('input[type=file]').click()}}); // כפתורי "הוסף קובץ" נגישים במקלדת
+new MutationObserver(()=>document.querySelectorAll('label.btn:not([tabindex])').forEach(l=>{l.tabIndex=0;l.setAttribute('role','button')})).observe(document.body,{childList:true,subtree:true});
+function setTab(t){tab=t;document.querySelectorAll('.tabs button').forEach(b=>{const on=b.dataset.t==t;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1});
+ TABS.forEach(x=>$('#t-'+x).hidden=x!=t);if(t=='s')summary();window.scrollTo(0,0)}
+let OPEN={tx:true},OPENA={}; // אילו קטעים מתקפלים פתוחים – נשמר בין רינדורים; OPENA = שורות זווית פתוחות בקומות
+const keepOpen=el=>el.querySelectorAll('details[data-k]').forEach(d=>{d.open=!!OPEN[d.dataset.k];d.ontoggle=()=>OPEN[d.dataset.k]=d.open});
+function all(){selRender();renderD();renderM();if(tab=='s')summary()}
+
+/* ---------- פרטים ---------- */
+function renderD(){
+ const el=$('#t-d');
+ const hf=k=>{const[,l,tp]=HF.find(x=>x[0]==k);return`<label${HG_W.includes(k)?' class="w"':''}>${l}<input data-h="${k}" type="${tp||'text'}"${k=='form'?' inputmode="numeric"':''}></label>`};
+ el.innerHTML=`<div class="card"><h2>פרטי פרויקט</h2><div class="g">${['code','form','company','site','addr','pm','wk','surveyor'].map(hf).join('')}</div></div>
+ <div class="card"><h2>ברירות מחדל לפירים <small>חלות על כל פיר שלא הוגדר אחרת</small></h2><div class="g">
+ <label>סוג פיר<select id="ty">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
+ <label>רציף / בודד<select id="run">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+ <label class="w">מיקום ביחס לפודסט<select id="cov"><option value=""></option>${Object.entries(COV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
+ <label>עובי פודסט<input id="pt" type="number" inputmode="numeric" placeholder="ס״מ"></label></div></div>
+ <div class="card"><h2>מועדים ומפרט</h2><div class="g">${['date','due','next','ral','gap','model','shade'].map(hf).join('')}</div>
+ <div class="tgs"><label class="ck">מדידה סופית<input type="checkbox" data-h="final"></label>
+ <label class="ck">מעקה טכנאי<input type="checkbox" data-h="rail"></label><label class="ck">הזמנת חומר<input type="checkbox" data-h="order"></label></div></div>
+ <div class="card" id="skc" role="region" aria-label="סקיצת אתר"><h2>סקיצת אתר</h2><div class="skin"><div class="skbar"><button id="fsb" aria-pressed="false"></button>
+ <button id="cmp" aria-pressed="false" title="הצגת חיצי צפון / דרום / מזרח / מערב בשולי הסקיצה">🧭 כיוונים</button><span class="cmpr" id="cmpr"><button id="cmpl" title="סובב את הכיוונים רבע סיבוב נגד כיוון השעון" aria-label="סובב את הכיוונים רבע סיבוב נגד כיוון השעון">↺</button><button id="cmpg" title="סובב את הכיוונים רבע סיבוב עם כיוון השעון" aria-label="סובב את הכיוונים רבע סיבוב עם כיוון השעון">↻</button></span>
+ <label class="btn">📷 הוסף תמונה<input type="file" id="skf" accept="image/*" hidden></label>
+ <button id="und">↶ בטל</button><button id="clr">נקה ציור</button><button id="skr" class="dng">הסר תמונה</button></div>
+ <label id="skzl">גודל תמונה<input type="range" id="skz" min="5" max="400"></label>
+ <div class="skw"><div class="tools" id="tools" role="toolbar" aria-label="כלי ציור">${SKT.map(([k,i,l])=>`<button data-tool="${k}" title="${l}" aria-label="${l}">${i}</button>`).join('')}<span class="sep"></span>
+ ${SKC.map((c,i)=>`<button class="sw" data-col="${c}" style="background:${c}" title="צבע ${SKCN[i]}" aria-label="צבע ${SKCN[i]}"></button>`).join('')}<span class="sep"></span>
+ ${SKW.map((w,i)=>`<button data-w="${w}" title="עובי קו ${['דק','בינוני','עבה'][i]}" aria-label="עובי קו ${['דק','בינוני','עבה'][i]}"><i aria-hidden="true" style="display:block;margin:auto;width:${w*2+2}px;height:${w*2+2}px;border-radius:50%;background:currentColor"></i></button>`).join('')}<span class="sep"></span>
+ <button id="auto" title="יישור וחיבור אוטומטי" aria-label="יישור וחיבור אוטומטי">📐</button></div>
+ <canvas id="cv" width="900" height="400" role="img" aria-label="סקיצת אתר – ציור באצבע או בעכבר" aria-describedby="skmsg"></canvas></div><div id="skmsg" class="hintx" aria-live="polite"></div>
+ <div class="rail r1" role="toolbar" aria-label="כלי ציור"><button class="x" data-p="#fsb" title="יציאה ממסך מלא" aria-label="יציאה ממסך מלא">✕</button><span class="sep"></span>
+ ${SKT.map(([k,i,l])=>`<button data-p="#tools [data-tool=${k}]" title="${l}" aria-label="${l}">${i}</button>`).join('')}</div>
+ <div class="rail r2" role="toolbar" aria-label="צבע, עובי וכיוונים"><button id="rcol" title="צבע" aria-label="בחירת צבע" aria-haspopup="true"><i></i></button><button id="rw" title="עובי קו" aria-label="בחירת עובי קו" aria-haspopup="true"><i></i></button>
+ <button data-p="#auto" title="יישור וחיבור אוטומטי" aria-label="יישור וחיבור אוטומטי">📐</button><button data-p="#und" title="בטל" aria-label="ביטול הפעולה האחרונה">↶</button><span class="sep"></span>
+ <button data-p="#cmp" title="כיווני אוויר" aria-label="הצגת כיווני אוויר">🧭</button><button data-p="#cmpg" title="סובב את הכיוונים" aria-label="סובב את הכיוונים">↻</button></div><div class="fly" id="fly" hidden></div></div></div>
+ <div class="card"><h2>הנחיות והערות</h2><div class="g">${NOTES.map(([k,l])=>`<label class="w">${l}<textarea data-n="${k}"></textarea></label>`).join('')}</div></div>`;
+ $('#ty').value=cur.type;
+ $('#ty').onchange=e=>{cur.type=e.target.value;save();renderM()};
+ $('#run').value=cur.run||'';$('#run').onchange=e=>{cur.run=e.target.value;save();renderM()};
+ $('#cov').value=cur.cov||'';$('#cov').onchange=e=>{cur.cov=e.target.value;save();renderM()};
+ $('#pt').value=cur.pt||'';$('#pt').onchange=e=>{const v=+e.target.value;if(v>0)cur.pt=v;else delete cur.pt;save();renderM()};
+ el.querySelectorAll('[data-h]').forEach(i=>{const k=i.dataset.h;if(i.type=='checkbox'){i.checked=!!cur.h[k];i.onchange=()=>{cur.h[k]=i.checked;save()}}else{i.value=cur.h[k]||'';i.oninput=()=>{cur.h[k]=i.value;save();if(k=='code'||k=='company')selRender()}}});
+ el.querySelectorAll('[data-n]').forEach(i=>{i.value=cur.n[i.dataset.n]||'';i.oninput=()=>{cur.n[i.dataset.n]=i.value;save()}});
+ sketch();
+}
+/* ---------- סקיצה: כלי ציור ---------- */
+const SKT=[['free','✏️','ציור חופשי'],['line','╱','קו ישר'],['rect','▭','מלבן'],['ell','◯','עיגול / אליפסה'],['arrow','➜','חץ'],['text','T','טקסט / מידה'],['move','✋','הזזת תמונה']];
+const SKC=['#1c4e9d','#1a2433','#d62f2f','#2e9e57','#e07b00'],SKCN=['כחול','שחור','אדום','ירוק','כתום'],SKW=[2,4,7];
+let SK={tool:'free',col:SKC[0],w:4,auto:true};
+function shape(g,s){const p=s.p;g.save();g.strokeStyle=g.fillStyle=s.c;g.lineWidth=s.w;g.lineCap=g.lineJoin='round';g.beginPath();
+ if(s.t=='text'){g.font=`bold ${14+s.w*4}px Heebo,Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.direction='rtl';g.fillText(s.s,p[0][0],p[0][1])}
+ else if(s.t=='rect')g.strokeRect(Math.min(p[0][0],p[1][0]),Math.min(p[0][1],p[1][1]),Math.abs(p[1][0]-p[0][0]),Math.abs(p[1][1]-p[0][1]));
+ else if(s.t=='ell'){g.ellipse((p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2,Math.abs(p[1][0]-p[0][0])/2,Math.abs(p[1][1]-p[0][1])/2,0,0,Math.PI*2);g.stroke()}
+ else{g.moveTo(...p[0]);p.forEach(q=>g.lineTo(...q));g.stroke();
+  if(s.t=='arrow'){const[a,b]=p,an=Math.atan2(b[1]-a[1],b[0]-a[0]),L=10+s.w*2.5;g.beginPath();g.moveTo(b[0]-L*Math.cos(an-.45),b[1]-L*Math.sin(an-.45));g.lineTo(...b);g.lineTo(b[0]-L*Math.cos(an+.45),b[1]-L*Math.sin(an+.45));g.stroke()}}
+ g.restore()}
+const segd=(q,a,b)=>{const L=Math.hypot(b[0]-a[0],b[1]-a[1]);return L?Math.abs((b[0]-a[0])*(a[1]-q[1])-(a[0]-q[0])*(b[1]-a[1]))/L:Math.hypot(q[0]-a[0],q[1]-a[1])};
+const rdp=(p,e)=>{if(p.length<3)return p;const a=p[0],b=p[p.length-1];let i0=0,dm=0; // פישוט קו (Douglas-Peucker) – הופך שרבוט לקטעים ישרים
+ for(let i=1;i<p.length-1;i++){const d=segd(p[i],a,b);if(d>dm){dm=d;i0=i}}
+ return dm>e?rdp(p.slice(0,i0+1),e).slice(0,-1).concat(rdp(p.slice(i0),e)):[a,b]};
+const ortho=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],g=Math.abs(Math.atan2(dy,dx)*180/Math.PI)%90; // קרוב לאופקי/אנכי → מיישר
+ return g<8||g>82?(Math.abs(dx)>Math.abs(dy)?[b[0],a[1]]:[a[0],b[1]]):b};
+const corners=s=>s.t=='rect'?[s.p[0],[s.p[1][0],s.p[0][1]],s.p[1],[s.p[0][0],s.p[1][1]]]:s.t=='line'||s.t=='arrow'?s.p:s.t=='free'?(s.p.length<=8?s.p:[s.p[0],s.p[s.p.length-1]]):[];
+function sketch(){ // שכבת תמונה (הזזה/הגדלה) + צורות וקטוריות (cur.shapes); cur.sketch = ציור ישן כתמונה
+ const P=cur,cv=$('#cv'),cx=cv.getContext('2d');P.shapes=P.shapes||[];
+ let im=null,base=null,live=null,mark=null;const ptr=new Map(),msg=t=>$('#skmsg').textContent=t;SKO='';
+ const mv=()=>SK.tool=='move'&&!!P.skImg,kp=()=>{const r=cv.getBoundingClientRect();return cv.width/(skRot?r.height:r.width)}; // פיקסלי קנבס לכל פיקסל מסך (במסך מלא מסובב – הקנבס על הצד)
+ const draw=()=>{cx.clearRect(0,0,cv.width,cv.height);const k=P.skImg;
+  if(im&&k){const f=Math.min(cv.width/im.width,cv.height/im.height)*k.s,w=im.width*f,h=im.height*f;cx.drawImage(im,k.x-w/2,k.y-h/2,w,h)}
+  if(base)cx.drawImage(base,0,0);P.shapes.forEach(s=>shape(cx,s));if(live)shape(cx,live);if(P.cmp)compass(cx,P.cmp);
+  if(mark){cx.beginPath();cx.arc(mark[0],mark[1],10,0,7);cx.strokeStyle='#ff4fa3';cx.lineWidth=3;cx.stroke()}};
+ const out=()=>{if(P!=cur)return;if(!P.skImg&&!P.sketch&&!P.shapes.length&&!P.cmp){SKO='';return}const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(cv,0,0);try{SKO=c.toDataURL('image/jpeg',.85)}catch(e){}};
+ const commit=()=>{save();draw();out()};
+ const ui=()=>{const has=!!P.skImg,tb=$('#tools');$('#skr').hidden=$('#skzl').hidden=!has;if(!has&&SK.tool=='move')SK.tool='free';
+  tb.querySelector('[data-tool=move]').hidden=!has;
+  const on=(b,v)=>{b.classList.toggle('on',v);b.setAttribute('aria-pressed',v)};
+  tb.querySelectorAll('[data-tool]').forEach(b=>on(b,b.dataset.tool==SK.tool));
+  tb.querySelectorAll('[data-col]').forEach(b=>on(b,b.dataset.col==SK.col));
+  tb.querySelectorAll('[data-w]').forEach(b=>on(b,+b.dataset.w==SK.w));
+  on($('#auto'),SK.auto);cv.style.cursor=mv()?'move':SK.tool=='text'?'text':'crosshair';
+  if(has)$('#skz').value=Math.round(P.skImg.s*100);on($('#cmp'),!!P.cmp);$('#cmpr').hidden=!P.cmp;
+  rsync();msg(P.cmp&&SK.cmpTip?'🧭 ↺ ↻ מסובבים את הכיוונים – הצפון עובר לצד הבא של הסקיצה':mv()?'גרור להזזה · שתי אצבעות או גלגלת לשינוי גודל':SK.tool=='text'?'לחץ על הסקיצה כדי להוסיף טקסט':SK.auto?'📐 יישור אוטומטי: קווים מתיישרים ומתחברים לנקודות קרובות':'')};
+ const loadImg=async()=>{const k=P.skImg;if(!k)return;
+  if(skCache.id!=k.id){try{const b=await IDB.get(k.id);if(!b)throw 0;skCache={id:k.id,img:await b2img(b)}}catch(e){msg('התמונה לא נמצאה במכשיר זה');return}}
+  im=skCache.img;draw();out()};
+ if(P.sketch){const i=new Image();i.onload=()=>{base=i;draw();out()};i.src=P.sketch}
+ loadImg();ui();draw();out();
+ const snap=q=>{let b=null,bd=16*kp();P.shapes.forEach(s=>corners(s).forEach(a=>{const d=Math.hypot(a[0]-q[0],a[1]-q[1]);if(d<bd){bd=d;b=a}}));return b&&[b[0],b[1]]};
+ const straighten=s=>{const k=kp(),xs=s.p.map(q=>q[0]),ys=s.p.map(q=>q[1]);
+  if(Math.hypot(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))<50*k)return; // קטן (כתב יד/מספרים) – משאירים כמו שהוא
+  const q=rdp(s.p,7*k);if(q.length>6)return; // עקום מדי – נשאר חופשי
+  q[0]=snap(q[0])||q[0];for(let i=1;i<q.length;i++)q[i]=ortho(q[i-1],q[i]);
+  const L=q.length-1;if(L>1&&Math.hypot(q[0][0]-q[L][0],q[0][1]-q[L][1])<24*k)q[L]=q[0].slice();else q[L]=snap(q[L])||q[L];
+  s.p=q};
+ const pt=e=>{const r=cv.getBoundingClientRect();if(skRot)return[Math.round((e.clientY-r.top)*cv.width/r.height),Math.round((r.right-e.clientX)*cv.height/r.width)]; // מסובב 90° עם השעון
+  return[Math.round((e.clientX-r.left)*cv.width/r.width),Math.round((e.clientY-r.top)*cv.height/r.height)]};
+ const cmpRot=d=>{P.cmp.a=((Math.round((+P.cmp.a||0)/90)*90+d)%360+360)%360;SK.cmpTip=0;commit();ui()};
+ const zoom=f=>{P.skImg.s=Math.max(.05,Math.min(4,P.skImg.s*f))};
+ cv.onpointerdown=e=>{try{cv.setPointerCapture(e.pointerId)}catch(err){}const p=pt(e);ptr.set(e.pointerId,p);
+  if(mv())return;
+  if(ptr.size>1){live=mark=null;draw();return} // אצבע שנייה מבטלת את הקו הנוכחי
+  const T=SK.tool;
+  if(T=='text'){ptr.delete(e.pointerId);const st={c:SK.col,w:SK.w};askText('טקסט על הסקיצה','למשל מידה').then(s=>{if(s&&s.trim()&&P==cur){P.shapes.push({t:'text',p:[p],s:s.trim(),...st});commit()}});return}
+  const a=SK.auto&&T!='free'&&T!='ell'&&snap(p)||p;
+  live={t:T=='move'?'free':T,c:SK.col,w:SK.w,p:T=='free'||T=='move'?[p]:[a,a]};mark=null;draw()};
+ cv.onpointermove=e=>{if(!ptr.has(e.pointerId))return;const p=pt(e),o=ptr.get(e.pointerId);ptr.set(e.pointerId,p);
+  if(mv()){const k=P.skImg;
+   if(ptr.size==1){k.x+=p[0]-o[0];k.y+=p[1]-o[1]}
+   else{const q=[...ptr].find(([i])=>i!=e.pointerId)[1],d0=Math.hypot(o[0]-q[0],o[1]-q[1]),d1=Math.hypot(p[0]-q[0],p[1]-q[1]);if(d0>5)zoom(d1/d0)}
+   draw();ui();return}
+  if(!live)return;
+  if(live.t=='free')live.p.push(p);
+  else{let b=p;mark=null;if(SK.auto&&live.t!='ell'){const s=snap(p);if(s)b=mark=s;else if(live.t!='rect')b=ortho(live.p[0],p)}live.p[1]=b}
+  draw()};
+ cv.onpointerup=cv.onpointercancel=e=>{if(!ptr.delete(e.pointerId))return;
+  if(mv()){save();out();return}
+  if(!live)return;const s=live;live=mark=null;
+  if(s.t=='free'){if(s.p.length<2)s.p.push(s.p[0].slice());else if(SK.auto)straighten(s)}
+  else if(Math.hypot(s.p[1][0]-s.p[0][0],s.p[1][1]-s.p[0][1])<4){draw();return}
+  P.shapes.push(s);commit()};
+ cv.onwheel=e=>{if(!mv())return;e.preventDefault();zoom(e.deltaY<0?1.1:1/1.1);draw();ui();save();out()};
+ $('#tools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.tool)SK.tool=b.dataset.tool;if(b.dataset.col)SK.col=b.dataset.col;if(b.dataset.w)SK.w=+b.dataset.w;if(b.id=='auto')SK.auto=!SK.auto;ui()};
+ $('#cmp').onclick=()=>{if(P.cmp)P.cmp=null;else{P.cmp={a:0};SK.cmpTip=1}commit();ui()};
+ $('#cmpl').onclick=()=>cmpRot(-90);$('#cmpg').onclick=()=>cmpRot(90);
+ $('#fsb').onclick=()=>skFs(!SKFS);skFit();
+ $('#und').onclick=()=>{if(P.shapes.length){P.shapes.pop();commit()}else toast('אין מה לבטל')};
+ $('#skz').oninput=e=>{P.skImg.s=e.target.value/100;draw();save()};$('#skz').onchange=out;
+ $('#skf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;msg('טוען תמונה…');
+  try{const b=await shrink(f,1600,.82),id='sk'+Date.now();await IDB.put(id,b);if(P.skImg)IDB.del(P.skImg.id).catch(()=>{});
+   P.skImg={id,x:cv.width/2,y:cv.height/2,s:1};skCache={id,img:await b2img(b)};im=skCache.img;SK.tool='move';save();draw();ui();out()}
+  catch(err){msg('לא ניתן לטעון את התמונה')}};
+ $('#skr').onclick=async()=>{if(await ask('הסרת תמונה','להסיר את התמונה מהסקיצה?',[['ok','הסר','dng'],[null,'ביטול']])!='ok')return;IDB.del(P.skImg.id).catch(()=>{});P.skImg=null;im=null;ui();commit()};
+ $('#clr').onclick=async()=>{if(await ask('ניקוי ציור','לנקות את כל הציור?',[['ok','נקה','dng'],[null,'ביטול']])!='ok')return;P.shapes=[];P.sketch='';base=null;commit()};
+}
+/* ---------- סקיצה: כיווני אוויר (4 חצים בשולי הציור) ומסך מלא ---------- */
+const DIRN=['צפון','מזרח','דרום','מערב']; // cmp.a = באיזה צד הצפון: 0 למעלה, 90 ימין, 180 למטה, 270 שמאל
+function compass(g,c){const W=g.canvas.width,H=g.canvas.height,a=((Math.round((+c.a||0)/90)*90)%360+360)%360;g.save();
+ g.font='800 22px Heebo,Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.direction='rtl';g.lineCap=g.lineJoin='round';
+ [[0,-1],[1,0],[0,1],[-1,0]].forEach(([dx,dy],s)=>{const i=((s*90-a)/90%4+4)%4,l=DIRN[i],n=!i,col=n?'#d62f2f':'#1c4e9d';
+  const tx=W/2+dx*(W/2-5),ty=H/2+dy*(H/2-5),bw=g.measureText(l).width+26,bh=32,L=26; // חוד החץ בשפת הציור, התווית פנימה ממנו
+  const cx=tx-dx*(L+(dx?bw/2:bh/2)),cy=ty-dy*(L+(dy?bh/2:bw/2)),px=cx-bw/2,py=cy-bh/2;
+  g.strokeStyle=g.fillStyle=col;g.lineWidth=4;g.beginPath();g.moveTo(tx-dx*L,ty-dy*L);g.lineTo(tx-dx*8,ty-dy*8);g.stroke();
+  g.beginPath();g.moveTo(tx,ty);g.lineTo(tx-dx*15-dy*10,ty-dy*15-dx*10);g.lineTo(tx-dx*15+dy*10,ty-dy*15+dx*10);g.closePath();g.fill();
+  g.beginPath();g.roundRect?g.roundRect(px,py,bw,bh,16):g.rect(px,py,bw,bh);g.fillStyle=n?col:'rgba(255,255,255,.94)';g.fill();g.lineWidth=2;g.stroke();
+  g.fillStyle=n?'#fff':col;g.fillText(l,cx,cy+1)});
+ g.restore()}
+let SKFS=false,skRot=false; // מסך מלא; skRot = התצוגה מסובבת ידנית (טלפון עומד ללא נעילת כיוון)
+function rsync(){document.querySelectorAll('.rail [data-p],.fly [data-p]').forEach(b=>{const o=$(b.dataset.p);if(!o)return; // כפתורי המסך המלא משקפים את הכפתורים הרגילים
+  b.classList.toggle('on',o.classList.contains('on'));b.hidden=!!o.closest('[hidden]')});
+ const c=$('#rcol i'),w=$('#rw i');if(c)c.style.background=SK.col;if(w)w.style.width=w.style.height=SK.w*2+4+'px'}
+function skFit(){const c=$('#skc'),cv=$('#cv'),b=$('#fsb');if(!c||!cv)return;
+ skRot=SKFS&&innerHeight>innerWidth;c.classList.toggle('fs',SKFS);c.classList.toggle('rot',skRot);document.documentElement.classList.toggle('skfs',SKFS);
+ if(b){b.textContent='⛶ מסך מלא';b.setAttribute('aria-pressed',SKFS)}
+ const f=$('#fly');if(f)f.hidden=true;rsync();
+ if(!SKFS){cv.style.width=cv.style.height='';return}
+ const w=c.querySelector('.skw'),k=cv.width/cv.height,cw=Math.max(100,Math.min(w.clientWidth,w.clientHeight*k));
+ cv.style.width=cw+'px';cv.style.height=cw/k+'px'}
+async function skFs(on){if(on==SKFS)return;SKFS=on;const d=document,c=$('#skc');skFit();
+ if(on){try{if(c.requestFullscreen&&!d.fullscreenElement)await c.requestFullscreen({navigationUI:'hide'})}catch(e){}
+  try{await screen.orientation.lock('landscape')}catch(e){}} // אנדרואיד: נעילה לרוחב; אייפון: הסיבוב נעשה ב-CSS
+ else{try{screen.orientation.unlock()}catch(e){}if(d.fullscreenElement)d.exitFullscreen().catch(()=>{})}
+ skFit();const x=on?$('.r1 .x'):$('#fsb');if(x)x.focus()}
+document.addEventListener('click',e=>{const f=$('#fly'),b=e.target.closest('.rail button,.fly button');
+ if(!b){if(f&&!f.hidden&&!e.target.closest('.fly'))f.hidden=true;return}
+ if(b.dataset.p){const o=$(b.dataset.p);if(f)f.hidden=true;if(o)o.click();rsync();return}
+ if(b.id=='rcol'||b.id=='rw'){if(!f.hidden&&f.dataset.k==b.id){f.hidden=true;return} // חלונית קטנה לבחירת צבע / עובי
+  f.dataset.k=b.id;f.innerHTML=b.id=='rcol'?SKC.map((c,i)=>`<button class="sw" data-p="#tools [data-col='${c}']" style="background:${c}" aria-label="צבע ${SKCN[i]}"></button>`).join('')
+   :SKW.map((w,i)=>`<button data-p="#tools [data-w='${w}']" aria-label="עובי קו ${['דק','בינוני','עבה'][i]}"><i style="width:${w*2+4}px;height:${w*2+4}px"></i></button>`).join('');
+  const r=b.closest('.rail');f.hidden=false;f.style.left=r.offsetLeft+r.offsetWidth+6+'px';f.style.top=Math.max(6,r.offsetTop+b.offsetTop-r.scrollTop-5)+'px';rsync()}});
+addEventListener('resize',skFit);
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&SKFS)skFs(false)});
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&SKFS){const f=$('#fly');if(f&&!f.hidden)f.hidden=true;else skFs(false)}});
+
+/* ---------- מדידות ---------- */
+function svgFor(c,t){const N=v=>Math.max(0,Math.min(1,(+v||0)/320));
+ const s='stroke="var(--ln)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+ const F=TYPES[t].f;
+ if(F.includes('f')){const l=8+N(c.l)*52,r=8+N(c.r)*52,w=8+N(c.f)*48; // ח / ר: חזית למעלה, צדדים יורדים
+  return`<svg viewBox="0 0 64 68"><polyline ${s} points="${F.includes('l')?`4,${6+l} `:''}4,6 ${4+w},6${F.includes('r')?` ${4+w},${6+r}`:''}"/></svg>`}
+ const h=8+N(c.h)*54,w=6+N(c.w)*52;return`<svg viewBox="0 0 64 68"><polyline ${s} points="4,${64-h} 4,64 ${4+w},64"/></svg>`}
+function renderM(){
+ const el=$('#t-m');if(shaft>=cur.shafts.length)shaft=0;
+ const S=cur.shafts[shaft];
+ el.innerHTML=`<div class="shafts" role="group" aria-label="בחירת פיר">${cur.shafts.map((s,i)=>`<button data-i="${i}" class="${i==shaft?'on':''}"${i==shaft?' aria-current="true"':''}>${esc(s.name||'פיר '+(i+1))}</button>`).join('')}<button id="addS">+ פיר</button></div>
+ <div class="mlay"><aside class="mside"><div class="card">
+ <div class="shh"><input id="sn" class="sname" aria-label="שם פיר" placeholder="שם פיר">
+ <button id="dupS" class="ib" title="פיר חדש עם אותן הגדרות"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>שכפל</button>
+ <button id="delS" class="ib dng" title="מחק פיר" aria-label="מחק פיר"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6"/></svg></button></div>
+ <div class="g"><label>בניין<input id="sb"></label><label>כיוון<select id="sd">${DIRS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+ <label>סוג פיר<select id="st">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label><label>רציף / בודד<select id="sr">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+ <label class="w">ציון חשוב<select id="sm">${MODES.map(m=>`<option>${m}</option>`).join('')}</select></label></div>
+ <div class="secs"><details class="sec" data-k="pod"><summary><span>פודסט וגבהים</span><span class="hint">${E([covT(S),S.fh?'קבוע '+S.fh:'',S.th?'כולל '+S.th:''].filter(Boolean).join(' · ')||'לא הוגדר')}</span></summary><div class="pad"><div class="g">
+ <label class="w" title="איפה יושב המסתור ביחס לפודסט – קובע את חישוב גובה המסתור">מיקום ביחס לפודסט<select id="scv"><option value=""></option>${Object.entries(COV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
+ <div id="cvs" class="cvs w"></div>
+ <label id="sptl" title="עובי הפודסט; קומה עם עובי משלה גוברת">עובי פודסט<input id="spt" type="number" inputmode="numeric"></label>
+ <label id="sgpl" title="מרווח בין ראש המסתור הרציף לפודסט העליון">מרווח עליון<input id="sgp" type="number" inputmode="numeric" placeholder="ס״מ"></label>
+ <label title="גובה אחיד לכל קומות הפיר; קומה עם גובה משלה גוברת">גובה קבוע לפיר<input id="sfh" type="number" inputmode="numeric" placeholder="ס״מ"></label>
+ <label title="מדידת לייזר של כל הפיר מקומה לקומה">גובה כולל (לייזר)<input id="sth" type="number" inputmode="numeric" placeholder="ס״מ"></label>
+ <label>מקומה<input id="stb" type="number" inputmode="numeric"></label><label>עד קומה<input id="stt" type="number" inputmode="numeric"></label>
+ <button id="sdiv" class="w" title="קובע גובה קבוע לפיר = גובה כולל חלקי מספר הקומות">÷ חלק גובה כולל לקומות</button></div></div></details>
+ <details class="sec" data-k="ang"><summary><span>זווית סגירה</span><span class="hint">${E(angL(angOf(S,{})).join(' · ')||'ללא')}</span></summary><div class="pad">
+ <div class="hintx" style="margin:0 0 10px">מסתירה את הפרופילים מהחלון השכן. רוחב הזווית בס״מ לכל צד, ריק = בלי. חל על כל הקומות – אפשר לשנות בקומה בודדת (כפתור ∟ בקומה).</div><div class="g">
+ ${ANG.map(([k,l])=>`<label>${l}<input data-ang="${k}" type="number" inputmode="decimal" step="0.5" min="0" placeholder="ס״מ"></label>`).join('')}
+ <label class="w">מידת פרופיל / סוג<input id="sap" placeholder="למשל זווית 40×40 אלומיניום"></label></div></div></details>
+ <details class="sec" data-k="rng"><summary><span>טווח קומות בפרויקט</span><span class="hint">${cur.top} עד ${cur.bot}</span></summary><div class="pad"><div class="g">
+ <label>קומה עליונה<input id="top" type="number" inputmode="numeric"></label><label>קומה תחתונה<input id="bot" type="number" inputmode="numeric"></label></div></div></details></div></div>
+ <div class="card"><h2>בדיקות והתראות <span id="fxn" class="cnt"></span></h2><div id="fix"></div></div></aside>
+ <div><div class="flh"><h2>מדידות לפי קומה</h2><span id="flp"></span></div><div class="grid" id="gr"></div></div></div>`;
+ keepOpen(el);
+ $('#sn').value=S.name;$('#sb').value=S.bld||'';$('#sm').value=S.mode||'';$('#sd').value=S.dir||'';$('#st').value=ty(S,{});$('#sr').value=rn(S);$('#sfh').value=S.fh||'';$('#sth').value=S.th||'';$('#stb').value=S.tb??'';$('#stb').placeholder=cur.bot;$('#stt').value=S.tt??'';$('#stt').placeholder=cur.top;$('#sdiv').hidden=!S.th;$('#top').value=cur.top;$('#bot').value=cur.bot;
+ const K=cvk(S);$('#scv').value=K;$('#spt').value=S.pt||'';$('#spt').placeholder=cur.pt||'ס״מ';$('#sgp').value=S.gap||'';
+ $('#sptl').hidden=!(K&&COV[K].k);$('#sgpl').hidden=K!='out';$('#cvs').innerHTML=K?covSvg(K)+`<span>${COV[K].f}</span>`:'';
+ $('#scv').onchange=e=>{S.cov=e.target.value;if(S.cov==(cur.cov||''))delete S.cov;save();renderM()};
+ el.querySelectorAll('[data-ang]').forEach(i=>{const k=i.dataset.ang;i.value=(S.ang||{})[k]||'';
+  i.onchange=()=>{const v=+i.value;S.ang=S.ang||{};if(v>0)S.ang[k]=v;else delete S.ang[k];if(!Object.keys(S.ang).length)delete S.ang;save();renderM()}});
+ $('#sap').value=S.angp||'';$('#sap').oninput=e=>{S.angp=e.target.value;if(!S.angp)delete S.angp;save()};
+ [['spt','pt'],['sgp','gap']].forEach(([i,k])=>$('#'+i).onchange=e=>{const v=+e.target.value;if(v>0)S[k]=v;else delete S[k];save();renderM()});
+ el.querySelectorAll('.shafts [data-i]').forEach(b=>b.onclick=()=>{shaft=+b.dataset.i;renderM()});
+ const addS=cp=>{cur.shafts.push({name:'פיר '+(cur.shafts.length+1),bld:cp?S.bld:'',mode:cp?S.mode:'',dir:cp?S.dir:'',t:cp?S.t:undefined,run:cp?S.run:undefined,fh:cp?S.fh:undefined,th:cp?S.th:undefined,tb:cp?S.tb:undefined,tt:cp?S.tt:undefined,cov:cp?S.cov:undefined,pt:cp?S.pt:undefined,gap:cp?S.gap:undefined,ang:cp&&S.ang?{...S.ang}:undefined,angp:cp?S.angp:undefined,fl:{}});shaft=cur.shafts.length-1;save();renderM();window.scrollTo(0,0)};
+ $('#addS').onclick=()=>addS();$('#dupS').onclick=()=>addS(1);
+ $('#delS').onclick=async()=>{if(cur.shafts.length<2){toast('חייב להישאר לפחות פיר אחד','bad');return}
+  if(await ask('מחיקת פיר','למחוק את "'+(S.name||'פיר')+'" וכל המדידות שלו?',[['del','מחק','dng'],[null,'ביטול']])!='del')return;
+  cur.shafts.splice(shaft,1);shaft=Math.max(0,shaft-1);save();renderM();toast('הפיר נמחק')};
+ $('#sn').oninput=e=>{S.name=e.target.value;save();el.querySelector('.shafts .on').textContent=S.name||'פיר'};
+ $('#sb').oninput=e=>{S.bld=e.target.value;save()};$('#sm').onchange=e=>{S.mode=e.target.value;save()};$('#sd').onchange=e=>{S.dir=e.target.value;save()};$('#st').onchange=e=>{S.t=e.target.value;save();renderM()};$('#sr').onchange=e=>{S.run=e.target.value;if(S.run==(cur.run||''))delete S.run;save()};
+ $('#sfh').onchange=e=>{const v=+e.target.value;if(v>0)S.fh=v;else delete S.fh;save();renderM()};
+ $('#sth').onchange=e=>{const v=+e.target.value;if(v>0)S.th=v;else delete S.th;save();renderM()};
+ [['stb','tb'],['stt','tt']].forEach(([i,k])=>$('#'+i).onchange=e=>{if(e.target.value==='')delete S[k];else S[k]=+e.target.value;save();flags()});
+ $('#sdiv').onclick=async()=>{const T=tot(S);if(!T||!T.n)return;const v=Math.round(T.avg);if(S.fh&&S.fh!=v&&await ask('גובה קבוע',`להחליף גובה קבוע ${S.fh} ב-${v}?`,[['ok','החלף','p'],[null,'ביטול']])!='ok')return;S.fh=v;save();renderM()};
+ [['#top','top'],['#bot','bot']].forEach(([id,k])=>$(id).onchange=e=>{const v=Math.round(+e.target.value),o={top:cur.top,bot:cur.bot,[k]:v}; // טווח קומות תקין בלבד
+  const no=m=>{toast(m,'bad');e.target.value=cur[k]};
+  if(e.target.value===''||!Number.isFinite(v)||v<-10||v>150)return no('יש להזין קומה בין -10 ל-150');
+  if(o.top<o.bot)return no('הקומה העליונה חייבת להיות גבוהה או שווה לתחתונה');
+  if(o.top-o.bot+1>80)return no('ניתן להגדיר עד 80 קומות');
+  cur[k]=v;save();renderM()});
+ const gr=$('#gr');
+ fl().forEach(n=>{const c=S.fl[n]||(S.fl[n]={}),F=FF(S,c);
+  const cell=document.createElement('div');cell.className='cell';cell.dataset.n=n;cell.setAttribute('role','group');cell.setAttribute('aria-label','קומה '+n);
+  cell.innerHTML=`<div class="ctop"><span class="fln" aria-hidden="true"><small>קומה</small><b>${n}</b></span><select class="shp" title="צורת המסתור בקומה זו" aria-label="צורת המסתור בקומה ${n}">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.a}</option>`).join('')}</select><button class="x skp" title="דלג על קומה" aria-label="ללא מסתור בקומה ${n}">✕ ללא</button><button class="x mkb" title="סימון הפרעה (ורוד)" aria-label="סימון הפרעה בקומה ${n}">◼ הפרעה</button></div>
+  <div class="cbody"><span class="sv"></span><div class="ins">${F.map(k=>`<label class="fi">${lb(S,k)}<input data-k="${k}" placeholder="${k=='h'&&S.fh?S.fh:k=='p'&&pT(S)?pT(S):''}" inputmode="numeric" type="number" step="1" enterkeyhint="next"></label>`).join('')}</div></div>
+  <div class="cfoot"><span class="phv"></span><input class="nt" placeholder="הערה לקומה (לא חובה)" aria-label="הערה לקומה ${n}" enterkeyhint="next"><button class="x angb" title="זווית סגירה לקומה זו" aria-label="זווית סגירה בקומה ${n}">∟ זווית</button></div>
+  <div class="angr" hidden>${ANG.map(([k,l])=>`<label class="fi">זווית ${l}<input data-a="${k}" type="number" inputmode="decimal" step="0.5" min="0" placeholder="${(S.ang||{})[k]||''}" enterkeyhint="next"></label>`).join('')}<div class="angh">${S.ang?'ריק = כמו בפיר · 0 = בלי זווית בצד הזה':'רוחב בס״מ · ריק = בלי זווית'}</div></div>`;
+  cell.querySelectorAll('input[data-k]').forEach(i=>{i.value=c[i.dataset.k]??'';i.oninput=()=>{c[i.dataset.k]=i.value;save();flags()}});
+  cell.querySelectorAll('input[data-a]').forEach(i=>{const k=i.dataset.a;i.value=(c.ang||{})[k]??'';
+   i.oninput=()=>{c.ang=c.ang||{};if(i.value==='')delete c.ang[k];else c.ang[k]=i.value;if(!Object.keys(c.ang).length)delete c.ang;save();flags()}});
+  const ab=cell.querySelector('.angb'),ar=cell.querySelector('.angr'),ak=shaft+':'+n;ar.hidden=!(angOwn(c)||OPENA[ak]);ab.setAttribute('aria-expanded',!ar.hidden);
+  ab.onclick=()=>{ar.hidden=!ar.hidden;OPENA[ak]=!ar.hidden;ab.setAttribute('aria-expanded',!ar.hidden);if(!ar.hidden)ar.querySelector('input').focus()};
+  cell.querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key!='Enter')return;e.preventDefault();const L=[...gr.querySelectorAll('input')].filter(x=>x.offsetParent),j=L.indexOf(i);if(L[j+1])L[j+1].focus();else i.blur()}); // Enter → השדה הבא (מדלג על שדות זווית סגורים)
+  const nt=cell.querySelector('.nt');nt.value=c.note||'';nt.oninput=()=>{c.note=nt.value;save()};
+  const sh=cell.querySelector('.shp');sh.value=ty(S,c);sh.onchange=()=>{c.t=sh.value;if(c.t==(S.t||cur.type))delete c.t;save();renderM()};
+  const bs=cell.querySelectorAll('.x');bs[0].onclick=()=>{c.skip=!c.skip;save();flags()};bs[1].onclick=()=>{c.mark=!c.mark;save();flags()};
+  gr.appendChild(cell)});
+ flags();
+}
+function check(S){ // מחזיר {n:{lv,msgs}}
+ const R={},fls=fl(),W=['w','f','r','l'];
+ const wm={};W.forEach(k=>wm[k]=med(fls.map(n=>S.fl[n]&&!S.fl[n].skip&&TYPES[ty(S,S.fl[n])].f.includes(k)&&S.fl[n][k]!==''&&S.fl[n][k]!=null?+S.fl[n][k]:null).filter(v=>v!=null)));
+ fls.forEach((n,idx)=>{const c0=S.fl[n]||{},m=[],F=FF(S,c0);let lv='';
+  if(c0.skip){R[n]={lv:'skip',m:[]};return}
+  if(!own(c0,F)){R[n]={lv:'',m:[]};return}
+  const c=eh(S,c0),fi=F.map(k=>c[k]).filter(v=>v!==''&&v!=null).length;
+  if(fi<F.length){lv='bad';m.push('חסר ערך')}
+  F.forEach(k=>{const v=+c[k];if(c[k]===''||c[k]==null)return;
+   if(k=='p'?v<2||v>100:v<30||v>700){lv='bad';m.push(lb(S,k)+' '+v+' – בדוק יחידות (ס״מ)')}
+   else if(k!='h'&&wm[k]!=null&&Math.abs(v-wm[k])>WTOL){if(lv!='bad')lv='warn';m.push(LAB[k]+' '+v+' חריג (חציון '+wm[k]+')')}
+   else if(k=='h'){const nb=[fls[idx-2],fls[idx-1],fls[idx+1],fls[idx+2]].map(x=>x!=null&&S.fl[x]&&!S.fl[x].skip&&own(S.fl[x],['h','w','f','r','l'])&&eh(S,S.fl[x]).h?+eh(S,S.fl[x]).h:null).filter(x=>x!=null&&x>=30&&x<=700);const md=med(nb); // שכן עם טעות יחידות לא נכנס לחציון
+    if(md!=null&&Math.abs(v-md)>HTOL){if(lv!='bad')lv='warn';m.push(lb(S,'h')+' '+v+' שונה מהקומות הסמוכות ('+md+')')}}});
+  if(c0.ang)ANG.forEach(([k,l])=>{const v=+c0.ang[k];if(has(c0.ang[k])&&(v<0||v>60)){lv='bad';m.push('זווית '+l+' '+c0.ang[k]+' – בדוק יחידות (ס״מ)')}});
+  R[n]={lv:lv||'ok',m}});
+ return R}
+function flags(){
+ const S=cur.shafts[shaft],R=check(S),fx=[];
+ document.querySelectorAll('#gr .cell').forEach(cell=>{const n=cell.dataset.n,r=R[n]||{lv:'',m:[]},c=S.fl[n]||{};
+  cell.className='cell '+r.lv+(c.mark?' mk':'');cell.querySelector('.sv').innerHTML=svgFor(eh(S,c),ty(S,c));
+  cell.querySelector('.skp').setAttribute('aria-pressed',!!c.skip);cell.querySelector('.mkb').setAttribute('aria-pressed',!!c.mark);
+  cell.setAttribute('aria-label','קומה '+n+(r.lv=='bad'?' – נתון חסר או שגוי':r.lv=='warn'?' – חריגה לבדיקה':r.lv=='ok'?' – תקין':r.lv=='skip'?' – ללא מסתור':''));
+  const v=c.skip?null:ph(S,c);cell.querySelector('.phv').textContent=v!=null?'גובה מסתור '+v:'';
+  const ab=cell.querySelector('.angb'),at=angT(angOf(S,c));ab.classList.toggle('on',!!at);ab.textContent=at?'∟ זווית ✓':'∟ זווית';ab.title=at||'זווית סגירה לקומה זו';
+  r.m.forEach(t=>fx.push(`<div class="fix ${r.lv=='bad'?'bad':'warn'}">קומה ${n}: ${esc(t)}</div>`))});
+ const T=tot(S);if(T){const bad=T.d!=null&&Math.abs(T.d)>HTOL;
+  fx.unshift(`<div class="fix ${bad?'warn':''}">📏 גובה כולל ${S.th} · קומות ${T.a}–${T.b} (${T.n} קומות) · ממוצע לקומה ${T.avg}`+(T.d!=null?` · סכום הקומות ${T.sum} (הפרש ${T.d>0?'+':''}${T.d})`:` · חסר גובה ב-${T.miss} קומות`)+'</div>')}
+ if(cvk(S)=='out'&&S.th)fx.unshift(`<div class="fix okk">🧱 ${outT(S)}</div>`);
+ $('#fix').innerHTML=fx.join('')||'<span class="allok">✓ אין התראות בפיר זה</span>';
+ const L=Object.values(R).map(r=>r.lv),nw=L.filter(v=>v=='warn'||v=='bad').length,nf=L.filter(v=>v&&v!='skip').length,ns=L.filter(v=>v=='skip').length;
+ $('#fxn').textContent=nw||'';$('#fxn').classList.toggle('b',L.includes('bad'));
+ $('#flp').textContent=`${nf} מתוך ${L.length-ns} מולאו`+(ns?` · ${ns} ללא`:'')}
+const outT=S=>`מסתור רציף: גובה כולל ${S.th}`+(S.gap?` − מרווח עליון ${S.gap} = ${S.th-S.gap}`:'');
+const covT=S=>{const k=cvk(S);return k?COV[k].a+(COV[k].k&&pT(S)?' · פודסט '+pT(S):'')+(k=='out'&&S.gap?' · מרווח עליון '+S.gap:''):''};
+
+/* ---------- סיכום ---------- */
+function text(){const h=cur.h;
+ let t=`טופס מדידה – ${TYPES[cur.type].n}\nמק״ט: ${h.code||''} | ${h.company||''} | ${h.site||''}\nכתובת: ${h.addr||''}\nמנהל פרויקט: ${h.pm||''} | מנהל עבודה: ${h.wk||''}\nתאריך: ${fmtD(h.date)} | מודד: ${h.surveyor||''} | ${h.final?'מדידה סופית':'מדידה לא סופית'}\nגוון: ${h.ral||''} | מרווח אור: ${h.gap||''} | מעקה טכנאי: ${h.rail?'כן':'לא'}\n`;
+ cur.shafts.forEach(S=>{t+=`\n▪ ${S.name}${S.bld?' (בניין '+S.bld+')':''}${S.dir?' · '+S.dir:''}${rn(S)?' · '+rn(S):''}${S.fh?' · גובה קבוע '+S.fh:''}${S.th?' · '+totT(S):''}${covT(S)?' · '+covT(S):''}${angT(angOf(S,{}),S.angp)?' · '+angT(angOf(S,{}),S.angp):''}${S.mode?' – '+S.mode:''}\n`;
+  if(cvk(S)=='out'&&S.th)t+=outT(S)+'\n';
+  fl().forEach(n=>{const c0=S.fl[n]||{},F=FF(S,c0);if(c0.skip){t+=`קומה ${n}: ללא${c0.note?' – '+c0.note:''}\n`;return}
+   if(!own(c0,F))return;const c=eh(S,c0),v=ph(S,c0);
+   t+=`קומה ${n}${c.t?' ('+TYPES[c.t].a+')':''}: `+F.map(k=>lb(S,k)+' '+(has(c[k])?c[k]:'?')).join(' | ')+(v!=null?' → מסתור '+v:'')+(angOwn(c0)?' · '+(angT(angOf(S,c0))||'בלי זווית סגירה'):'')+(c.mark?' [הפרעה]':'')+(c.note?' – '+c.note:'')+'\n'})});
+ NOTES.forEach(([k,l])=>{if(cur.n[k])t+=`\n${l}: ${cur.n[k]}`});
+ if(cur.info)t+=`\nמידע נוסף: ${cur.info}`;
+ if((cur.att||[]).length)t+=`\nמסמכים מצורפים: `+cur.att.map(x=>x.name+(x.cap?' ('+x.cap+')':'')).join(', ');
+ return t}
+function summary(){
+ let w=0,b=0,done=0,tot=0;
+ const rows=cur.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')ww++;if(r.lv=='bad')bb++});
+  w+=ww;b+=bb;done+=d;tot+=t;return`<tr><td>${esc(S.name)}</td><td>${d}/${t}</td><td>${ww}</td><td>${bb}</td></tr>`}).join('');
+ const st=b?['bad',`⚠️ ${b} קומות עם נתונים חסרים או שגויים`]:w?['warn',`${w} חריגות לבדיקה`]:['ok','✓ הכול תקין'];
+ $('#t-s').innerHTML=`<div class="card"><h2>סטטוס מדידה</h2>
+ <div class="stats"><div class="stat"><b>${done}/${tot}</b><span>קומות נמדדו</span></div><div class="stat w"><b>${w}</b><span>חריגות</span></div><div class="stat b"><b>${b}</b><span>חסרים / שגויים</span></div></div>
+ <div class="banner ${st[0]}">${st[1]}</div>
+ <div class="tblw"><table><thead><tr><th>פיר</th><th>נמדדו</th><th>חריגות</th><th>חסרים</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+ <div class="card"><h2>דוח PDF <small>נתוני הפרויקט נשמרים בתוך הקובץ – אפשר לטעון אותו חזרה ולערוך</small></h2><div class="sendacts"><button class="p wide" id="pdf">⬇ הורדת PDF</button><button class="p" id="shr" hidden>📤 שיתוף PDF</button><button id="pv">👁 תצוגה מקדימה</button><button id="imp2">📂 ייבוא PDF לעריכה</button></div></div>
+ <div class="card"><h2>חתימת לקוח <small>מופיעה בדף הסיכום בסוף ה-PDF</small></h2><button type="button" class="sigbox" id="sigb"></button><div class="sigmeta" id="sigm"></div></div>
+ <div class="card"><h2>שליחה וייצוא</h2><div class="sendacts"><button class="p wide" id="sh">📤 שתף עם קבצים</button><button class="p" id="cp">📋 העתק טקסט</button><button id="prn">🖨 הדפסה</button><button id="xl" class="p">📊 ייצוא Excel</button><button id="ex">⬇ סרטוט SVG</button></div><span id="ms" role="status" aria-live="polite"></span>
+ <details class="sec" data-k="tx"><summary><span>טקסט ההודעה</span><span class="hint">ניתן לערוך לפני שליחה</span></summary><div class="pad"><textarea id="tx"></textarea></div></details></div>
+ <div class="card"><h2>📎 מסמכים ומידע</h2>
+ <label>מידע נוסף<textarea id="inf"></textarea></label>
+ <div style="margin-top:12px"><label class="btn">📎 הוסף מסמכים / תמונות<input type="file" id="atf" multiple hidden></label></div><div id="atl"></div></div>`;
+ keepOpen($('#t-s'));
+ $('#tx').value=text();
+ $('#inf').value=cur.info||'';$('#inf').oninput=e=>{cur.info=e.target.value;save();$('#tx').value=text()};
+ $('#atf').onchange=async e=>{const fs=[...e.target.files],P=cur;e.target.value='';$('#ms').textContent='שומר קבצים…';
+  for(const f of fs){let b=f,type=f.type||'',name=f.name;
+   if(/^image\/(jpeg|png|webp|heic|heif)/.test(type)){try{b=await shrink(f,2000,.85);type='image/jpeg';name=name.replace(/\.\w+$/,'')+'.jpg'}catch(err){b=f}}
+   const id='at'+Date.now()+Math.random().toString(36).slice(2,6);
+   try{await IDB.put(id,b)}catch(err){$('#ms').textContent='שמירת '+f.name+' נכשלה (אין מקום במכשיר?)';continue}
+   (P.att=P.att||[]).push({id,name,type,size:b.size,cap:''})}
+  save();if(P==cur){renderAtt();$('#tx').value=text();$('#ms').textContent=''}};
+ renderAtt();
+ $('#sh').onclick=()=>{const m=$('#ms'),d={title:'טופס מדידה '+(cur.h.code||''),text:$('#tx').value};
+  if(shareFiles.length&&navigator.canShare&&navigator.canShare({files:shareFiles}))d.files=shareFiles;
+  if(!navigator.share){m.textContent='שיתוף לא נתמך בדפדפן זה – העתק את הטקסט ושלח את הקבצים ידנית';return}
+  navigator.share(d).then(()=>m.textContent='נשלח ✓',e=>{if(e.name!='AbortError')m.textContent='השיתוף נכשל – '+e.message})};
+ $('#cp').onclick=async()=>{const v=$('#tx').value;try{await navigator.clipboard.writeText(v);$('#ms').textContent='הועתק ✓'}catch(e){$('#tx').select();document.execCommand&&document.execCommand('copy');$('#ms').textContent='סמן והעתק ידנית אם לא הועתק'}};
+ $('#prn').onclick=async()=>{$('#pr').innerHTML=(await allPages()).join('');try{window.print()}catch(e){}};$('#ex').onclick=exportSVG;if(HOSTED())$('#prn').hidden=$('#sh').hidden=true;$('#xl').onclick=()=>runXlsx($('#xl'));
+ sigCard();$('#sigb').onclick=openSig;
+ $('#pdf').onclick=()=>runPdf($('#pdf'),'dl');$('#pv').onclick=openPreview;$('#imp2').onclick=()=>$('#pdff').click();
+ if(canShareFiles()){$('#shr').hidden=false;$('#shr').onclick=()=>runPdf($('#shr'),'share')}}
+let attURLs=[];
+async function renderAtt(){ // רשימת הקבצים המצורפים + הכנת קבצים לשיתוף מראש (iOS דורש שיתוף מיידי בלחיצה)
+ const L=$('#atl'),P=cur,a=P.att||[];if(!L)return;attURLs.forEach(u=>URL.revokeObjectURL(u));attURLs=[];shareFiles=[];
+ L.innerHTML=a.length?'':'<div style="color:var(--mu);margin-top:6px">אין קבצים מצורפים</div>';
+ const fs=[];
+ for(const x of a){const r=document.createElement('div');r.className='att';
+  r.innerHTML=`<span class="th">${/^image\//.test(x.type)?'🖼':/pdf/.test(x.type)?'📄':'📎'}</span><div style="flex:1;min-width:0"><a target="_blank"></a><div class="sz"></div><input placeholder="תיאור (לא חובה)"></div><button class="dng" title="מחק"><span aria-hidden="true">🗑</span></button>`;
+  r.querySelector('button').setAttribute('aria-label','מחיקת '+x.name);r.querySelector('input').setAttribute('aria-label','תיאור '+x.name);
+  r.querySelector('a').textContent=x.name;r.querySelector('.sz').textContent=fsz(x.size);
+  const ci=r.querySelector('input');ci.value=x.cap||'';ci.oninput=()=>{x.cap=ci.value;save();$('#tx').value=text()};
+  r.querySelector('button').onclick=async()=>{if(await ask('מחיקת קובץ','למחוק את '+x.name+'?',[['del','מחק','dng'],[null,'ביטול']])!='del')return;IDB.del(x.id).catch(()=>{});P.att.splice(P.att.indexOf(x),1);save();renderAtt();$('#tx').value=text()};
+  L.appendChild(r);
+  IDB.get(x.id).then(b=>{if(!b||P!=cur)throw 0;const u=URL.createObjectURL(b);attURLs.push(u);r.querySelector('a').href=u;
+   if(/^image\//.test(x.type))r.querySelector('.th').innerHTML=`<img src="${u}" alt="">`;fs.push(new File([b],x.name,{type:x.type||b.type}))})
+   .catch(()=>{r.querySelector('.sz').textContent+=' · הקובץ לא נמצא במכשיר זה'})}
+ shareFiles=fs;if(SKO)fetch(SKO).then(r=>r.blob()).then(b=>fs.unshift(new File([b],'סקיצת אתר.jpg',{type:'image/jpeg'}))).catch(()=>{})}
+/*S*/
+function sample(){
+ const H=[[304,281,281,280,280,282,279,282,281],[303,281,281,280,280,280,282,281,271],[304,281,281,283,281,280,282,280,283],[311,281,281,281,282,282,282,282,280],[304,281,280,281,278,283,281,280,271]],
+ W=[[117,118,119,120,120,120,119,119,119],[125,123,123,123,122,122,122,122,120],[118,118,118,118,120,118,119,118,117],[118,118,119,120,117,118,116,116,115],[118,119,118,119,119,119,119,119,119]],
+ D=['דרומית','דרומית','מערבית','מערבית','מזרחית'],p=newP();
+ p.h={code:'162343',company:'מ.ג.א.ד.ק אונו בניינים',site:'באורן קרית אונו',addr:'לוי אשכול, קרית אונו',pm:'',wk:'מנהל עבודה 050-0000000',surveyor:'סרגי',date:'2026-06-01',ral:'7035',gap:'5 ס״מ',model:'מסתור מקבילי',form:'72275',final:true,rail:false,order:false,next:'',due:''};
+ p.run='רציף';
+ p.n={gen:'מסתור מקבילי מושחל, כולל מסגרת עליון ותחתון (דוגמה – ערכים בקירוב).'};
+ p.shafts=H.map((hs,i)=>{const fl={};hs.forEach((h,j)=>fl[9-j]={h:h,w:W[i][j]});return{name:'פיר '+(i+1),bld:'B',mode:'ישב מלא',dir:D[i],fl}});
+ p.shafts[1].fl[1].mark=true;p.shafts[1].fl[1].note='קורה';
+ p.shafts[2].fl[1]={t:'u',h:283,f:118,r:40,l:40,note:'ח'};
+ p.shafts[3].fl[2]={t:'rr',h:282,f:118,r:45,note:'ר'};p.shafts[4].fl[2]={t:'rl',h:281,f:119,l:45,note:'ר'};
+ return p}
+const LOGO=`<image href="data:image/png;base64,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" x="40" y="12" width="160" height="42" preserveAspectRatio="xMinYMid meet"/>`; // לוגו קבוע בראש כל דף מיוצא (SVG / הדפסה / PDF)
+const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T=(x,y,s,z,a,x2)=>`<text x="${x}" y="${y}" font-size="${z||12}" text-anchor="${a||'start'}" ${x2||''}>${E(s)}</text>`;
+const wrap=(s,n)=>String(s).split('\n').flatMap(l=>l.match(new RegExp(`.{1,${n}}(\\s|$)`,'g'))||['']);
+// בלוק "אישור וחתימת הלקוח" (גובה SIGH, מ-y0): שם + תאריך משמאל לתוויות, ריבוע חתימה בצד שמאל – לחיץ בתצוגה המקדימה (data-sig)
+const SIGH=130;
+function sigSvg(y0,W){const g=cur.sig||{},d=g.at?g.at.slice(0,10).split('-').reverse().join('.'):'',bw=270,bh=92,bx=40,by=y0+34;
+ let s=`<rect x="40" y="${y0}" width="${W-80}" height="1.5" fill="#1c4e9d" opacity=".5"/>`+T(W-40,y0+22,'אישור וחתימת הלקוח',12,'start','font-weight="700" fill="#1c4e9d"')
+  +T(W-40,y0+44,'הלקוח מאשר את המידות והפרטים המופיעים בטופס זה.',11,'start','fill="#6b778c"')+T(bx+bw,y0+26,'חתימת הלקוח',11,'start','fill="#6b778c"');
+ [['שם הלקוח',g.name],['תאריך',d]].forEach(([a,v],i)=>{const y=y0+80+i*32;s+=T(W-40,y,a,11,'start','fill="#6b778c"')+(v?T(W-116,y,v,13,'start','font-weight="700" fill="#142033"'):'')
+  +`<line x1="${W-340}" x2="${W-112}" y1="${y+6}" y2="${y+6}" stroke="#cfd6e0" stroke-width=".8"/>`});
+ return s+`<g data-sig="1"><rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="6" fill="#fbfcfe" stroke="${g.img?'#cfd6e0':'#9aa6b8'}"${g.img?'':' stroke-dasharray="5 4"'}/>`
+  +(g.img?`<image href="${E(g.img)}" x="${bx+8}" y="${by+6}" width="${bw-16}" height="${bh-12}" preserveAspectRatio="xMidYMid meet"/>`:'')+'</g>'}
+async function allPages(){ // דפי הסרטוט + דפים נוספים: מידע ומסמכים, סקיצה בגודל מלא, תמונות מצורפות
+ const P=cur,W=794,H=1123,SK=SKO||P.sketch,ex=[];
+ for(const x of P.att||[])if(/^image\//.test(x.type)){try{const b=await IDB.get(x.id);if(b)ex.push([x.cap||x.name,await b2u(b)])}catch(e){}}
+ const head=t=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" direction="rtl" font-family="Heebo,Arial,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`
+  +LOGO+T(W-40,50,t,20,'start','font-weight="700"')+T(W-40,72,'מק״ט '+(P.h.code||'')+' · '+(P.h.site||''),12)+T(40,72,'§PG§',12,'end');
+ const img=(t,u)=>head(t)+`<image href="${E(u)}" x="40" y="90" width="${W-80}" height="${H-130}" preserveAspectRatio="xMidYMin meet"/></svg>`;
+ const IS={},il=[]; // קומות עם בעיה (חסר / חריג) – ממוספרות בסרטוט ומפורטות בדף הבדיקות
+ P.shafts.forEach((S,si)=>{const R=check(S);fl().forEach(n=>{const r=R[n];if(r&&r.m.length){il.push([r.lv,`${S.name} · קומה ${n}: ${r.m.join(' · ')}`]);IS[si+':'+n]={lv:r.lv,i:il.length}}})});
+ const pg=buildPages(IS);
+ if(SK&&P.skImg)pg.push(img('סקיצת אתר',SK));
+ ex.forEach(([t,u])=>pg.push(img(t,u)));
+ // דף אחרון קבוע: "סיכום ואישור" – סטטוס, טבלת פירים, בדיקות, מידע ומסמכים, ובתחתיתו חתימת הלקוח
+ {let s=head('סיכום ואישור'),lim=H-SIGH-50,w=0,b=0,dn=0,tt=0;
+  const sr=P.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')ww++;if(r.lv=='bad')bb++});w+=ww;b+=bb;dn+=d;tt+=t;return[S.name+(S.bld?' · '+S.bld:''),d+'/'+t,ww,bb]});
+  s+=`<rect x="40" y="98" width="${W-80}" height="30" rx="7" fill="#f3f5f9"/>`;
+  [['פירים',P.shafts.length,'#142033'],['קומות נמדדו',dn+'/'+tt,'#142033'],['חריגות',w,w?'#a06c00':'#142033'],['חסרים / שגויים',b,b?'#d62f2f':'#142033']].forEach(([a,v,c],i)=>{const x=W-56-i*178;
+   s+=T(x,118,a,11.5,'start','fill="#4a5568"')+T(x-a.length*5.7-10,118,String(v),13,'start',`font-weight="700" fill="${c}"`)});
+  let y=160;const cx=[W-40,W-260,W-400,W-540];
+  ['פיר','נמדדו','חריגות','חסרים'].forEach((a,i)=>s+=T(cx[i],y,a,11,'start','font-weight="700" fill="#6b778c"'));
+  s+=`<rect x="40" y="${y+7}" width="${W-80}" height="1.2" fill="#1c4e9d" opacity=".5"/>`;y+=28;
+  sr.forEach(r=>{if(y>=lim-200)return;r.forEach((v,i)=>s+=T(cx[i],y,String(v),12.5,'start',(i==2&&v?'fill="#a06c00" ':i==3&&v?'fill="#d62f2f" ':'')+(i?'':'font-weight="700"')));
+   s+=`<line x1="40" x2="${W-40}" y1="${y+8}" y2="${y+8}" stroke="#e3e8ef" stroke-width=".8"/>`;y+=24});y+=22;
+  if(il.length){s+=T(W-40,y,'בדיקות – לבירור לפני ייצור:',14,'start','font-weight="700"');y+=24;
+   il.forEach(([lv,x],i)=>wrap((i+1)+'. '+x,80).forEach((l,j)=>{if(y<lim){s+=T(W-40-(j?18:0),y,l,13,'start',lv=='bad'?'fill="#d62f2f"':'fill="#a06c00"');y+=20}}));y+=16}
+  if(P.info){s+=T(W-40,y,'מידע נוסף:',14,'start','font-weight="700"');y+=24;wrap(P.info,80).forEach(l=>{if(y<lim){s+=T(W-40,y,l,13);y+=20}});y+=16}
+  if((P.att||[]).length){s+=T(W-40,y,'מסמכים מצורפים:',14,'start','font-weight="700"');y+=24;P.att.forEach(x=>{if(y<lim){s+=T(W-40,y,'• '+x.name+(x.cap?' – '+x.cap:''),13);y+=20}})}
+  pg.push(s+sigSvg(H-SIGH-25,W)+'</svg>')}
+ return pg.map((s,i)=>s.replace('§PG§','דף '+(i+1)+' מתוך '+pg.length))}
+function buildPages(IS){ // IS = בעיות לפי 'אינדקס פיר:קומה' → {lv,i}
+ const P=cur,h=P.h,fls=fl(),W=794,H=1123,CW=140,GY=345,pg=[],cols=[],rows=[],SK=SKO||P.sketch;
+ const N=(v,m)=>Math.max(0,Math.min(1,(+v||0)/m));
+ for(let i=0;i<P.shafts.length;i+=5)cols.push(P.shafts.slice(i,i+5));
+ for(let i=0;i<fls.length;i+=10)rows.push(fls.slice(i,i+10));
+ const total=cols.length*rows.length,fd=v=>/^\d{4}-\d\d-\d\d$/.test(v||'')?v.split('-').reverse().join('.'):(v||''); // 2026-10-27 → 27.10.2026
+ const l1=[['מק״ט פרויקט',h.code],['שם חברה',h.company],['אתר',h.site],['כתובת',h.addr],['מנהל פרויקט',h.pm],['מנהל עבודה',h.wk]],
+ l2=[['תאריך מדידה',fd(h.date)],['מודד',h.surveyor],['גוון RAL',h.ral],['מרווח אור',h.gap],['דגם',h.model],['מס׳ טופס',h.form]];
+ // כותרת הדף: תווית אפורה קטנה + ערך מודגש על קו מילוי; ערך ארוך מוקטן/נדחס כדי לא לחרוג מהעמודה
+ const hv=(x,y,v,w,z0)=>{v=String(v||'');z0=z0||13;if(!v)return'';const est=v.length*7.1*z0/13;let z=z0,ex='';
+  if(est>w){z=Math.max(11,z0*w/est);if(est*z/z0>w)ex=`textLength="${w}" lengthAdjust="spacingAndGlyphs"`}
+  return T(x,y,v,+z.toFixed(1),'start','font-weight="700" fill="#142033" '+ex)},
+ HC=SK?[[W-40,234],[500,210]]:[[W-40,347],[387,347]],LW=76,
+ HD=[[l1,'פרטי פרויקט'],[l2,'פרטי מדידה']].map(([ls,ttl],c)=>{const[x,w]=HC[c];
+  let o=T(x,92,ttl,11,'start','font-weight="700" fill="#1c4e9d"')+`<rect x="${x-w}" y="97" width="${w}" height="1.5" fill="#1c4e9d" opacity=".5"/>`;
+  ls.forEach(([a,v],i)=>{const y=119+i*22;o+=T(x,y,a,11,'start','fill="#6b778c"')+hv(x-LW,y,v,w-LW-2)+`<line x1="${x-w}" x2="${x-LW+4}" y1="${y+6}" y2="${y+6}" stroke="#cfd6e0" stroke-width=".8"/>`});return o}).join('')
+  +(()=>{const y=262;let o=`<rect x="40" y="244" width="${W-80}" height="28" rx="7" fill="#f3f5f9"/>`,xr=W-52;
+   const lab=(t,x)=>T(x,y,t,11.5,'start','fill="#4a5568"'),off=t=>t.length*5.7+8,sep=x=>`<line x1="${x}" x2="${x}" y1="${y-12}" y2="${y+3}" stroke="#cfd6e0"/>`;
+   [['מדידה סופית',h.final],['הזמנת חומר',h.order],['מעקה טכנאי',h.rail]].forEach(([t,on])=>{const px=xr-off(t)-30;
+    o+=lab(t,xr)+`<rect x="${px}" y="${y-12}" width="30" height="17" rx="8.5" fill="${on?'#e0f1e6':'#eceff4'}"/>`+T(px+15,y,on?'כן':'לא',11,'middle',`font-weight="700" fill="${on?'#1d6b3a':'#7a8597'}"`);xr-=122;o+=sep(xr+8)});
+   [['מסירה לתכנון',h.due],['צפי למדידה נוספת',h.next]].forEach(([t,v],i)=>{o+=lab(t,xr)+(v?hv(xr-off(t),y,fd(v),170-off(t),12.5):T(xr-off(t),y,'—',12,'start','fill="#a0aaba"'));xr-=176;if(!i)o+=sep(xr+8)});
+   return o})();
+ let k=0;
+ cols.forEach((cs,ci)=>rows.forEach((fr,ri)=>{
+  const RH=Math.min(96,(H-GY-150)/fr.length),L='stroke="#1a2433" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"',B='font-weight="700" fill="#1c4e9d"';
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" direction="rtl" font-family="Heebo,Arial,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  s+=LOGO+T(40,72,'§PG§',12,'end')+T(W-40,50,'טופס מדידה – '+TYPES[P.type].n,20,'start','font-weight="700"');
+  s+=HD;
+  k++;if(SK&&k==1)s+=`<rect x="40" y="100" width="230" height="104" fill="none" stroke="#999"/><image href="${SK}" x="40" y="100" width="230" height="104" preserveAspectRatio="xMidYMid meet"/>`+T(155,216,'סקיצת אתר',11,'middle');
+  cs.forEach((S,j)=>{const cx=70+j*CW,TT=tot(S); // כותרת פיר: שורות קצרות שנערמות כלפי מעלה כדי לא לחרוג מרוחב העמודה
+   const ls=[[S.dir,rn(S),S.mode].filter(Boolean).join(' · '),covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?`כולל ${S.th} (קומות ${TT.a}–${TT.b})`:'',...angRows(angOf(S,{}),S.angp)].filter(Boolean);
+   ls.forEach((x,i)=>s+=T(cx+CW/2,GY-12-(ls.length-1-i)*11,x,10,'middle','fill="#555"'));s+=T(cx+CW/2,GY-16-ls.length*11,S.name+(S.bld?' · '+S.bld:''),14,'middle','font-weight="700"')});
+  fr.forEach((n,i)=>{const y=GY+i*RH;s+=`<line x1="30" x2="${W-30}" y1="${y}" y2="${y}" stroke="#d5dbe5"/>`+T(40,y+RH/2+7,n,20,'middle','font-weight="700"');
+   cs.forEach((S,j)=>{const c0=S.fl[n]||{},c=eh(S,c0),t=ty(S,c),cx=70+j*CW,ox=cx+34,oy=y+RH-20,mh=RH-34,qm=v=>v===''||v==null?'?':v,is=IS&&IS[P.shafts.indexOf(S)+':'+n],ic=is&&(is.lv=='bad'?'#d62f2f':'#e0a100');let pts,tx='';
+    if(c0.skip){s+=`<path d="M${cx+20} ${y+8}L${cx+CW-20} ${y+RH-8}M${cx+CW-20} ${y+8}L${cx+20} ${y+RH-8}" stroke="#d62f2f" stroke-width="3"/>`+T(cx+CW/2,y+RH/2+4,'ללא'+(c0.note?' – '+c0.note:''),12,'middle','font-weight="700" fill="#d62f2f" paint-order="stroke" stroke="#fff" stroke-width="4"');return}
+    if(!['h','w','f','r','l'].some(q=>c0[q]))return;
+    if(is)s+=`<rect x="${cx+2}" y="${y+2}" width="${CW-4}" height="${RH-4}" rx="6" fill="${is.lv=='bad'?'#fde7e7':'#fff4d6'}" stroke="${ic}" stroke-dasharray="5 3"/>`; // קומה עם בעיה – מסומנת וממוספרת, הפירוט בדף הבדיקות
+    const TF=TYPES[t].f,hl=TF.includes('l'),hr=TF.includes('r');
+    if(TF.includes('f')){const ww=Math.min(CW-70,N(c.f,320)*(CW-70)*1.5),t0=y+24,l=hl?N(c.l,120)*mh:0,r=hr?N(c.r,120)*mh:0; // ח / ר: חזית למעלה, צדדים יורדים
+     pts=(hl?`${ox},${t0+l} `:'')+`${ox},${t0} ${ox+ww},${t0}`+(hr?` ${ox+ww},${t0+r}`:'');
+     tx=T(ox+ww/2,t0+16,qm(c.f),14,'middle',B)+(hl?`<text transform="translate(${ox-7},${t0+l/2}) rotate(-90)" font-size="13" text-anchor="middle" ${B}>${E(qm(c.l))}</text>`:'')+(hr?`<text transform="translate(${ox+ww+13},${t0+r/2}) rotate(-90)" font-size="13" text-anchor="middle" ${B}>${E(qm(c.r))}</text>`:'')+T(ox+ww/2,y+13,'גובה '+qm(c.h),11,'middle','fill="#555"')}
+    else{const hh=N(c.h,320)*mh,ww=Math.min(CW-70,N(c.w,320)*(CW-70)*1.5);pts=`${ox},${oy-hh} ${ox},${oy} ${ox+ww},${oy}`;
+     tx=`<text transform="translate(${ox-7},${oy-hh/2}) rotate(-90)" font-size="14" text-anchor="middle" ${B}>${E(qm(c.h))}</text>`+T(ox+ww/2,oy+14,qm(c.w),14,'middle',B)}
+    if(c.mark)s+=`<polyline points="${pts}" stroke="#ff4fa3" stroke-width="9" opacity=".55" fill="none" stroke-linecap="round"/>`;
+    s+=`<polyline points="${pts}" ${L}/>`+tx;
+    if(c.note)s+=T(cx+CW-4,y+13,c.note,10,'start','fill="#555"');
+    if(angOwn(c0)){const al=angRows(angOf(S,c0));(al.length?al:['בלי זווית סגירה']).forEach((x,i)=>s+=T(cx+CW-4,y+(c.note?25:13)+i*11,x,9,'start','fill="#c25e00" font-weight="700" paint-order="stroke" stroke="#fff" stroke-width="3"'))}
+    const pv=c0.skip?null:ph(S,c0); // גובה מסתור: בפיר ישר – מעל קו הרוחב בתוך ה-L (לא על מספר הרוחב); עובי פודסט רק כשהקומה שונה מהפיר
+    if(pv!=null){const py=TF.includes('f')?y+RH-4:oy-6,G='fill="#2e9e57" font-weight="700" paint-order="stroke" stroke="#fff" stroke-width="3"';s+=T(cx+CW-4,py,'מסתור '+pv,10,'start',G);
+     if(COV[cvk(S)].k&&+c.p!=+pT(S))s+=T(cx+CW-4,py-11,'פודסט '+c.p,9,'start',G)}
+    if(is)s+=`<circle cx="${cx+11}" cy="${y+13}" r="9" fill="${ic}"/>`+T(cx+11,y+17,is.i,11,'middle','fill="#fff" font-weight="700"')});
+   });
+  if(k==total){let yy=H-130;NOTES.forEach(([q,l])=>{if(P.n[q])(l+': '+P.n[q]).replace(/\n/g,' ').match(/.{1,75}(\s|$)/g).forEach(x=>{if(yy<H-20){s+=T(W-40,yy,x,12);yy+=17}})})}
+  pg.push(s+'</svg>')}));
+ return pg}
+async function exportSVG(){const pg=await allPages(),H=1123,m=$('#ms');
+ const data=pg.length==1?pg[0]:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 794 ${H*pg.length}" width="794" height="${H*pg.length}">`+pg.map((p,i)=>p.replace('<svg ','<svg y="'+i*H+'" ')).join('')+'</svg>';
+ const fn='measure-'+(cur.h.code||'new')+'.svg';
+ try{if(await download(new Blob([data],{type:'image/svg+xml'}),fn))m.textContent='הקובץ הורד ✓'}
+ catch(e){m.textContent='ייצוא ישיר לא זמין כאן – השתמשו ב-PDF'}}
+/* ---------- Excel: ייצוא ---------- */
+// קובץ xlsx נבנה כאן (ZIP ללא דחיסה): גיליון סיכום, גיליון לכל פיר (גובה המסתור = נוסחה חיה), וגיליון שרטוטים עם עמודי הדוח כתמונות חדות
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=b=>{let c=~0;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return(~c)>>>0};
+function zipBlob(files,type){const te=new TextEncoder(),parts=[],cd=[];let pos=0;
+ const h=(n,a)=>{const b=new Uint8Array(n),v=new DataView(b.buffer);a.forEach(([o,x,s])=>s==2?v.setUint16(o,x,true):v.setUint32(o,x,true));return b};
+ files.forEach(([name,data])=>{const nb=te.encode(name),d=typeof data=='string'?te.encode(data):data,c=crc32(d);
+  parts.push(h(30,[[0,0x04034b50],[4,20,2],[6,0x800,2],[8,0,2],[10,0,2],[12,0x21,2],[14,c],[18,d.length],[22,d.length],[26,nb.length,2],[28,0,2]]),nb,d);
+  cd.push(h(46,[[0,0x02014b50],[4,20,2],[6,20,2],[8,0x800,2],[10,0,2],[12,0,2],[14,0x21,2],[16,c],[20,d.length],[24,d.length],[28,nb.length,2],[30,0,2],[32,0,2],[34,0,2],[36,0,2],[38,0],[42,pos]]),nb);
+  pos+=30+nb.length+d.length});
+ const cl=cd.reduce((s,b)=>s+b.length,0);
+ return new Blob([...parts,...cd,h(22,[[0,0x06054b50],[4,0,2],[6,0,2],[8,files.length,2],[10,files.length,2],[12,cl],[16,pos],[20,0,2]])],{type})}
+const XE=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');
+const xcol=i=>{let s='';i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=(i-m-1)/26}return s};
+const xnum=v=>has(v)&&Number.isFinite(+v)?+v:has(v)?String(v):'';
+// סגנונות (מספר = אינדקס ב-cellXfs): 1 כותרת, 2 תווית, 3 ערך, 4 כותרת טבלה, 5 תא, 6 טקסט, 7 קומה, 8 גובה מסתור, 9 אדום, 10 כותרת קטע, 11 הפרעה, 12 שורת מידע
+const XSTY=(()=>{const C='horizontal="center" vertical="center"',W='vertical="center" wrapText="1"',F=(b,z,c)=>`<font>${b?'<b/>':''}<sz val="${z}"/>${c?`<color rgb="FF${c}"/>`:''}<name val="Arial"/></font>`,
+ S=c=>`<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`,L=s=>`<${s} style="thin"><color rgb="FFC5CEDB"/></${s}>`,
+ X=(f,fi,b,al)=>`<xf numFmtId="0" fontId="${f}" fillId="${fi}" borderId="${b}" xfId="0" applyFont="1" applyFill="1" applyBorder="1"${al?` applyAlignment="1"><alignment ${al}/></xf>`:'/>'}`,
+ xs=[X(0,0,0),X(2,0,0,'vertical="center"'),X(6,3,1,W),X(1,0,1,W),X(3,2,1,C+' wrapText="1"'),X(0,0,1,C),X(0,0,1,W),X(1,3,1,C),X(4,0,1,C),X(5,0,1,W),X(7,0,0,'vertical="bottom"'),X(0,4,1,C),X(6,0,0,W)];
+ return`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="8">${F(0,10)+F(1,10)+F(1,16,'1C4E9D')+F(1,10,'FFFFFF')+F(1,10,'2E9E57')+F(1,10,'D62F2F')+F(0,9,'6B778C')+F(1,12,'1C4E9D')}</fonts>
+<fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>${S('1C4E9D')+S('EEF2F8')+S('FFE3F1')}</fills>
+<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border>${L('left')+L('right')+L('top')+L('bottom')}<diagonal/></border></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${xs.length}">${xs.join('')}</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`})();
+function sheetXml(o){ // o: rows (מערך שורות של תאים), cols (רוחבים), freeze, merges, heights, breaks, drawing, grid
+ let x=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><sheetViews><sheetView rightToLeft="1"${o.grid===false?' showGridLines="0"':''}${o.first?' tabSelected="1"':''} workbookViewId="0">`
+  +(o.freeze?`<pane ySplit="${o.freeze}" topLeftCell="A${o.freeze+1}" activePane="bottomLeft" state="frozen"/>`:'')+'</sheetView></sheetViews><sheetFormatPr defaultRowHeight="15"'+(o.breaks?' customHeight="1"':'')+'/>' // גיליון שרטוטים: שורות של 20px בדיוק, כדי ששבירת העמוד תיפול בין השרטוטים
+  +(o.cols?'<cols>'+o.cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>':'')+'<sheetData>';
+ (o.rows||[]).forEach((r,ri)=>{const ht=o.heights&&o.heights[ri];if(!r&&!ht)return;x+=`<row r="${ri+1}"${ht?` ht="${ht}" customHeight="1"`:''}>`;
+  (r||[]).forEach((c,ci)=>{if(c==null||c==='')return;if(typeof c!='object')c={v:c};const a=`r="${xcol(ci)+(ri+1)}"`+(c.s?` s="${c.s}"`:''),e=c.v==null||c.v==='';
+   x+=c.f?`<c ${a}><f>${XE(c.f)}</f>${e?'':`<v>${c.v}</v>`}</c>`:e?`<c ${a}/>`:typeof c.v=='number'?`<c ${a}><v>${c.v}</v></c>`:`<c ${a} t="inlineStr"><is><t xml:space="preserve">${XE(c.v)}</t></is></c>`});
+  x+='</row>'});
+ x+='</sheetData>'+(o.merges&&o.merges.length?`<mergeCells count="${o.merges.length}">`+o.merges.map(m=>`<mergeCell ref="${m}"/>`).join('')+'</mergeCells>':'')
+  +`<pageMargins left="${o.m||.4}" right="${o.m||.4}" top="${o.m||.5}" bottom="${o.m||.5}" header="0.2" footer="0.2"/><pageSetup paperSize="9" orientation="${o.land?'landscape':'portrait'}" fitToWidth="1" fitToHeight="0"/>`
+  +`<headerFooter><oddFooter>${XE('&C&P / &N')}</oddFooter></headerFooter>`
+  +(o.breaks&&o.breaks.length?`<rowBreaks count="${o.breaks.length}" manualBreakCount="${o.breaks.length}">`+o.breaks.map(b=>`<brk id="${b}" max="16383" man="1"/>`).join('')+'</rowBreaks>':'');
+ return x+(o.drawing?'<drawing r:id="rId1"/>':'')+'</worksheet>'}
+const drawXml=pics=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`
+ +pics.map((p,i)=>{const e=`cx="${Math.round(p.w*9525)}" cy="${Math.round(p.h*9525)}"`;return`<xdr:oneCellAnchor><xdr:from><xdr:col>${p.c}</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>${p.r}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from><xdr:ext ${e}/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="${i+2}" name="${XE(p.name)}"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip r:embed="rId${i+1}"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext ${e}/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>`}).join('')+'</xdr:wsDr>';
+function xlSummary(P){const h=P.h,rows=[],mg=[],ht={0:40},N=8,L=N-1;
+ rows[0]=[{v:'טופס מדידה – '+TYPES[P.type].n,s:1}];mg.push('A1:E1');
+ rows[1]=[{v:pname(P)+(h.date?' · '+fmtD(h.date):''),s:12}];mg.push('A2:E2');
+ const sec=t=>{rows.push(null);rows.push([{v:t,s:10}]);ht[rows.length-1]=22};
+ const kv=a=>{for(let i=0;i<a.length;i+=2){const r=[];[a[i],a[i+1]].forEach((q,j)=>{if(!q)return;r[j*4]={v:q[0],s:2};r[j*4+1]={v:q[1]??'',s:3};r[j*4+2]={s:3};r[j*4+3]={s:3};mg.push(`${xcol(j*4+1)}${rows.length+1}:${xcol(j*4+3)}${rows.length+1}`)});rows.push(r)}};
+ sec('פרטי פרויקט');
+ kv(HF.map(([k,l,tp])=>[l,tp=='date'?fmtD(h[k]):h[k]||'']).concat([['מדידה סופית',h.final?'כן':'לא'],['מעקה טכנאי',h.rail?'כן':'לא'],['הזמנת חומר',h.order?'כן':'לא']]));
+ sec('ברירות מחדל לפירים');
+ kv([['סוג פיר',TYPES[P.type].n],['רציף / בודד',P.run||''],['מיקום ביחס לפודסט',P.cov?COV[P.cov].n:''],['עובי פודסט',xnum(P.pt)]]);
+ sec('פירים');const hr=rows.length;rows.push(['פיר','בניין','כיוון','סוג פיר','מיקום ביחס לפודסט','נמדדו','חריגות','חסרים / שגויים'].map(v=>({v,s:4})));ht[hr]=30;
+ P.shafts.forEach(S=>{const R=check(S);let d=0,t=0,w=0,b=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')w++;if(r.lv=='bad')b++});
+  rows.push([{v:S.name||'',s:3},{v:S.bld||'',s:5},{v:S.dir||'',s:5},{v:TYPES[ty(S,{})].a,s:5},{v:covT(S),s:6},{v:d+'/'+t,s:5},{v:w,s:w?9:5},{v:b,s:b?9:5}])});
+ const tx=NOTES.filter(([k])=>P.n[k]).map(([k,l])=>[l,P.n[k]]);if(P.info)tx.push(['מידע נוסף',P.info]);if((P.att||[]).length)tx.push(['מסמכים מצורפים',P.att.map(x=>x.name+(x.cap?' ('+x.cap+')':'')).join(', ')]);
+ if(cur.sig&&cur.sig.name)tx.push(['אושר על ידי',cur.sig.name+(cur.sig.at?' · '+fmtD(cur.sig.at.slice(0,10)):'')]);
+ if(tx.length){sec('הנחיות והערות');tx.forEach(([l,v])=>{const r=rows.length;rows.push([{v:l,s:2},{v:String(v),s:6},...Array(L-1).fill({s:6})]);mg.push(`B${r+1}:${xcol(L)}${r+1}`);
+  ht[r]=Math.max(20,15*String(v).split('\n').reduce((s,x)=>s+Math.ceil((x.length||1)/95),0)+4)})}
+ return{rows,merges:mg,heights:ht,cols:[20,24,18,26,24,12,12,14],grid:false,first:1}}
+function xlShaft(S){const K=cvk(S),R=check(S),used=new Set(),rows=[],mg=[],ht={0:30};
+ fl().forEach(n=>{const c=S.fl[n]||{};if(!c.skip)FF(S,c).forEach(k=>used.add(k))});
+ const anyA=fl().some(n=>{const c=S.fl[n]||{};return!c.skip&&Object.keys(angOf(S,c)).length});
+ const C=[['n','קומה',8],['t','צורה',10],...['h','w','f','r','l','p'].filter(k=>used.has(k)).map(k=>[k,lb(S,k),10])];
+ if(K)C.push(['ph','גובה מסתור',12]);if(anyA)ANG.forEach(([k,l])=>C.push(['a'+k,'זווית '+l,9]));
+ C.push(['mk','הפרעה',8],['note','הערה',26],['chk','בדיקה',36]);
+ const L=xcol(C.length-1),ix=k=>C.findIndex(c=>c[0]==k),TT=tot(S);
+ rows[0]=[{v:S.name||'פיר',s:1}];mg.push(`A1:${L}1`);
+ const meta=[S.bld?'בניין '+S.bld:'',S.dir,rn(S),TYPES[ty(S,{})].n,S.mode,covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?totT(S)+(TT.d!=null?` · סכום הקומות ${TT.sum}`:''):'',angT(angOf(S,{}),S.angp)].filter(Boolean).join(' · ');
+ rows[1]=[{v:meta,s:12}];mg.push(`A2:${L}2`);ht[1]=Math.max(18,15*Math.ceil(meta.length/(C.length*11)));
+ if(K)rows[2]=[{v:COV[K].f+(K=='out'&&S.th?' · '+outT(S):''),s:12}],mg.push(`A3:${L}3`);
+ const H0=4;rows[H0]=C.map(([,v])=>({v,s:4}));ht[H0]=30;
+ fl().forEach(n=>{const c0=S.fl[n]||{},r=[{v:n,s:7}],ri=rows.length+1,lv=(R[n]||{}).lv,ms=(R[n]||{}).m||[];
+  if(c0.skip){C.slice(1).forEach(([k])=>r.push(k=='t'?{v:'ללא',s:9}:k=='note'?{v:c0.note||'',s:6}:{s:5}));rows.push(r);return}
+  const c=eh(S,c0),F=FF(S,c0),ow=own(c0,F),a=angOf(S,c0),bx=c0.mark?11:5;
+  C.slice(1).forEach(([k])=>{
+   if(k=='t')r.push({v:ow?TYPES[ty(S,c0)].a:'',s:5});
+   else if(LAB[k])r.push({v:ow&&F.includes(k)?xnum(c[k]):'',s:bx});
+   else if(k=='ph'){const q=COV[K].k,hc=xcol(ix('h'))+ri,pc=ix('p')<0?null:xcol(ix('p'))+ri,v=ow?ph(S,c0):null;
+    r.push({f:q&&pc?`IF(AND(ISNUMBER(${hc}),ISNUMBER(${pc})),${hc}+${pc}*${q},"")`:`IF(ISNUMBER(${hc}),${hc},"")`,v:v==null?'':v,s:8})}
+   else if(k[0]=='a'&&k.length==2)r.push({v:ow&&a[k[1]]?a[k[1]]:'',s:5});
+   else if(k=='mk')r.push({v:c0.mark?'כן':'',s:c0.mark?11:5});
+   else if(k=='note')r.push({v:c0.note||'',s:6});
+   else r.push({v:ms.join(' · '),s:lv=='bad'?9:6})});
+  rows.push(r)});
+ return{rows,merges:mg,heights:ht,cols:C.map(c=>c[2]),freeze:H0+1,land:C.length>11,pt:H0+1}}
+async function makeXlsx(){flush();const P=cur,te=new TextEncoder(),files=[],names=new Set();
+ const sn=s=>{let b=String(s||'גיליון').replace(/[\[\]:*?\/\\]/g,'-').replace(/^'+|'+$/g,'').trim().slice(0,28)||'גיליון',x=b,i=2;while(names.has(x.toLowerCase()))x=b+' '+i++;names.add(x.toLowerCase());return x};
+ const SH=[{name:sn('סיכום'),...xlSummary(P)},...P.shafts.map(S=>({name:sn(S.name||'פיר'),...xlShaft(S)}))];
+ const media=[],draws=[]; // draws[i] = {sheet, pics}
+ try{const b=atob(LOGO.match(/base64,([^"]+)/)[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+  media.push(['png',u]);draws.push({sh:0,pics:[{c:5,r:0,w:160,h:42,m:media.length,name:'לוגו'}]})}catch(e){}
+ const pg=await allPages(),RP=52,pics=[]; // 720×1018 פיקסלים = נכנס לעמוד A4 בהדפסה בלי הקטנה; RP שורות (20px) לכל עמוד
+ for(let i=0;i<pg.length;i++){const im=await svgToJpeg(pg[i],2);media.push(['jpeg',im.bytes]);pics.push({c:0,r:i*RP,w:720,h:1018,m:media.length,name:'עמוד '+(i+1)})}
+ SH.push({name:sn('שרטוטים'),rows:[],cols:[16],grid:false,m:.2,breaks:pg.map((_,i)=>i*RP).slice(1)});draws.push({sh:SH.length-1,pics});
+ draws.forEach((d,i)=>{SH[d.sh].drawing=i+1});
+ const RT='http://schemas.openxmlformats.org/officeDocument/2006/relationships',PR='http://schemas.openxmlformats.org/package/2006/relationships',XH='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+ const rel=a=>XH+`<Relationships xmlns="${PR}">`+a.map(([id,t,g])=>`<Relationship Id="${id}" Type="${RT}/${t}" Target="${g}"/>`).join('')+'</Relationships>';
+ files.push(['[Content_Types].xml',XH+`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpeg" ContentType="image/jpeg"/>`
+  +`<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>`
+  +SH.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')
+  +draws.map((_,i)=>`<Override PartName="/xl/drawings/drawing${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>`).join('')+'</Types>']);
+ files.push(['_rels/.rels',rel([['rId1','officeDocument','xl/workbook.xml']]).replace('</Relationships>',`<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>`)]);
+ files.push(['docProps/core.xml',XH+`<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${XE('טופס מדידת מסתורים – '+pname(P))}</dc:title><dc:creator>${XE(P.h.surveyor||'מדידת מסתורים')}</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString().slice(0,19)}Z</dcterms:created></cp:coreProperties>`]);
+ const q=n=>"'"+n.replace(/'/g,"''")+"'",pt=SH.map((s,i)=>s.pt?`<definedName name="_xlnm.Print_Titles" localSheetId="${i}">${XE(q(s.name))}!$${s.pt}:$${s.pt}</definedName>`:'').join('');
+ files.push(['xl/workbook.xml',XH+`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${RT}"><bookViews><workbookView/></bookViews><sheets>`+SH.map((s,i)=>`<sheet name="${XE(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')+'</sheets>'+(pt?`<definedNames>${pt}</definedNames>`:'')+'<calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>']);
+ files.push(['xl/_rels/workbook.xml.rels',rel([...SH.map((_,i)=>['rId'+(i+1),'worksheet',`worksheets/sheet${i+1}.xml`]),['rId'+(SH.length+1),'styles','styles.xml']])]);
+ files.push(['xl/styles.xml',XSTY]);
+ SH.forEach((s,i)=>{files.push([`xl/worksheets/sheet${i+1}.xml`,sheetXml(s)]);if(s.drawing)files.push([`xl/worksheets/_rels/sheet${i+1}.xml.rels`,rel([['rId1','drawing',`../drawings/drawing${s.drawing}.xml`]])])});
+ draws.forEach((d,i)=>{files.push([`xl/drawings/drawing${i+1}.xml`,drawXml(d.pics)]);files.push([`xl/drawings/_rels/drawing${i+1}.xml.rels`,rel(d.pics.map((p,j)=>['rId'+(j+1),'image',`../media/image${p.m}.${media[p.m-1][0]}`]))])});
+ media.forEach(([ext,b],i)=>files.push([`xl/media/image${i+1}.${ext}`,b]));
+ return{blob:zipBlob(files,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),name:pdfName().replace(/\.pdf$/,'.xlsx'),pages:pg.length}}
+async function runXlsx(btn){if(btn.disabled)return;const lbl=btn.innerHTML;btn.disabled=true;btn.setAttribute('aria-busy','true');btn.textContent='מכין Excel…';
+ try{const r=await makeXlsx();if(await download(r.blob,r.name))toast(`קובץ ה-Excel הורד ✓ (${cur.shafts.length} פירים · ${r.pages} עמודי שרטוט)`,'ok')}
+ catch(e){console.error(e);toast('יצירת קובץ ה-Excel נכשלה. נסו שוב.','bad')}
+ finally{btn.disabled=false;btn.removeAttribute('aria-busy');btn.innerHTML=lbl}}
+/* ---------- PDF: יצירה ---------- */
+// כל עמוד SVG מצויר לתמונה חדה (JPEG) ונכנס לעמוד A4; נתוני הפרויקט (כולל תמונות וקבצים) מוטמעים כקובץ מצורף בתוך ה-PDF
+function svgToJpeg(svg,scale){return new Promise((res,rej)=>{const img=new Image();
+ img.onload=()=>{try{const c=document.createElement('canvas');c.width=Math.round(794*scale);c.height=Math.round(1123*scale);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
+  c.toBlob(b=>{if(!b)return rej(new Error('toBlob'));b.arrayBuffer().then(a=>res({bytes:new Uint8Array(a),w:c.width,h:c.height}),rej)},'image/jpeg',.9)}catch(e){rej(e)}};
+ img.onerror=()=>rej(new Error('svg'));img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
+const u16=s=>{let h='FEFF';for(let i=0;i<s.length;i++)h+=s.charCodeAt(i).toString(16).padStart(4,'0').toUpperCase();return'<'+h+'>'};
+function pdfBlob(imgs,info,json){
+ const parts=[],off=[];let pos=0;
+ const A=s=>{const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i)&255;return b};
+ const put=b=>{if(typeof b=='string')b=A(b);parts.push(b);pos+=b.length};
+ const obj=(n,d,st)=>{off[n]=pos;put(`${n} 0 obj\n${d}\n`);if(st){put('stream\n');put(st);put('\nendstream\n')}put('endobj\n')};
+ const jb=A(json),N=6+imgs.length*3,kids=imgs.map((_,i)=>`${6+i*3} 0 R`).join(' ');
+ const d=new Date(),p2=v=>String(v).padStart(2,'0'),dt=`D:${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}`;
+ put('%PDF-1.7\n');put(new Uint8Array([37,226,227,207,211,10]));
+ obj(1,`<< /Type /Catalog /Pages 2 0 R /Lang (he-IL) /ViewerPreferences << /Direction /R2L /DisplayDocTitle true >> /Names << /EmbeddedFiles << /Names [(mdd-project.json) 5 0 R] >> >> >>`);
+ obj(2,`<< /Type /Pages /Kids [${kids}] /Count ${imgs.length} >>`);
+ obj(3,`<< /Title ${u16(info.title)} /Author ${u16(info.author||'')} /Subject ${u16(info.subject||'')} /Keywords (MDD1) /Creator ${u16('מדידת מסתורים')} /Producer (MDD PDF 1.0) /CreationDate (${dt}) /ModDate (${dt}) >>`);
+ obj(4,`<< /Type /EmbeddedFile /Subtype /application#2Fjson /Length ${jb.length} /Params << /Size ${jb.length} /ModDate (${dt}) >> >>`,jb);
+ obj(5,`<< /Type /Filespec /F (mdd-project.json) /UF ${u16('mdd-project.json')} /Desc ${u16('נתוני הפרויקט – לטעינה ועריכה באפליקציית מדידת מסתורים')} /EF << /F 4 0 R /UF 4 0 R >> >>`);
+ imgs.forEach((im,i)=>{const n=6+i*3,cs=`q\n595.28 0 0 841.89 0 0 cm\n/Im0 Do\nQ`;
+  obj(n,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /XObject << /Im0 ${n+2} 0 R >> >> /Contents ${n+1} 0 R >>`);
+  obj(n+1,`<< /Length ${cs.length} >>`,cs);
+  obj(n+2,`<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>`,im.bytes)});
+ const xr=pos;let x=`xref\n0 ${N}\n0000000000 65535 f \n`;for(let i=1;i<N;i++)x+=String(off[i]).padStart(10,'0')+' 00000 n \n';
+ put(x+`trailer\n<< /Size ${N} /Root 1 0 R /Info 3 0 R >>\nstartxref\n${xr}\n%%EOF\n`);
+ return new Blob(parts,{type:'application/pdf'})}
+const pdfName=()=>('מדידה-'+(cur.h.code||'חדש')+'-'+(cur.h.date||today())).replace(/[\\/:*?"<>|\s]+/g,'_')+'.pdf';
+async function makePdf(){if(lastPdf&&lastPdf.p===cur&&lastPdf.sk===SKO)return lastPdf;
+ flush();const pg=await allPages(),imgs=[];for(const s of pg)imgs.push(await svgToJpeg(s,2.4));
+ const files={};for(const id of fids(cur)){try{const b=await IDB.get(id);if(b)files[id]=await b2u(b)}catch(e){}} // תמונת הסקיצה והקבצים – לשחזור בעריכה חוזרת
+ const json=JSON.stringify({__mdd:1,v:2,exported:new Date().toISOString(),project:cur,files}).replace(/[\u007f-\uffff]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0')).replace(/endstream/g,'endstre\\u0061m');
+ const blob=pdfBlob(imgs,{title:'טופס מדידת מסתורים – '+pname(cur),author:cur.h.surveyor||'',subject:TYPES[cur.type].n},json);
+ return lastPdf={p:cur,sk:SKO,blob,name:pdfName(),pages:pg.length}}
+const canShareFiles=()=>{if(HOSTED())return false;try{return!!(navigator.canShare&&navigator.canShare({files:[new File([''],'a.pdf',{type:'application/pdf'})]}))}catch(e){return false}};
+async function download(blob,name){ // מחזיר false אם המשתמש סירב לשמירה
+ if(HOSTED()){const d=await claude.use('downloads');if(d){try{await d.save({filename:name,data:blob});return true}catch(e){if(e&&e.code=='declined')return false;throw e}}
+  toast('שמירת קבצים לא זמינה בתצוגה הזו – פתחו את הקישור בדפדפן של הטלפון (Chrome / Safari)','bad');return false} // בתוך Claude הורדה רגילה חסומה
+ const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return true}
+async function runPdf(btn,mode){if(btn.disabled)return;const lbl=btn.innerHTML;btn.disabled=true;btn.setAttribute('aria-busy','true');btn.textContent='מכין PDF…';
+ try{const r=await makePdf();
+  if(mode=='share'){try{await navigator.share({files:[new File([r.blob],r.name,{type:'application/pdf'})],title:pname(cur)});toast('שותף ✓','ok')}
+   catch(e){if(e&&e.name=='AbortError'){}else if(e&&e.name=='NotAllowedError')toast('ה-PDF מוכן – לחצו שוב על "שיתוף PDF"','ok'); // בטלפון: השיתוף חייב להיות מיידי אחרי לחיצה
+    else if(await download(r.blob,r.name))toast('השיתוף לא זמין – הקובץ הורד','ok')}}
+  else if(await download(r.blob,r.name))toast(`ה-PDF הורד ✓ (${r.pages} עמודים)`,'ok')}
+ catch(e){console.error(e);toast('יצירת ה-PDF נכשלה. נסו שוב או השתמשו בהדפסה.','bad')}
+ finally{btn.disabled=false;btn.removeAttribute('aria-busy');btn.innerHTML=lbl}}
+
+/* ---------- PDF: קריאה וטעינה לעריכה ---------- */
+function findData(t){const i=t.indexOf('{"__mdd":1');if(i<0)return null;const e=t.indexOf('endstream',i),s=(e<0?t.slice(i):t.slice(i,e)).trim();
+ try{return JSON.parse(s)}catch(_){try{return JSON.parse(s.slice(0,s.lastIndexOf('}')+1))}catch(__){return null}}}
+async function inflate(b){return new Uint8Array(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('deflate'))).arrayBuffer())}
+async function readPdf(file){const buf=new Uint8Array(await file.arrayBuffer());
+ if(String.fromCharCode(...buf.subarray(0,1024)).indexOf('%PDF-')<0)throw new Error('notpdf');
+ const txt=new TextDecoder('latin1').decode(buf);let d=findData(txt);if(d)return d;
+ if(typeof DecompressionStream!='undefined'){const re=/\/FlateDecode[^]{0,600}?stream\r?\n/g;let m; // PDF שנשמר מחדש בתוכנה אחרת – הנתונים דחוסים
+  while((m=re.exec(txt))){const st=m.index+m[0].length;let en=txt.indexOf('endstream',st);if(en<0)break;while(en>st&&(buf[en-1]==10||buf[en-1]==13))en--;
+   try{d=findData(new TextDecoder().decode(await inflate(buf.subarray(st,en))));if(d)return d}catch(e){}}}
+ return null}
+async function importFile(f){if(!f)return;
+ if(f.size>80*1024*1024){toast('הקובץ גדול מדי','bad');return}
+ toast('קורא את הקובץ…');let d;
+ try{d=await readPdf(f)}catch(e){toast(e.message=='notpdf'?'הקובץ שנבחר אינו PDF תקין':'שגיאה בקריאת הקובץ','bad');return}
+ const p=d&&d.project;
+ if(!p||typeof p!='object'||!Array.isArray(p.shafts)||!p.shafts.length){toast('לא נמצאו בקובץ נתוני פרויקט. ניתן לטעון רק PDF שיוצא מאפליקציה זו.','bad');return}
+ p.h=p.h||{};p.n=p.n||{};p.att=p.att||[];p.shapes=p.shapes||[];p.shafts.forEach(S=>S.fl=S.fl||{});if(!TYPES[p.type])p.type='s';
+ const ix=DB.findIndex(x=>x.id==p.id);let copy=false;
+ if(ix>=0){const v=await ask('הפרויקט כבר קיים במכשיר','"'+pname(p)+'" כבר שמור במכשיר.\nלעדכן אותו לפי הקובץ, או לטעון כעותק נפרד?',[['up','עדכון הקיים','p'],['copy','טעינה כעותק'],[null,'ביטול']]);
+  if(!v)return;copy=v=='copy'}
+ const files=d.files||{},map={}; // שחזור הקבצים; בעותק – מזהים חדשים כדי שמחיקה לא תפגע במקור
+ for(const id of fids(p)){if(!files[id])continue;map[id]=copy?id+'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5):id;try{await IDB.put(map[id],await (await fetch(files[id])).blob())}catch(e){}}
+ if(p.skImg&&map[p.skImg.id])p.skImg.id=map[p.skImg.id];p.att.forEach(x=>{if(map[x.id])x.id=map[x.id]});
+ if(copy)p.id=Date.now();
+ if(ix>=0&&!copy)DB[ix]=p;else DB.unshift(p);
+ cur=p;shaft=0;lastPdf=null;skCache={};flush();setTab('d');all();toast('הקובץ נטען ✓ – אפשר לערוך ולייצא מחדש','ok');setTimeout(openPreview,400)}
+
+/* ---------- תצוגה מקדימה ---------- */
+// הדיאלוג נפתח מיד עם הודעת טעינה; ניווט בין עמודים וזום (דף שלם / רוחב / 150% / 200%)
+const PVZ=['fit',1,1.5,2],PVZL=['דף שלם','רוחב','150%','200%'];let pvZ=0,pvTok=0,pvCur=0;
+const pvFigs=()=>[...$('#pvb').querySelectorAll('figure')];
+function pvSync(){const b=$('#pvb'),f=pvFigs(),n=f.length;
+ if(n){const t=b.getBoundingClientRect().top+b.clientHeight*.4;pvCur=0;f.forEach((x,i)=>{if(x.getBoundingClientRect().top<=t)pvCur=i})}
+ $('#pvn').textContent=n?`עמוד ${pvCur+1} מתוך ${n}`:'–';$('#pvprev').disabled=!n||pvCur<1;$('#pvnext').disabled=!n||pvCur>=n-1}
+function pvGo(i,inst){const f=pvFigs();if(!f.length)return;pvCur=Math.max(0,Math.min(f.length-1,i));f[pvCur].scrollIntoView({block:'start',inline:'center',behavior:inst?'instant':'smooth'});pvSync()}
+function pvZoom(d){const z=Math.max(0,Math.min(PVZ.length-1,pvZ+d)),b=$('#pvb'),keep=pvCur;pvZ=z;b.dataset.z=PVZ[z];
+ pvFigs().forEach(f=>f.style.width=PVZ[z]=='fit'?'':(PVZ[z]*100)+'%');
+ $('#pvzl').textContent=PVZL[z];$('#pvzo').disabled=!z;$('#pvzi').disabled=z>=PVZ.length-1;pvGo(keep,true)}
+async function openPreview(){const d=$('#pvd'),b=$('#pvb'),tok=++pvTok;
+ b.innerHTML='<div class="ld" role="status">מכין תצוגה מקדימה…</div>';$('#pvn').textContent='–';$('#pvprev').disabled=$('#pvnext').disabled=true;
+ if(d.showModal){if(!d.open)d.showModal()}else d.setAttribute('open','');
+ let pg;try{pg=await allPages()}catch(e){console.error(e);if(tok==pvTok)b.innerHTML='<div class="ld" role="alert">לא ניתן להציג את הדוח</div>';return}
+ if(tok!=pvTok||!d.open)return;
+ b.innerHTML=pg.map((s,i)=>`<figure><div role="img" aria-label="עמוד ${i+1} מתוך ${pg.length} בדוח">${s}</div><figcaption>עמוד ${i+1} מתוך ${pg.length}</figcaption></figure>`).join('');
+ if(!cur.sig)b.querySelectorAll('[data-sig] rect').forEach(r=>r.insertAdjacentHTML('afterend',T(+r.getAttribute('x')+r.getAttribute('width')/2,+r.getAttribute('y')+r.getAttribute('height')/2+5,'✍ לחצו כאן לחתימה',14,'middle','font-weight="700" fill="#1c4e9d"'))); // רמז – רק בתצוגה, לא ב-PDF
+ $('#pvd-t').textContent='תצוגה מקדימה · '+(pg.length>1?pg.length+' עמודים':'עמוד אחד');b.scrollTo({top:0,left:0,behavior:'instant'});pvZoom(0);b.focus({preventScroll:true})}
+$('#pvb').addEventListener('scroll',()=>requestAnimationFrame(pvSync),{passive:true});
+$('#pvprev').onclick=()=>pvGo(pvCur-1);$('#pvnext').onclick=()=>pvGo(pvCur+1);$('#pvzi').onclick=()=>pvZoom(1);$('#pvzo').onclick=()=>pvZoom(-1);
+$('#pvd').addEventListener('keydown',e=>{if(e.target.closest('.df,.dh')||e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key,wide=PVZ[pvZ]!='fit'&&PVZ[pvZ]>1;
+ const a={PageDown:1,PageUp:-1,ArrowLeft:wide?0:1,ArrowRight:wide?0:-1}[k]; // RTL: שמאלה = העמוד הבא
+ if(a)pvGo(pvCur+a);else if(k=='Home')pvGo(0);else if(k=='End')pvGo(1e9);else if(k=='+'||k=='=')pvZoom(1);else if(k=='-')pvZoom(-1);else return;e.preventDefault()});
+const closePv=()=>{const d=$('#pvd');pvTok++;d.close?d.close():d.removeAttribute('open')};
+$('#pvb').addEventListener('click',e=>{if(e.target.closest('[data-sig]'))openSig()});
+/* ---------- חתימת לקוח ---------- */
+// משטח חתימה במסך מלא. הקווים נשמרים כנקודות (לציור מחדש בסיבוב מסך) ובשמירה – PNG שקוף חתוך לגבולות הדיו, ב-cur.sig = {img,name,at}
+const SG={st:[],cur:null,w:0,h:0,x:null};
+function sigSeg(x,a,b,c){const m1={x:(a.x+b.x)/2,y:(a.y+b.y)/2},m2={x:(b.x+c.x)/2,y:(b.y+c.y)/2};x.lineWidth=b.w;x.beginPath();x.moveTo(m1.x,m1.y);x.quadraticCurveTo(b.x,b.y,m2.x,m2.y);x.stroke()}
+function sigStroke(x,s){if(s.length==1){x.beginPath();x.arc(s[0].x,s[0].y,s[0].w/2+.4,0,7);x.fill();return}
+ for(let i=0;i<s.length-1;i++)sigSeg(x,s[Math.max(0,i-1)],s[i],s[i+1])}
+function sigCtx(c,d){const x=c.getContext('2d');x.setTransform(d,0,0,d,0,0);x.lineCap=x.lineJoin='round';x.strokeStyle=x.fillStyle='#0d1b3e';return x}
+function sigFit(){const c=$('#sigc'),r=c.getBoundingClientRect();if(!r.width||!r.height)return;const d=Math.min(3,devicePixelRatio||1);
+ if(SG.w&&SG.st.length){const k=Math.min(r.width/SG.w,r.height/SG.h);SG.st.forEach(s=>s.forEach(p=>{p.x*=k;p.y*=k}))} // סיבוב מסך – החתימה נשמרת ביחס קבוע
+ SG.w=r.width;SG.h=r.height;c.width=Math.round(r.width*d);c.height=Math.round(r.height*d);SG.x=sigCtx(c,d);SG.st.forEach(s=>sigStroke(SG.x,s))}
+function sigPt(e,prev){const r=$('#sigc').getBoundingClientRect(),p={x:e.clientX-r.left,y:e.clientY-r.top,t:e.timeStamp};
+ if(e.pointerType=='pen'&&e.pressure>0)p.w=1+e.pressure*3;
+ else if(!prev)p.w=2.6;else{const v=Math.hypot(p.x-prev.x,p.y-prev.y)/Math.max(1,p.t-prev.t);p.w=prev.w*.65+Math.max(1.3,Math.min(3.6,3.8-v*1.2))*.35} // מהיר = דק, איטי = עבה
+ return p}
+(()=>{const c=$('#sigc');
+ c.addEventListener('pointerdown',e=>{e.preventDefault();try{c.setPointerCapture(e.pointerId)}catch(_){}SG.cur=[sigPt(e)];SG.st.push(SG.cur);sigStroke(SG.x,SG.cur);$('#sigph').hidden=true});
+ c.addEventListener('pointermove',e=>{if(!SG.cur)return;e.preventDefault();for(const ev of (e.getCoalescedEvents&&e.getCoalescedEvents().length?e.getCoalescedEvents():[e])){
+  const s=SG.cur,q=sigPt(ev,s[s.length-1]);if(Math.hypot(q.x-s[s.length-1].x,q.y-s[s.length-1].y)<1)continue;s.push(q);const n=s.length;sigSeg(SG.x,s[Math.max(0,n-3)],s[n-2],s[n-1])}});
+ const end=()=>{SG.cur=null};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+ addEventListener('resize',()=>{if($('#sigd').open)sigFit()})})();
+function sigPng(){let a=1e9,b=1e9,c=-1e9,d=-1e9;SG.st.forEach(s=>s.forEach(p=>{a=Math.min(a,p.x-p.w);b=Math.min(b,p.y-p.w);c=Math.max(c,p.x+p.w);d=Math.max(d,p.y+p.w)}));
+ const pad=6,w=c-a+pad*2,h=d-b+pad*2,k=Math.min(3,900/w),cv=document.createElement('canvas');cv.width=Math.ceil(w*k);cv.height=Math.ceil(h*k);
+ const x=sigCtx(cv,k);x.translate(pad-a,pad-b);SG.st.forEach(s=>sigStroke(x,s));return cv.toDataURL('image/png')}
+function openSig(){const d=$('#sigd');SG.st=[];SG.cur=null;SG.w=0;$('#sign').value=(cur.sig&&cur.sig.name)||'';
+ $('#sigph').hidden=false;$('#sigph').textContent=cur.sig?'חתימה חדשה תחליף את הקיימת':'חתמו כאן באצבע או בעכבר';
+ if(d.showModal){if(!d.open)d.showModal()}else d.setAttribute('open','');requestAnimationFrame(sigFit)}
+const closeSig=()=>{const d=$('#sigd');d.close?d.close():d.removeAttribute('open')};
+async function sigChanged(){sigCard();if($('#pvd').open){const at=pvCur;await openPreview();pvGo(at,true)}}
+$('#sigx').onclick=$('#sigcn').onclick=closeSig;
+$('#sigclr').onclick=()=>{SG.st=[];SG.cur=null;sigFit();$('#sigph').hidden=false};
+$('#sigok').onclick=()=>{if(!SG.st.length){toast('לא נחתם – ציירו חתימה בתוך המסגרת','bad');return}
+ cur.sig={img:sigPng(),name:$('#sign').value.trim(),at:new Date().toISOString()};save();closeSig();toast('החתימה נשמרה ✓ – מופיעה בתחתית הדוח','ok');sigChanged()};
+function sigCard(){const b=$('#sigb'),m=$('#sigm');if(!b)return;const g=cur.sig;b.classList.toggle('on',!!g);
+ b.innerHTML=g?`<img src="${E(g.img)}" alt="חתימת הלקוח">`:'✍ לחצו כאן לחתימת הלקוח';b.setAttribute('aria-label',g?'החלפת חתימת הלקוח':'חתימת הלקוח');
+ m.innerHTML=g?`<span>נחתם${g.name?' ע״י '+E(g.name):''} · ${E(new Date(g.at).toLocaleDateString('he-IL'))}</span><button class="dng" id="sigdel" style="min-height:36px">מחיקת חתימה</button>`:'';
+ if(g)$('#sigdel').onclick=async()=>{if(await ask('מחיקת חתימה','למחוק את חתימת הלקוח מהדוח?',[['del','מחק','dng'],[null,'ביטול']])!='del')return;delete cur.sig;save();sigChanged()}}
+$('#pvx').onclick=$('#pvc').onclick=closePv;
+$('#pvd').addEventListener('click',e=>{if(e.target.id=='pvd')closePv()});
+$('#pvpdf').onclick=()=>runPdf($('#pvpdf'),canShareFiles()&&matchMedia('(pointer:coarse)').matches?'share':'dl');
+/*E*/
+load();all();setTab('d');
+try{localStorage.setItem('mdd1t','1');localStorage.removeItem('mdd1t')}catch(e){ // תצוגה שלא מאפשרת שמירה במכשיר (למשל תצוגה מקדימה בטלפון)
+ const b=document.createElement('div');b.className='card';b.style.cssText='margin:12px 16px 0;border-color:var(--wnb);background:var(--wn);font-weight:600';
+ b.textContent='⚠️ בתצוגה הזו המדידות לא נשמרות במכשיר אחרי סגירה. אפשר לעבוד כרגיל – ולפני שסוגרים, להוריד PDF (אותו אפשר לטעון חזרה לעריכה).';$('header').after(b)}
+</script>
+</body>
+</html>
