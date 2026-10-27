@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>מדידת מסתורים</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
 <meta name="theme-color" content="#1c4e9d">
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="מדידות"><meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -187,7 +187,7 @@ details.sec>.pad{padding:4px 14px 14px}
 .fi{font-size:11.5px;text-align:center}
 .fi input{text-align:center;font-size:18px!important;font-weight:700;padding:6px 4px!important;min-height:44px!important;margin-top:3px}
 .cfoot{display:flex;gap:8px;align-items:center}
-.cfoot .nt{flex:1;min-width:0;min-height:40px!important;font-size:14px!important;padding:6px 12px!important;background:var(--soft);border-color:var(--bd)}
+.cfoot .nt{flex:1;min-width:0;min-height:40px!important;font-size:16px!important;padding:6px 12px!important;background:var(--soft);border-color:var(--bd)}
 .phv{flex:none;font-size:13px;font-weight:700;color:var(--okb);background:var(--ok);border-radius:999px;padding:6px 12px;white-space:nowrap}.phv:empty{display:none}
 .cell .x.angb.on{background:var(--prs);border-color:var(--pr);color:var(--pr)}
 .angr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
@@ -212,7 +212,7 @@ th{background:var(--soft);font-size:12.5px;color:var(--mu);font-weight:700}tr:la
 .att{display:flex;gap:10px;align-items:center;border-top:1px solid var(--bd);padding:10px 0}
 .att .th{width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--soft);border-radius:10px;overflow:hidden}
 .att .th img{width:100%;height:100%;object-fit:cover}.att a{color:var(--pr);word-break:break-all;font-weight:600}.att .sz{font-size:12px;color:var(--mu)}
-.att input{min-height:40px!important;margin-top:4px;padding:6px 10px!important;font-size:14px!important}.att button{width:44px;padding:0;flex:none}
+.att input{min-height:40px!important;margin-top:4px;padding:6px 10px!important;font-size:16px!important}.att button{width:44px;padding:0;flex:none}
 #atl{margin-top:8px}
 
 @media (max-width:700px){
@@ -296,6 +296,7 @@ window.addEventListener('unhandledrejection',function(e){var b=document.getEleme
 <script>
 const TYPES={s:{n:'מסתורים ישרים',a:'ישר',f:['h','w']},u:{n:'ח – שלוש צלעות',a:'ח',f:['h','f','r','l']},rr:{n:'ר – חזית + צד ימין',a:'ר ימין',f:['h','f','r']},rl:{n:'ר הפוך – חזית + צד שמאל',a:'ר שמאל',f:['h','f','l']}};
 const RUNS=['','רציף','בודד']; // רציף = רץ לאורך כל הבניין; הגדרה נפרדת מצורת הפיר
+const ENVS=['','רגילה','ימית']; // סביבה ימית משפיעה על החומרים (ברגים, פרופילים, צביעה)
 const LAB={h:'גובה',w:'רוחב',f:'חזית',r:'ימין',l:'שמאל',p:'פודסט'};
 // מיקום המסתור ביחס לפודסט (לפי פרטי ALUKAL): h = פתח נטו בין פודסטים, k = איזה חלק מעובי הפודסט המסתור מכסה
 const COV={stop:{n:'מפסיק פודסט – בתוך הפתח',a:'מפסיק פודסט',k:0,f:'מסתור = פתח'},half:{n:'מכסה חצי עובי פודסט',a:'חצי פודסט',k:.5,f:'מסתור = פתח + ½ פודסט'},
@@ -326,20 +327,25 @@ const $=s=>document.querySelector(s);
 const med=a=>{a=a.slice().sort((x,y)=>x-y);return a.length?(a[(a.length-1)>>1]+a[a.length>>1])/2:null};
 const ty=(S,c)=>(c&&c.t)||S.t||cur.type;
 const rn=S=>S.run||cur.run||'';
+const env=S=>S.env||cur.env||'',envT=S=>env(S)?'סביבה '+env(S):'';
 const eh=(S,c)=>{const e=v=>v===''||v==null;if(e(c.h)&&S.fh)c={...c,h:S.fh};if(e(c.p)&&pT(S))c={...c,p:pT(S)};return c}; // גובה קבוע / עובי פודסט של הפיר – חלים על כל קומה שלא הוזן בה ערך משלה
 const own=(c,F)=>F.some(k=>c[k]!==''&&c[k]!=null); // האם הוזן בקומה ערך כלשהו (לא כולל גובה קבוע)
 function tot(S){if(!S.th)return null; // גובה כולל לפיר (מדידת לייזר) בטווח קומות, מול סכום גובהי הקומות
- const a=S.tb??cur.bot,b=S.tt??cur.top,ns=fl().filter(n=>n>=Math.min(a,b)&&n<=Math.max(a,b)),hs=ns.map(n=>{const c=S.fl[n]||{};return c.skip?null:+eh(S,c).h||null});
+ const a=S.tb??cur.bot,b=S.tt??cur.top,ns=fl().filter(n=>n>=Math.min(a,b)&&n<=Math.max(a,b)),P=!!cvk(S),hi=Math.max(...ns),hs=ns.map(n=>{const c=S.fl[n]||{};if(c.skip)return null;const e=eh(S,c),h=+e.h||null;if(!P||h==null||n==hi)return h;return has(e.p)&&Number.isFinite(+e.p)?h+ +e.p:null}); // עם פודסט: הלייזר נמדד מרצפת הקומה התחתונה עד תקרת העליונה – כל קומה = פתח + הפודסט שמעליה, חוץ מהעליונה
  const sum=hs.reduce((x,v)=>x+(v||0),0),miss=hs.filter(v=>v==null).length;
- return{a:Math.min(a,b),b:Math.max(a,b),n:ns.length,avg:ns.length?Math.round(S.th/ns.length*10)/10:null,sum,miss,d:miss?null:sum-S.th}}
+ const avg=ns.length?Math.round(S.th/ns.length*10)/10:null,pp=P&&has(pT(S))?+pT(S):null;
+ return{a:Math.min(a,b),b:Math.max(a,b),n:ns.length,avg,P,op:ns.length&&pp!=null?Math.round((S.th-(ns.length-1)*pp)/ns.length*10)/10:null,sum:Math.round(sum*10)/10,miss,d:miss?null:Math.round((sum-S.th)*10)/10}}
 const totT=S=>{const T=tot(S);return T?`גובה כולל ${S.th} (קומות ${T.a}–${T.b})`:''};
+function normP(p){p.shafts=p.shafts.filter(S=>S&&typeof S=='object'); // תיקון נתונים ישנים/פגומים – גם בטעינת PDF ובשחזור גיבוי
+ if(p.type=='c'){p.type='s';p.run=p.run||'רציף'} // המרה: 'רציף' היה בעבר סוג פיר
+ p.shafts.forEach(S=>{if(S.t=='c'){S.t='s';S.run=S.run||'רציף'}
+  if(S.mode=='מכסה פודסט'){S.mode='';if(S.cov==null)S.cov='full'}/* המרה: 'מכסה פודסט' עבר משדה "ציון חשוב" לשדה "פודסט" */Object.values(S.fl||{}).forEach(c=>{if(c&&c.t=='c')c.t='s'})});
+ p.h=p.h||{};p.n=p.n||{};if(!TYPES[p.type])p.type='s';if(!Number.isFinite(+p.top))p.top=9;if(!Number.isFinite(+p.bot))p.bot=1;p.top=+p.top;p.bot=+p.bot;if(p.top<p.bot)[p.top,p.bot]=[p.bot,p.top];if(!p.shafts.length)p.shafts.push({name:'פיר 1',fl:{}});p.shafts.forEach(S=>S.fl=S.fl||{});return p}
 function load(){try{DB=JSON.parse(localStorage.getItem('mdd1')||'[]')}catch(e){DB=[]}
- DB.forEach(p=>{if(p.type=='c'){p.type='s';p.run=p.run||'רציף'} // המרה: 'רציף' היה בעבר סוג פיר
-  (p.shafts||[]).forEach(S=>{if(S.t=='c'){S.t='s';S.run=S.run||'רציף'}
-   if(S.mode=='מכסה פודסט'){S.mode='';if(S.cov==null)S.cov='full'}/* המרה: 'מכסה פודסט' עבר משדה "ציון חשוב" לשדה "פודסט" */Object.values(S.fl||{}).forEach(c=>{if(c.t=='c')c.t='s'})})});
  DB=Array.isArray(DB)?DB.filter(p=>p&&typeof p=='object'&&Array.isArray(p.shafts)):[]; // נתונים פגומים לא מפילים את האפליקציה
- DB.forEach(p=>{p.h=p.h||{};p.n=p.n||{};if(!TYPES[p.type])p.type='s';if(!Number.isFinite(+p.top))p.top=9;if(!Number.isFinite(+p.bot))p.bot=1;p.top=+p.top;p.bot=+p.bot;if(p.top<p.bot)[p.top,p.bot]=[p.bot,p.top];if(!p.shafts.length)p.shafts.push({name:'פיר 1',fl:{}});p.shafts.forEach(S=>S.fl=S.fl||{})});
+ DB.forEach(normP);
  if(!DB.length)DB.push(newP());cur=DB[0]}
+addEventListener('storage',e=>{if(e.key=='mdd1'&&e.newValue!=null){const id=cur&&cur.id;load();cur=DB.find(p=>p.id==id)||DB[0];all()}}); // האפליקציה פתוחה בשני חלונות: לא לדרוס שינויים של החלון השני
 /* קבצים (תמונות ומסמכים) נשמרים ב-IndexedDB – localStorage קטן מדי בשבילם */
 const IDB=(()=>{let p;const db=()=>p||(p=new Promise((ok,no)=>{const r=indexedDB.open('mdd1-files',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}));
  const tx=(m,f)=>db().then(d=>new Promise((ok,no)=>{const t=d.transaction('f',m),q=f(t.objectStore('f'));t.oncomplete=()=>ok(q.result);t.onerror=()=>no(t.error)}));
@@ -358,7 +364,7 @@ const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4)
 const fmtD=v=>/^\d{4}-\d\d-\d\d$/.test(v||'')?v.slice(8,10)+'/'+v.slice(5,7)+'/'+v.slice(0,4):(v||'');
 const pname=p=>(p.h.code||'פרויקט חדש')+(p.h.company?' – '+p.h.company:'');
 const fids=p=>[p.skImg&&p.skImg.id,...(p.att||[]).map(x=>x.id)].filter(Boolean); // קבצי IndexedDB של פרויקט
-function flush(){clearTimeout(saveT);saveT=null;try{localStorage.setItem('mdd1',JSON.stringify(DB));return true}catch(e){if(!flush.warned){flush.warned=1;toast('השמירה במכשיר נכשלה – מומלץ להוריד PDF לפני סגירה.','bad')}return false}} // הודעה פעם אחת, לא בכל הקלדה
+function flush(){clearTimeout(saveT);saveT=null;try{localStorage.setItem('mdd1',JSON.stringify(DB));return true}catch(e){if(!(Date.now()-(flush.warned||0)<3e4)){flush.warned=Date.now();toast('השמירה במכשיר נכשלה – מומלץ להוריד PDF לפני סגירה.','bad')}return false}} // הודעה פעם אחת, לא בכל הקלדה
 function save(){lastPdf=null;clearTimeout(saveT);saveT=setTimeout(flush,300)}
 addEventListener('pagehide',()=>{if(saveT)flush()}); // סגירה מהירה של האפליקציה לא מאבדת את ההקלדה האחרונה
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&saveT)flush()});
@@ -406,6 +412,7 @@ function renderD(){
  <div class="card"><h2>ברירות מחדל לפירים <small>חלות על כל פיר שלא הוגדר אחרת</small></h2><div class="g">
  <label>סוג פיר<select id="ty">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
  <label>רציף / בודד<select id="run">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+ <label>סביבה<select id="env" title="סביבה ימית משפיעה על החומרים">${ENVS.map(m=>`<option>${m}</option>`).join('')}</select></label>
  <label class="w">מיקום ביחס לפודסט<select id="cov"><option value=""></option>${Object.entries(COV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
  <label>עובי פודסט<input id="pt" type="number" inputmode="numeric" placeholder="ס״מ"></label></div></div>
  <div class="card"><h2>מועדים ומפרט</h2><div class="g">${['date','due','next','ral','gap','model','shade'].map(hf).join('')}</div>
@@ -430,6 +437,7 @@ function renderD(){
  $('#ty').value=cur.type;
  $('#ty').onchange=e=>{cur.type=e.target.value;save();renderM()};
  $('#run').value=cur.run||'';$('#run').onchange=e=>{cur.run=e.target.value;save();renderM()};
+ $('#env').value=cur.env||'';$('#env').onchange=e=>{cur.env=e.target.value;save();renderM()};
  $('#cov').value=cur.cov||'';$('#cov').onchange=e=>{cur.cov=e.target.value;save();renderM()};
  $('#pt').value=cur.pt||'';$('#pt').onchange=e=>{const v=+e.target.value;if(v>0)cur.pt=v;else delete cur.pt;save();renderM()};
  el.querySelectorAll('[data-h]').forEach(i=>{const k=i.dataset.h;if(i.type=='checkbox'){i.checked=!!cur.h[k];i.onchange=()=>{cur.h[k]=i.checked;save()}}else{i.value=cur.h[k]||'';i.oninput=()=>{cur.h[k]=i.value;save();if(k=='code'||k=='company')selRender()}}});
@@ -582,7 +590,7 @@ function renderM(){
  <button id="dupS" class="ib" title="פיר חדש עם אותן הגדרות"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>שכפל</button>
  <button id="delS" class="ib dng" title="מחק פיר" aria-label="מחק פיר"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6"/></svg></button></div>
  <div class="g"><label>בניין<input id="sb"></label><label>כיוון<select id="sd">${DIRS.map(m=>`<option>${m}</option>`).join('')}</select></label>
- <label>סוג פיר<select id="st">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label><label>רציף / בודד<select id="sr">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+ <label>סוג פיר<select id="st">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label><label>רציף / בודד<select id="sr">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label><label>סביבה<select id="se" title="סביבה ימית משפיעה על החומרים">${ENVS.map(m=>`<option>${m}</option>`).join('')}</select></label>
  <label class="w">ציון חשוב<select id="sm">${MODES.map(m=>`<option>${m}</option>`).join('')}</select></label></div>
  <div class="secs"><details class="sec" data-k="pod"><summary><span>פודסט וגבהים</span><span class="hint">${E([covT(S),S.fh?'קבוע '+S.fh:'',S.th?'כולל '+S.th:''].filter(Boolean).join(' · ')||'לא הוגדר')}</span></summary><div class="pad"><div class="g">
  <label class="w" title="איפה יושב המסתור ביחס לפודסט – קובע את חישוב גובה המסתור">מיקום ביחס לפודסט<select id="scv"><option value=""></option>${Object.entries(COV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
@@ -591,18 +599,18 @@ function renderM(){
  <label id="sgpl" title="מרווח בין ראש המסתור הרציף לפודסט העליון">מרווח עליון<input id="sgp" type="number" inputmode="numeric" placeholder="ס״מ"></label>
  <label title="גובה אחיד לכל קומות הפיר; קומה עם גובה משלה גוברת">גובה קבוע לפיר<input id="sfh" type="number" inputmode="numeric" placeholder="ס״מ"></label>
  <label title="מדידת לייזר של כל הפיר מקומה לקומה">גובה כולל (לייזר)<input id="sth" type="number" inputmode="numeric" placeholder="ס״מ"></label>
- <label>מקומה<input id="stb" type="number" inputmode="numeric"></label><label>עד קומה<input id="stt" type="number" inputmode="numeric"></label>
- <button id="sdiv" class="w" title="קובע גובה קבוע לפיר = גובה כולל חלקי מספר הקומות">÷ חלק גובה כולל לקומות</button></div></div></details>
+ <label>מקומה<input id="stb" type="text" inputmode="text" pattern="-?[0-9]*"></label><label>עד קומה<input id="stt" type="text" inputmode="text" pattern="-?[0-9]*"></label>
+ <button id="sdiv" class="w" title="קובע גובה קבוע לפיר = גובה כולל חלקי מספר הקומות (בפיר עם פודסט: אחרי הורדת הפודסטים שבין הקומות)">÷ חלק גובה כולל לקומות</button></div></div></details>
  <details class="sec" data-k="ang"><summary><span>זווית סגירה</span><span class="hint">${E(angL(angOf(S,{})).join(' · ')||'ללא')}</span></summary><div class="pad">
  <div class="hintx" style="margin:0 0 10px">מסתירה את הפרופילים מהחלון השכן. רוחב הזווית בס״מ לכל צד, ריק = בלי. חל על כל הקומות – אפשר לשנות בקומה בודדת (כפתור ∟ בקומה).</div><div class="g">
  ${ANG.map(([k,l])=>`<label>${l}<input data-ang="${k}" type="number" inputmode="decimal" step="0.5" min="0" placeholder="ס״מ"></label>`).join('')}
  <label class="w">מידת פרופיל / סוג<input id="sap" placeholder="למשל זווית 40×40 אלומיניום"></label></div></div></details>
  <details class="sec" data-k="rng"><summary><span>טווח קומות בפרויקט</span><span class="hint">${cur.top} עד ${cur.bot}</span></summary><div class="pad"><div class="g">
- <label>קומה עליונה<input id="top" type="number" inputmode="numeric"></label><label>קומה תחתונה<input id="bot" type="number" inputmode="numeric"></label></div></div></details></div></div>
+ <label>קומה עליונה<input id="top" type="text" inputmode="text" pattern="-?[0-9]*"></label><label>קומה תחתונה<input id="bot" type="text" inputmode="text" pattern="-?[0-9]*"></label></div></div></details></div></div>
  <div class="card"><h2>בדיקות והתראות <span id="fxn" class="cnt"></span></h2><div id="fix"></div></div></aside>
  <div><div class="flh"><h2>מדידות לפי קומה</h2><span id="flp"></span></div><div class="grid" id="gr"></div></div></div>`;
  keepOpen(el);
- $('#sn').value=S.name;$('#sb').value=S.bld||'';$('#sm').value=S.mode||'';$('#sd').value=S.dir||'';$('#st').value=ty(S,{});$('#sr').value=rn(S);$('#sfh').value=S.fh||'';$('#sth').value=S.th||'';$('#stb').value=S.tb??'';$('#stb').placeholder=cur.bot;$('#stt').value=S.tt??'';$('#stt').placeholder=cur.top;$('#sdiv').hidden=!S.th;$('#top').value=cur.top;$('#bot').value=cur.bot;
+ $('#sn').value=S.name;$('#sb').value=S.bld||'';$('#sm').value=S.mode||'';$('#sd').value=S.dir||'';$('#st').value=ty(S,{});$('#sr').value=rn(S);$('#se').value=env(S);$('#sfh').value=S.fh||'';$('#sth').value=S.th||'';$('#stb').value=S.tb??'';$('#stb').placeholder=cur.bot;$('#stt').value=S.tt??'';$('#stt').placeholder=cur.top;$('#sdiv').hidden=!S.th;$('#top').value=cur.top;$('#bot').value=cur.bot;
  const K=cvk(S);$('#scv').value=K;$('#spt').value=S.pt||'';$('#spt').placeholder=cur.pt||'ס״מ';$('#sgp').value=S.gap||'';
  $('#sptl').hidden=!(K&&COV[K].k);$('#sgpl').hidden=K!='out';$('#cvs').innerHTML=K?covSvg(K)+`<span>${COV[K].f}</span>`:'';
  $('#scv').onchange=e=>{S.cov=e.target.value;if(S.cov==(cur.cov||''))delete S.cov;save();renderM()};
@@ -611,17 +619,18 @@ function renderM(){
  $('#sap').value=S.angp||'';$('#sap').oninput=e=>{S.angp=e.target.value;if(!S.angp)delete S.angp;save()};
  [['spt','pt'],['sgp','gap']].forEach(([i,k])=>$('#'+i).onchange=e=>{const v=+e.target.value;if(v>0)S[k]=v;else delete S[k];save();renderM()});
  el.querySelectorAll('.shafts [data-i]').forEach(b=>b.onclick=()=>{shaft=+b.dataset.i;renderM()});
- const addS=cp=>{cur.shafts.push({name:'פיר '+(cur.shafts.length+1),bld:cp?S.bld:'',mode:cp?S.mode:'',dir:cp?S.dir:'',t:cp?S.t:undefined,run:cp?S.run:undefined,fh:cp?S.fh:undefined,th:cp?S.th:undefined,tb:cp?S.tb:undefined,tt:cp?S.tt:undefined,cov:cp?S.cov:undefined,pt:cp?S.pt:undefined,gap:cp?S.gap:undefined,ang:cp&&S.ang?{...S.ang}:undefined,angp:cp?S.angp:undefined,fl:{}});shaft=cur.shafts.length-1;save();renderM();window.scrollTo(0,0)};
+ const addS=cp=>{cur.shafts.push({name:'פיר '+(cur.shafts.length+1),bld:cp?S.bld:'',mode:cp?S.mode:'',dir:cp?S.dir:'',t:cp?S.t:undefined,run:cp?S.run:undefined,env:cp?S.env:undefined,fh:cp?S.fh:undefined,th:cp?S.th:undefined,tb:cp?S.tb:undefined,tt:cp?S.tt:undefined,cov:cp?S.cov:undefined,pt:cp?S.pt:undefined,gap:cp?S.gap:undefined,ang:cp&&S.ang?{...S.ang}:undefined,angp:cp?S.angp:undefined,fl:{}});shaft=cur.shafts.length-1;save();renderM();window.scrollTo(0,0)};
  $('#addS').onclick=()=>addS();$('#dupS').onclick=()=>addS(1);
  $('#delS').onclick=async()=>{if(cur.shafts.length<2){toast('חייב להישאר לפחות פיר אחד','bad');return}
   if(await ask('מחיקת פיר','למחוק את "'+(S.name||'פיר')+'" וכל המדידות שלו?',[['del','מחק','dng'],[null,'ביטול']])!='del')return;
   cur.shafts.splice(shaft,1);shaft=Math.max(0,shaft-1);save();renderM();toast('הפיר נמחק')};
  $('#sn').oninput=e=>{S.name=e.target.value;save();el.querySelector('.shafts .on').textContent=S.name||'פיר'};
- $('#sb').oninput=e=>{S.bld=e.target.value;save()};$('#sm').onchange=e=>{S.mode=e.target.value;save()};$('#sd').onchange=e=>{S.dir=e.target.value;save()};$('#st').onchange=e=>{S.t=e.target.value;save();renderM()};$('#sr').onchange=e=>{S.run=e.target.value;if(S.run==(cur.run||''))delete S.run;save()};
+ $('#sb').oninput=e=>{S.bld=e.target.value;save()};$('#sm').onchange=e=>{S.mode=e.target.value;save()};$('#sd').onchange=e=>{S.dir=e.target.value;save()};$('#st').onchange=e=>{S.t=e.target.value;save();renderM()};$('#sr').onchange=e=>{S.run=e.target.value;if(S.run==(cur.run||''))delete S.run;save()};$('#se').onchange=e=>{S.env=e.target.value;if(S.env==(cur.env||''))delete S.env;save()};
  $('#sfh').onchange=e=>{const v=+e.target.value;if(v>0)S.fh=v;else delete S.fh;save();renderM()};
  $('#sth').onchange=e=>{const v=+e.target.value;if(v>0)S.th=v;else delete S.th;save();renderM()};
- [['stb','tb'],['stt','tt']].forEach(([i,k])=>$('#'+i).onchange=e=>{if(e.target.value==='')delete S[k];else S[k]=+e.target.value;save();flags()});
- $('#sdiv').onclick=async()=>{const T=tot(S);if(!T||!T.n)return;const v=Math.round(T.avg);if(S.fh&&S.fh!=v&&await ask('גובה קבוע',`להחליף גובה קבוע ${S.fh} ב-${v}?`,[['ok','החלף','p'],[null,'ביטול']])!='ok')return;S.fh=v;save();renderM()};
+ [['stb','tb'],['stt','tt']].forEach(([i,k])=>$('#'+i).onchange=e=>{const v=e.target.value.trim();if(v==='')delete S[k];else if(!/^-?\d+$/.test(v)){toast('יש להזין מספר קומה (אפשר עם מינוס למרתף)','bad');e.target.value=S[k]??'';return}else S[k]=+v;save();flags()});
+ $('#sdiv').onclick=async()=>{const T=tot(S);if(!T||!T.n)return;if(T.P&&T.op==null){toast('כדי לחלק גובה כולל בפיר עם פודסט – יש למלא קודם עובי פודסט','bad');return}
+  const v=Math.round(T.P?T.op:T.avg); /* עם פודסט: פתח = (גובה כולל − פודסטים שבין הקומות) ÷ מספר הקומות */if(S.fh&&S.fh!=v&&await ask('גובה קבוע',`להחליף גובה קבוע ${S.fh} ב-${v}?`,[['ok','החלף','p'],[null,'ביטול']])!='ok')return;S.fh=v;save();renderM()};
  [['#top','top'],['#bot','bot']].forEach(([id,k])=>$(id).onchange=e=>{const v=Math.round(+e.target.value),o={top:cur.top,bot:cur.bot,[k]:v}; // טווח קומות תקין בלבד
   const no=m=>{toast(m,'bad');e.target.value=cur[k]};
   if(e.target.value===''||!Number.isFinite(v)||v<-10||v>150)return no('יש להזין קומה בין -10 ל-150');
@@ -673,7 +682,7 @@ function flags(){
   const ab=cell.querySelector('.angb'),at=angT(angOf(S,c));ab.classList.toggle('on',!!at);ab.textContent=at?'∟ זווית ✓':'∟ זווית';ab.title=at||'זווית סגירה לקומה זו';
   r.m.forEach(t=>fx.push(`<div class="fix ${r.lv=='bad'?'bad':'warn'}">קומה ${n}: ${esc(t)}</div>`))});
  const T=tot(S);if(T){const bad=T.d!=null&&Math.abs(T.d)>HTOL;
-  fx.unshift(`<div class="fix ${bad?'warn':''}">📏 גובה כולל ${S.th} · קומות ${T.a}–${T.b} (${T.n} קומות) · ממוצע לקומה ${T.avg}`+(T.d!=null?` · סכום הקומות ${T.sum} (הפרש ${T.d>0?'+':''}${T.d})`:` · חסר גובה ב-${T.miss} קומות`)+'</div>')}
+  fx.unshift(`<div class="fix ${bad?'warn':''}">📏 גובה כולל ${S.th} · קומות ${T.a}–${T.b} (${T.n} קומות) · ממוצע לקומה ${T.avg}`+(T.op!=null?` (פתח ${T.op} · ${T.n-1} פודסטים של ${pT(S)} ביניהן)`:'')+(T.d!=null?` · סכום הקומות${T.P?' כולל פודסטים':''} ${T.sum} (הפרש ${T.d>0?'+':''}${T.d})`:` · חסר ${T.P?'גובה או עובי פודסט':'גובה'} ב-${T.miss} קומות`)+'</div>')}
  if(cvk(S)=='out'&&S.th)fx.unshift(`<div class="fix okk">🧱 ${outT(S)}</div>`);
  $('#fix').innerHTML=fx.join('')||'<span class="allok">✓ אין התראות בפיר זה</span>';
  const L=Object.values(R).map(r=>r.lv),nw=L.filter(v=>v=='warn'||v=='bad').length,nf=L.filter(v=>v&&v!='skip').length,ns=L.filter(v=>v=='skip').length;
@@ -685,10 +694,10 @@ const covT=S=>{const k=cvk(S);return k?COV[k].a+(COV[k].k&&pT(S)?' · פודסט
 /* ---------- סיכום ---------- */
 function text(){const h=cur.h;
  let t=`טופס מדידה – ${TYPES[cur.type].n}\nמק״ט: ${h.code||''} | ${h.company||''} | ${h.site||''}\nכתובת: ${h.addr||''}\nמנהל פרויקט: ${h.pm||''} | מנהל עבודה: ${h.wk||''}\nתאריך: ${fmtD(h.date)} | מודד: ${h.surveyor||''} | ${h.final?'מדידה סופית':'מדידה לא סופית'}\nגוון: ${h.ral||''} | מרווח אור: ${h.gap||''} | מעקה טכנאי: ${h.rail?'כן':'לא'}\n`;
- cur.shafts.forEach(S=>{t+=`\n▪ ${S.name}${S.bld?' (בניין '+S.bld+')':''}${S.dir?' · '+S.dir:''}${rn(S)?' · '+rn(S):''}${S.fh?' · גובה קבוע '+S.fh:''}${S.th?' · '+totT(S):''}${covT(S)?' · '+covT(S):''}${angT(angOf(S,{}),S.angp)?' · '+angT(angOf(S,{}),S.angp):''}${S.mode?' – '+S.mode:''}\n`;
+ cur.shafts.forEach(S=>{t+=`\n▪ ${S.name}${S.bld?' (בניין '+S.bld+')':''}${S.dir?' · '+S.dir:''}${rn(S)?' · '+rn(S):''}${envT(S)?' · '+envT(S):''}${S.fh?' · גובה קבוע '+S.fh:''}${S.th?' · '+totT(S):''}${covT(S)?' · '+covT(S):''}${angT(angOf(S,{}),S.angp)?' · '+angT(angOf(S,{}),S.angp):''}${S.mode?' – '+S.mode:''}\n`;
   if(cvk(S)=='out'&&S.th)t+=outT(S)+'\n';
   fl().forEach(n=>{const c0=S.fl[n]||{},F=FF(S,c0);if(c0.skip){t+=`קומה ${n}: ללא${c0.note?' – '+c0.note:''}\n`;return}
-   if(!own(c0,F))return;const c=eh(S,c0),v=ph(S,c0);
+   if(!own(c0,F)&&!c0.note&&!c0.mark&&!angOwn(c0))return;const c=eh(S,c0),v=ph(S,c0);
    t+=`קומה ${n}${c.t?' ('+TYPES[c.t].a+')':''}: `+F.map(k=>lb(S,k)+' '+(has(c[k])?c[k]:'?')).join(' | ')+(v!=null?' → מסתור '+v:'')+(angOwn(c0)?' · '+(angT(angOf(S,c0))||'בלי זווית סגירה'):'')+(c.mark?' [הפרעה]':'')+(c.note?' – '+c.note:'')+'\n'})});
  NOTES.forEach(([k,l])=>{if(cur.n[k])t+=`\n${l}: ${cur.n[k]}`});
  if(cur.info)t+=`\nמידע נוסף: ${cur.info}`;
@@ -723,9 +732,9 @@ function summary(){
   save();if(P==cur){renderAtt();$('#tx').value=text();$('#ms').textContent=''}};
  renderAtt();
  $('#sh').onclick=()=>{const m=$('#ms'),d={title:'טופס מדידה '+(cur.h.code||''),text:$('#tx').value};
-  if(shareFiles.length&&navigator.canShare&&navigator.canShare({files:shareFiles}))d.files=shareFiles;
+  let skip=[];if(shareFiles.length&&navigator.canShare){const ok=shareFiles.filter(f=>{try{return navigator.canShare({files:[f]})}catch(e){return false}});skip=shareFiles.filter(f=>!ok.includes(f)).map(f=>f.name);if(ok.length)d.files=ok} // קובץ אחד שלא נתמך לא מפיל את כל השאר
   if(!navigator.share){m.textContent='שיתוף לא נתמך בדפדפן זה – העתק את הטקסט ושלח את הקבצים ידנית';return}
-  navigator.share(d).then(()=>m.textContent='נשלח ✓',e=>{if(e.name!='AbortError')m.textContent='השיתוף נכשל – '+e.message})};
+  navigator.share(d).then(()=>m.textContent='נשלח ✓'+(skip.length?' (לא נשלחו: '+skip.join(', ')+' – שלחו אותם בנפרד)':''),e=>{if(e.name!='AbortError')m.textContent='השיתוף נכשל – '+e.message})};
  $('#cp').onclick=async()=>{const v=$('#tx').value;try{await navigator.clipboard.writeText(v);$('#ms').textContent='הועתק ✓'}catch(e){$('#tx').select();document.execCommand&&document.execCommand('copy');$('#ms').textContent='סמן והעתק ידנית אם לא הועתק'}};
  $('#prn').onclick=async()=>{$('#pr').innerHTML=(await allPages()).join('');try{window.print()}catch(e){}};$('#ex').onclick=exportSVG;if(HOSTED())$('#prn').hidden=$('#sh').hidden=true;$('#xl').onclick=()=>runXlsx($('#xl'));
  $('#bk').onclick=()=>runBackup($('#bk'));$('#rs').onclick=()=>$('#rsf').click();$('#rsf').onchange=e=>{const f=e.target.files[0];e.target.value='';restoreBackup(f)};bkNote();
@@ -832,12 +841,12 @@ function buildPages(IS){ // IS = בעיות לפי 'אינדקס פיר:קומה
   s+=HD;
   k++;if(SK&&k==1)s+=`<rect x="40" y="100" width="230" height="104" fill="none" stroke="#999"/><image href="${SK}" x="40" y="100" width="230" height="104" preserveAspectRatio="xMidYMid meet"/>`+T(155,216,'סקיצת אתר',11,'middle');
   cs.forEach((S,j)=>{const cx=70+j*CW,TT=tot(S); // כותרת פיר: שורות קצרות שנערמות כלפי מעלה כדי לא לחרוג מרוחב העמודה
-   const ls=[[S.dir,rn(S),S.mode].filter(Boolean).join(' · '),covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?`כולל ${S.th} (קומות ${TT.a}–${TT.b})`:'',...angRows(angOf(S,{}),S.angp)].filter(Boolean);
+   const ls=[[S.dir,rn(S),envT(S),S.mode].filter(Boolean).join(' · '),covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?`כולל ${S.th} (קומות ${TT.a}–${TT.b})`:'',...angRows(angOf(S,{}),S.angp)].filter(Boolean);
    ls.forEach((x,i)=>s+=T(cx+CW/2,GY-12-(ls.length-1-i)*11,x,10,'middle','fill="#555"'));s+=T(cx+CW/2,GY-16-ls.length*11,S.name+(S.bld?' · '+S.bld:''),14,'middle','font-weight="700"')});
   fr.forEach((n,i)=>{const y=GY+i*RH;s+=`<line x1="30" x2="${W-30}" y1="${y}" y2="${y}" stroke="#d5dbe5"/>`+T(40,y+RH/2+7,n,20,'middle','font-weight="700"');
    cs.forEach((S,j)=>{const c0=S.fl[n]||{},c=eh(S,c0),t=ty(S,c),cx=70+j*CW,ox=cx+34,oy=y+RH-20,mh=RH-34,qm=v=>v===''||v==null?'?':v,is=IS&&IS[P.shafts.indexOf(S)+':'+n],ic=is&&(is.lv=='bad'?'#d62f2f':'#e0a100');let pts,tx='';
     if(c0.skip){s+=`<path d="M${cx+20} ${y+8}L${cx+CW-20} ${y+RH-8}M${cx+CW-20} ${y+8}L${cx+20} ${y+RH-8}" stroke="#d62f2f" stroke-width="3"/>`+T(cx+CW/2,y+RH/2+4,'ללא'+(c0.note?' – '+c0.note:''),12,'middle','font-weight="700" fill="#d62f2f" paint-order="stroke" stroke="#fff" stroke-width="4"');return}
-    if(!['h','w','f','r','l'].some(q=>c0[q]))return;
+    if(!['h','w','f','r','l'].some(q=>c0[q])){if(c0.note||c0.mark){const m=(c0.mark?'הפרעה':'')+(c0.mark&&c0.note?' – ':'')+(c0.note||'');s+=T(cx+CW/2,y+RH/2+4,m.length>42?m.slice(0,41)+'…':m,12,'middle','font-weight="700" fill="#b07400" paint-order="stroke" stroke="#fff" stroke-width="4"')}return} // קומה בלי מידות אבל עם הערה/הפרעה – ההערה לא נעלמת מה-PDF
     if(is)s+=`<rect x="${cx+2}" y="${y+2}" width="${CW-4}" height="${RH-4}" rx="6" fill="${is.lv=='bad'?'#fde7e7':'#fff4d6'}" stroke="${ic}" stroke-dasharray="5 3"/>`; // קומה עם בעיה – מסומנת וממוספרת, הפירוט בדף הבדיקות
     const TF=TYPES[t].f,hl=TF.includes('l'),hr=TF.includes('r');
     if(TF.includes('f')){const ww=Math.min(CW-70,N(c.f,320)*(CW-70)*1.5),t0=y+24,l=hl?N(c.l,120)*mh:0,r=hr?N(c.r,120)*mh:0; // ח / ר: חזית למעלה, צדדים יורדים
@@ -909,7 +918,7 @@ function xlSummary(P){const h=P.h,rows=[],mg=[],ht={0:40},N=8,L=N-1;
  sec('פרטי פרויקט');
  kv(HF.map(([k,l,tp])=>[l,tp=='date'?fmtD(h[k]):h[k]||'']).concat([['מדידה סופית',h.final?'כן':'לא'],['מעקה טכנאי',h.rail?'כן':'לא'],['הזמנת חומר',h.order?'כן':'לא']]));
  sec('ברירות מחדל לפירים');
- kv([['סוג פיר',TYPES[P.type].n],['רציף / בודד',P.run||''],['מיקום ביחס לפודסט',P.cov?COV[P.cov].n:''],['עובי פודסט',xnum(P.pt)]]);
+ kv([['סוג פיר',TYPES[P.type].n],['רציף / בודד',P.run||''],['סביבה',P.env||''],['מיקום ביחס לפודסט',P.cov?COV[P.cov].n:''],['עובי פודסט',xnum(P.pt)]]);
  sec('פירים');const hr=rows.length;rows.push(['פיר','בניין','כיוון','סוג פיר','מיקום ביחס לפודסט','נמדדו','חריגות','חסרים / שגויים'].map(v=>({v,s:4})));ht[hr]=30;
  P.shafts.forEach(S=>{const R=check(S);let d=0,t=0,w=0,b=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')w++;if(r.lv=='bad')b++});
   rows.push([{v:S.name||'',s:3},{v:S.bld||'',s:5},{v:S.dir||'',s:5},{v:TYPES[ty(S,{})].a,s:5},{v:covT(S),s:6},{v:d+'/'+t,s:5},{v:w,s:w?9:5},{v:b,s:b?9:5}])});
@@ -926,7 +935,7 @@ function xlShaft(S){const K=cvk(S),R=check(S),used=new Set(),rows=[],mg=[],ht={0
  C.push(['mk','הפרעה',8],['note','הערה',26],['chk','בדיקה',36]);
  const L=xcol(C.length-1),ix=k=>C.findIndex(c=>c[0]==k),TT=tot(S);
  rows[0]=[{v:S.name||'פיר',s:1}];mg.push(`A1:${L}1`);
- const meta=[S.bld?'בניין '+S.bld:'',S.dir,rn(S),TYPES[ty(S,{})].n,S.mode,covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?totT(S)+(TT.d!=null?` · סכום הקומות ${TT.sum}`:''):'',angT(angOf(S,{}),S.angp)].filter(Boolean).join(' · ');
+ const meta=[S.bld?'בניין '+S.bld:'',S.dir,rn(S),envT(S),TYPES[ty(S,{})].n,S.mode,covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?totT(S)+(TT.d!=null?` · סכום הקומות${TT.P?' כולל פודסטים':''} ${TT.sum}`:''):'',angT(angOf(S,{}),S.angp)].filter(Boolean).join(' · ');
  rows[1]=[{v:meta,s:12}];mg.push(`A2:${L}2`);ht[1]=Math.max(18,15*Math.ceil(meta.length/(C.length*11)));
  if(K)rows[2]=[{v:COV[K].f+(K=='out'&&S.th?' · '+outT(S):''),s:12}],mg.push(`A3:${L}3`);
  const H0=4;rows[H0]=C.map(([,v])=>({v,s:4}));ht[H0]=30;
@@ -978,7 +987,7 @@ async function runXlsx(btn){if(btn.disabled)return;const lbl=btn.innerHTML;btn.d
 // כל עמוד SVG מצויר לתמונה חדה (JPEG) ונכנס לעמוד A4; נתוני הפרויקט (כולל תמונות וקבצים) מוטמעים כקובץ מצורף בתוך ה-PDF
 function svgToJpeg(svg,scale){return new Promise((res,rej)=>{const img=new Image();
  img.onload=()=>{try{const c=document.createElement('canvas');c.width=Math.round(794*scale);c.height=Math.round(1123*scale);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
-  c.toBlob(b=>{if(!b)return rej(new Error('toBlob'));b.arrayBuffer().then(a=>res({bytes:new Uint8Array(a),w:c.width,h:c.height}),rej)},'image/jpeg',.9)}catch(e){rej(e)}};
+  c.toBlob(b=>{const w=c.width,h=c.height;c.width=c.height=0;if(!b)return rej(new Error('toBlob'));b.arrayBuffer().then(a=>res({bytes:new Uint8Array(a),w,h}),rej)},'image/jpeg',.9)}catch(e){rej(e)}};
  img.onerror=()=>rej(new Error('svg'));img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
 const u16=s=>{let h='FEFF';for(let i=0;i<s.length;i++)h+=s.charCodeAt(i).toString(16).padStart(4,'0').toUpperCase();return'<'+h+'>'};
 function pdfBlob(imgs,info,json){
@@ -1012,6 +1021,10 @@ const canShareFiles=()=>{if(HOSTED())return false;try{return!!(navigator.canShar
 async function download(blob,name){ // מחזיר false אם המשתמש סירב לשמירה
  if(HOSTED()){const d=await claude.use('downloads');if(d){try{await d.save({filename:name,data:blob});return true}catch(e){if(e&&e.code=='declined')return false;throw e}}
   toast('שמירת קבצים לא זמינה בתצוגה הזו – פתחו את הקישור בדפדפן של הטלפון (Chrome / Safari)','bad');return false} // בתוך Claude הורדה רגילה חסומה
+ if((navigator.standalone||matchMedia('(display-mode: standalone)').matches)&&navigator.canShare){ // אפליקציה מותקנת במסך הבית (בעיקר אייפון): הורדה רגילה לא אמינה – שומרים דרך תפריט השיתוף
+  const f=new File([blob],name,{type:blob.type||'application/octet-stream'});
+  if(navigator.canShare({files:[f]}))try{await navigator.share({files:[f]});download.pending=null;return true}
+   catch(e){if(e&&e.name=='AbortError')return false;if(e&&e.name=='NotAllowedError'){download.pending={blob,name,t:Date.now()};toast('הקובץ מוכן – לחצו שוב על הכפתור כדי לשמור','ok');return false}}}
  const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000);return true}
 async function runPdf(btn,mode){if(btn.disabled)return;const lbl=btn.innerHTML;btn.disabled=true;btn.setAttribute('aria-busy','true');btn.textContent='מכין PDF…';
  try{const r=await makePdf();
@@ -1039,7 +1052,7 @@ async function importFile(f){if(!f)return;
  try{d=await readPdf(f)}catch(e){toast(e.message=='notpdf'?'הקובץ שנבחר אינו PDF תקין':'שגיאה בקריאת הקובץ','bad');return}
  const p=d&&d.project;
  if(!p||typeof p!='object'||!Array.isArray(p.shafts)||!p.shafts.length){toast('לא נמצאו בקובץ נתוני פרויקט. ניתן לטעון רק PDF שיוצא מאפליקציה זו.','bad');return}
- p.h=p.h||{};p.n=p.n||{};p.att=p.att||[];p.shapes=p.shapes||[];p.shafts.forEach(S=>S.fl=S.fl||{});if(!TYPES[p.type])p.type='s';
+ normP(p);p.att=p.att||[];p.shapes=p.shapes||[];
  const ix=DB.findIndex(x=>x.id==p.id);let copy=false;
  if(ix>=0){const v=await ask('הפרויקט כבר קיים במכשיר','"'+pname(p)+'" כבר שמור במכשיר.\nלעדכן אותו לפי הקובץ, או לטעון כעותק נפרד?',[['up','עדכון הקיים','p'],['copy','טעינה כעותק'],[null,'ביטול']]);
   if(!v)return;copy=v=='copy'}
@@ -1054,10 +1067,12 @@ async function importFile(f){if(!f)return;
 function bkNote(){const m=$('#bkm');if(!m)return;let d=null;try{d=localStorage.getItem('mdd1b')}catch(e){}
  m.textContent=d?'גיבוי אחרון במכשיר הזה: '+fmtD(d):'עדיין לא נעשה גיבוי במכשיר הזה'}
 async function runBackup(btn){if(btn.disabled)return;const lbl=btn.innerHTML;btn.disabled=true;btn.textContent='מכין גיבוי…';
- try{flush();const files={};
-  for(const p of DB)for(const id of fids(p)){try{const b=await IDB.get(id);if(b)files[id]=await b2u(b)}catch(e){}}
-  const blob=new Blob([JSON.stringify({app:'mdd1',v:1,date:today(),projects:DB,files})],{type:'application/json'});
-  if(await download(blob,'גיבוי מדידות '+fmtD(today()).replace(/\//g,'-')+'.json')){try{localStorage.setItem('mdd1b',today())}catch(e){}bkNote();toast('הגיבוי נשמר ✓ ('+fsz(blob.size)+') – כדאי לשמור אותו גם מחוץ לטלפון','ok')}}
+ try{flush();const name='גיבוי מדידות '+fmtD(today()).replace(/\//g,'-')+'.json',P=download.pending;let blob;
+  if(P&&P.name==name&&Date.now()-P.t<6e4)blob=P.blob; // לחיצה שנייה אחרי "הקובץ מוכן": משתפים מיד, בלי להכין מחדש
+  else{const files={};
+   for(const p of DB)for(const id of fids(p)){try{const b=await IDB.get(id);if(b)files[id]=await b2u(b)}catch(e){}}
+   blob=new Blob([JSON.stringify({app:'mdd1',v:1,date:today(),projects:DB,files})],{type:'application/json'})}
+  if(await download(blob,name)){try{localStorage.setItem('mdd1b',today())}catch(e){}bkNote();toast('הגיבוי נשמר ✓ ('+fsz(blob.size)+') – כדאי לשמור אותו גם מחוץ לטלפון','ok')}}
  catch(e){toast('יצירת הגיבוי נכשלה','bad')}
  finally{btn.disabled=false;btn.innerHTML=lbl}}
 async function restoreBackup(f){if(!f)return;let d;
@@ -1069,8 +1084,10 @@ async function restoreBackup(f){if(!f)return;let d;
  if(v!='ok')return;
  const files=d.files||{};let bad=0;
  for(const p of ps)for(const id of fids(p)){if(!files[id])continue;try{await IDB.put(id,await (await fetch(files[id])).blob())}catch(e){bad++}}
- DB=DB.filter(x=>!ps.some(p=>p.id==x.id)&&!(DB.length==1&&!x.h.code&&!x.h.company&&x.shafts.length==1&&!Object.keys(x.shafts[0].fl).length)); // פרויקט ריק שנוצר אוטומטית לא נשאר
- DB.unshift(...ps);flush();load();shaft=0;lastPdf=null;skCache={};setTab('d');all();
+ const prev=DB;DB=DB.filter(x=>!ps.some(p=>p.id==x.id)&&!(DB.length==1&&!x.h.code&&!x.h.company&&x.shafts.length==1&&!Object.keys(x.shafts[0].fl).length)); // פרויקט ריק שנוצר אוטומטית לא נשאר
+ DB=[...ps.map(normP),...DB];
+ if(!flush()){DB=prev;toast('השחזור נכשל – אין מספיק מקום במכשיר. הנתונים הקודמים לא נפגעו.','bad');return}
+ load();shaft=0;lastPdf=null;skCache={};setTab('d');all();
  toast('שוחזרו '+ps.length+' פרויקטים ✓'+(bad?' ('+bad+' קבצים לא נשמרו – אין מקום במכשיר?)':''),bad?'bad':'ok')}
 
 /* ---------- תצוגה מקדימה ---------- */
