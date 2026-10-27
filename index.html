@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta name="theme-color" content="#1c4e9d">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="מדידות"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{--bg:#eef2f7;--card:#fff;--soft:#f5f7fb;--tx:#142033;--mu:#64718a;--bd:#dde3ec;--bd2:#c6cfdc;--pr:#1c4e9d;--prh:#163f82;--prs:#e7eefb;--prt:#fff;
 --ok:#e9f7ee;--okb:#1f8f55;--wn:#fff5da;--wnb:#c98700;--bad:#fdeaea;--badb:#d23434;--ln:#1c4e9d;--mk:#ff4fa3;
@@ -705,6 +707,7 @@ function summary(){
  <div class="card"><h2>חתימת לקוח <small>מופיעה בדף הסיכום בסוף ה-PDF</small></h2><button type="button" class="sigbox" id="sigb"></button><div class="sigmeta" id="sigm"></div></div>
  <div class="card"><h2>שליחה וייצוא</h2><div class="sendacts"><button class="p wide" id="sh">📤 שתף עם קבצים</button><button class="p" id="cp">📋 העתק טקסט</button><button id="prn">🖨 הדפסה</button><button id="xl" class="p">📊 ייצוא Excel</button><button id="ex">⬇ סרטוט SVG</button></div><span id="ms" role="status" aria-live="polite"></span>
  <details class="sec" data-k="tx"><summary><span>טקסט ההודעה</span><span class="hint">ניתן לערוך לפני שליחה</span></summary><div class="pad"><textarea id="tx"></textarea></div></details></div>
+ <div class="card"><h2>💾 גיבוי מלא <small>כל הפרויקטים, התמונות והמסמכים בקובץ אחד – למעבר לטלפון חדש או לשמירה בצד</small></h2><div class="sendacts"><button class="p" id="bk">💾 גיבוי מלא</button><button id="rs">♻️ שחזור מגיבוי</button></div><span id="bkm" role="status" aria-live="polite"></span><input type="file" id="rsf" accept=".json,application/json" hidden></div>
  <div class="card"><h2>📎 מסמכים ומידע</h2>
  <label>מידע נוסף<textarea id="inf"></textarea></label>
  <div style="margin-top:12px"><label class="btn">📎 הוסף מסמכים / תמונות<input type="file" id="atf" multiple hidden></label></div><div id="atl"></div></div>`;
@@ -725,6 +728,7 @@ function summary(){
   navigator.share(d).then(()=>m.textContent='נשלח ✓',e=>{if(e.name!='AbortError')m.textContent='השיתוף נכשל – '+e.message})};
  $('#cp').onclick=async()=>{const v=$('#tx').value;try{await navigator.clipboard.writeText(v);$('#ms').textContent='הועתק ✓'}catch(e){$('#tx').select();document.execCommand&&document.execCommand('copy');$('#ms').textContent='סמן והעתק ידנית אם לא הועתק'}};
  $('#prn').onclick=async()=>{$('#pr').innerHTML=(await allPages()).join('');try{window.print()}catch(e){}};$('#ex').onclick=exportSVG;if(HOSTED())$('#prn').hidden=$('#sh').hidden=true;$('#xl').onclick=()=>runXlsx($('#xl'));
+ $('#bk').onclick=()=>runBackup($('#bk'));$('#rs').onclick=()=>$('#rsf').click();$('#rsf').onchange=e=>{const f=e.target.files[0];e.target.value='';restoreBackup(f)};bkNote();
  sigCard();$('#sigb').onclick=openSig;
  $('#pdf').onclick=()=>runPdf($('#pdf'),'dl');$('#pv').onclick=openPreview;$('#imp2').onclick=()=>$('#pdff').click();
  if(canShareFiles()){$('#shr').hidden=false;$('#shr').onclick=()=>runPdf($('#shr'),'share')}}
@@ -1046,6 +1050,29 @@ async function importFile(f){if(!f)return;
  if(ix>=0&&!copy)DB[ix]=p;else DB.unshift(p);
  cur=p;shaft=0;lastPdf=null;skCache={};flush();setTab('d');all();toast('הקובץ נטען ✓ – אפשר לערוך ולייצא מחדש','ok');setTimeout(openPreview,400)}
 
+/* ---------- גיבוי מלא ושחזור (כל הפרויקטים + קבצי IndexedDB בקובץ JSON אחד) ---------- */
+function bkNote(){const m=$('#bkm');if(!m)return;let d=null;try{d=localStorage.getItem('mdd1b')}catch(e){}
+ m.textContent=d?'גיבוי אחרון במכשיר הזה: '+fmtD(d):'עדיין לא נעשה גיבוי במכשיר הזה'}
+async function runBackup(btn){if(btn.disabled)return;const lbl=btn.innerHTML;btn.disabled=true;btn.textContent='מכין גיבוי…';
+ try{flush();const files={};
+  for(const p of DB)for(const id of fids(p)){try{const b=await IDB.get(id);if(b)files[id]=await b2u(b)}catch(e){}}
+  const blob=new Blob([JSON.stringify({app:'mdd1',v:1,date:today(),projects:DB,files})],{type:'application/json'});
+  if(await download(blob,'גיבוי מדידות '+fmtD(today()).replace(/\//g,'-')+'.json')){try{localStorage.setItem('mdd1b',today())}catch(e){}bkNote();toast('הגיבוי נשמר ✓ ('+fsz(blob.size)+') – כדאי לשמור אותו גם מחוץ לטלפון','ok')}}
+ catch(e){toast('יצירת הגיבוי נכשלה','bad')}
+ finally{btn.disabled=false;btn.innerHTML=lbl}}
+async function restoreBackup(f){if(!f)return;let d;
+ try{d=JSON.parse(await f.text())}catch(e){toast('הקובץ שנבחר אינו קובץ גיבוי תקין','bad');return}
+ const ps=d&&d.app=='mdd1'&&Array.isArray(d.projects)?d.projects.filter(p=>p&&typeof p=='object'&&Array.isArray(p.shafts)):null;
+ if(!ps||!ps.length){toast('לא נמצאו פרויקטים בקובץ. ניתן לשחזר רק קובץ "גיבוי מלא" של אפליקציה זו.','bad');return}
+ const same=ps.filter(p=>DB.some(x=>x.id==p.id)).length;
+ const v=await ask('שחזור מגיבוי','בקובץ '+ps.length+' פרויקטים (מתאריך '+fmtD(d.date)+').'+(same?'\n'+same+' מהם כבר קיימים במכשיר ויוחלפו בגרסה שבגיבוי.':'')+'\nפרויקטים אחרים שבמכשיר לא יימחקו.',[['ok','שחזור','p'],[null,'ביטול']]);
+ if(v!='ok')return;
+ const files=d.files||{};let bad=0;
+ for(const p of ps)for(const id of fids(p)){if(!files[id])continue;try{await IDB.put(id,await (await fetch(files[id])).blob())}catch(e){bad++}}
+ DB=DB.filter(x=>!ps.some(p=>p.id==x.id)&&!(DB.length==1&&!x.h.code&&!x.h.company&&x.shafts.length==1&&!Object.keys(x.shafts[0].fl).length)); // פרויקט ריק שנוצר אוטומטית לא נשאר
+ DB.unshift(...ps);flush();load();shaft=0;lastPdf=null;skCache={};setTab('d');all();
+ toast('שוחזרו '+ps.length+' פרויקטים ✓'+(bad?' ('+bad+' קבצים לא נשמרו – אין מקום במכשיר?)':''),bad?'bad':'ok')}
+
 /* ---------- תצוגה מקדימה ---------- */
 // הדיאלוג נפתח מיד עם הודעת טעינה; ניווט בין עמודים וזום (דף שלם / רוחב / 150% / 200%)
 const PVZ=['fit',1,1.5,2],PVZL=['דף שלם','רוחב','150%','200%'];let pvZ=0,pvTok=0,pvCur=0;
@@ -1113,6 +1140,8 @@ $('#pvd').addEventListener('click',e=>{if(e.target.id=='pvd')closePv()});
 $('#pvpdf').onclick=()=>runPdf($('#pvpdf'),canShareFiles()&&matchMedia('(pointer:coarse)').matches?'share':'dl');
 /*E*/
 load();all();setTab('d');
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{}); // בקשה מהדפדפן לא למחוק את המדידות מעצמו
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)&&!HOSTED())navigator.serviceWorker.register('sw.js').catch(()=>{}); // עבודה גם בלי קליטה
 try{localStorage.setItem('mdd1t','1');localStorage.removeItem('mdd1t')}catch(e){ // תצוגה שלא מאפשרת שמירה במכשיר (למשל תצוגה מקדימה בטלפון)
  const b=document.createElement('div');b.className='card';b.style.cssText='margin:12px 16px 0;border-color:var(--wnb);background:var(--wn);font-weight:600';
  b.textContent='⚠️ בתצוגה הזו המדידות לא נשמרות במכשיר אחרי סגירה. אפשר לעבוד כרגיל – ולפני שסוגרים, להוריד PDF (אותו אפשר לטעון חזרה לעריכה).';$('header').after(b)}
