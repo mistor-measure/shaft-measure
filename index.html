@@ -166,6 +166,7 @@ details.sec>.pad{padding:4px 14px 14px}
 .fix.warn{background:var(--wn);border-color:transparent;border-inline-start:4px solid var(--wnb)}
 .fix.bad{background:var(--bad);border-color:transparent;border-inline-start:4px solid var(--badb)}
 .fix.okk{background:var(--ok);border-color:transparent;border-inline-start:4px solid var(--okb)}
+td.envm{color:var(--badb);font-weight:700}td.envn{color:var(--wnb);font-weight:600}
 .allok{display:inline-flex;align-items:center;gap:6px;color:var(--okb);background:var(--ok);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px}
 .flh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 4px 10px}
 .flh h2{font-size:16px;margin:0;font-weight:700}.flh span{font-size:13px;color:var(--mu);font-weight:600}
@@ -327,7 +328,7 @@ const $=s=>document.querySelector(s);
 const med=a=>{a=a.slice().sort((x,y)=>x-y);return a.length?(a[(a.length-1)>>1]+a[a.length>>1])/2:null};
 const ty=(S,c)=>(c&&c.t)||S.t||cur.type;
 const rn=S=>S.run||cur.run||'';
-const env=S=>S.env||cur.env||'',envT=S=>env(S)?'סביבה '+env(S):'';
+const env=S=>S.env||cur.env||'',envT=S=>env(S)?(env(S)=='ימית'?'⚠ סביבה ימית':'סביבה '+env(S)):''; // ימית מודגשת – משפיעה על החומרים
 const eh=(S,c)=>{const e=v=>v===''||v==null;if(e(c.h)&&S.fh)c={...c,h:S.fh};if(e(c.p)&&pT(S))c={...c,p:pT(S)};return c}; // גובה קבוע / עובי פודסט של הפיר – חלים על כל קומה שלא הוזן בה ערך משלה
 const own=(c,F)=>F.some(k=>c[k]!==''&&c[k]!=null); // האם הוזן בקומה ערך כלשהו (לא כולל גובה קבוע)
 function tot(S){if(!S.th)return null; // גובה כולל לפיר (מדידת לייזר) בטווח קומות, מול סכום גובהי הקומות
@@ -684,6 +685,7 @@ function flags(){
  const T=tot(S);if(T){const bad=T.d!=null&&Math.abs(T.d)>HTOL;
   fx.unshift(`<div class="fix ${bad?'warn':''}">📏 גובה כולל ${S.th} · קומות ${T.a}–${T.b} (${T.n} קומות) · ממוצע לקומה ${T.avg}`+(T.op!=null?` (פתח ${T.op} · ${T.n-1} פודסטים של ${pT(S)} ביניהן)`:'')+(T.d!=null?` · סכום הקומות${T.P?' כולל פודסטים':''} ${T.sum} (הפרש ${T.d>0?'+':''}${T.d})`:` · חסר ${T.P?'גובה או עובי פודסט':'גובה'} ב-${T.miss} קומות`)+'</div>')}
  if(cvk(S)=='out'&&S.th)fx.unshift(`<div class="fix okk">🧱 ${outT(S)}</div>`);
+ if(env(S)=='ימית')fx.unshift('<div class="fix bad">⚠ סביבה ימית – ברגים, פרופילים וצביעה לסביבה ימית</div>');else if(!env(S))fx.unshift('<div class="fix warn">לא נבחרה סביבה (רגילה / ימית) – בוחרים בלשונית פרטים או כאן בפיר</div>');
  $('#fix').innerHTML=fx.join('')||'<span class="allok">✓ אין התראות בפיר זה</span>';
  const L=Object.values(R).map(r=>r.lv),nw=L.filter(v=>v=='warn'||v=='bad').length,nf=L.filter(v=>v&&v!='skip').length,ns=L.filter(v=>v=='skip').length;
  $('#fxn').textContent=nw||'';$('#fxn').classList.toggle('b',L.includes('bad'));
@@ -706,12 +708,13 @@ function text(){const h=cur.h;
 function summary(){
  let w=0,b=0,done=0,tot=0;
  const rows=cur.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')ww++;if(r.lv=='bad')bb++});
-  w+=ww;b+=bb;done+=d;tot+=t;return`<tr><td>${esc(S.name)}</td><td>${d}/${t}</td><td>${ww}</td><td>${bb}</td></tr>`}).join('');
+  w+=ww;b+=bb;done+=d;tot+=t;const e=env(S);return`<tr><td>${esc(S.name)}</td><td>${d}/${t}</td><td>${ww}</td><td>${bb}</td><td class="${e=='ימית'?'envm':e?'':'envn'}">${e=='ימית'?'⚠ ימית':e||'לא נבחרה'}</td></tr>`}).join('');
+ const mar=cur.shafts.filter(S=>env(S)=='ימית'),noe=cur.shafts.filter(S=>!env(S));
  const st=b?['bad',`⚠️ ${b} קומות עם נתונים חסרים או שגויים`]:w?['warn',`${w} חריגות לבדיקה`]:['ok','✓ הכול תקין'];
  $('#t-s').innerHTML=`<div class="card"><h2>סטטוס מדידה</h2>
  <div class="stats"><div class="stat"><b>${done}/${tot}</b><span>קומות נמדדו</span></div><div class="stat w"><b>${w}</b><span>חריגות</span></div><div class="stat b"><b>${b}</b><span>חסרים / שגויים</span></div></div>
- <div class="banner ${st[0]}">${st[1]}</div>
- <div class="tblw"><table><thead><tr><th>פיר</th><th>נמדדו</th><th>חריגות</th><th>חסרים</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+ <div class="banner ${st[0]}">${st[1]}</div>${mar.length?`<div class="banner bad">⚠ סביבה ימית${mar.length<cur.shafts.length?' – '+esc(mar.map(S=>S.name).join(', ')):''}: ברגים, פרופילים וצביעה לסביבה ימית</div>`:''}${noe.length?`<div class="banner warn">לא נבחרה סביבה (רגילה / ימית)${noe.length<cur.shafts.length?' ב-'+esc(noe.map(S=>S.name).join(', ')):''}</div>`:''}
+ <div class="tblw"><table><thead><tr><th>פיר</th><th>נמדדו</th><th>חריגות</th><th>חסרים</th><th>סביבה</th></tr></thead><tbody>${rows}</tbody></table></div></div>
  <div class="card"><h2>דוח PDF <small>נתוני הפרויקט נשמרים בתוך הקובץ – אפשר לטעון אותו חזרה ולערוך</small></h2><div class="sendacts"><button class="p wide" id="pdf">⬇ הורדת PDF</button><button class="p" id="shr" hidden>📤 שיתוף PDF</button><button id="pv">👁 תצוגה מקדימה</button><button id="imp2">📂 ייבוא PDF לעריכה</button></div></div>
  <div class="card"><h2>חתימת לקוח <small>מופיעה בדף הסיכום בסוף ה-PDF</small></h2><button type="button" class="sigbox" id="sigb"></button><div class="sigmeta" id="sigm"></div></div>
  <div class="card"><h2>שליחה וייצוא</h2><div class="sendacts"><button class="p wide" id="sh">📤 שתף עם קבצים</button><button class="p" id="cp">📋 העתק טקסט</button><button id="prn">🖨 הדפסה</button><button id="xl" class="p">📊 ייצוא Excel</button><button id="ex">⬇ סרטוט SVG</button></div><span id="ms" role="status" aria-live="polite"></span>
@@ -796,14 +799,14 @@ async function allPages(){ // דפי הסרטוט + דפים נוספים: מי�
  ex.forEach(([t,u])=>pg.push(img(t,u)));
  // דף אחרון קבוע: "סיכום ואישור" – סטטוס, טבלת פירים, בדיקות, מידע ומסמכים, ובתחתיתו חתימת הלקוח
  {let s=head('סיכום ואישור'),lim=H-SIGH-50,w=0,b=0,dn=0,tt=0;
-  const sr=P.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')ww++;if(r.lv=='bad')bb++});w+=ww;b+=bb;dn+=d;tt+=t;return[S.name+(S.bld?' · '+S.bld:''),d+'/'+t,ww,bb]});
+  const sr=P.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')ww++;if(r.lv=='bad')bb++});w+=ww;b+=bb;dn+=d;tt+=t;return[S.name+(S.bld?' · '+S.bld:''),d+'/'+t,ww,bb,env(S)=='ימית'?'⚠ ימית':env(S)||'לא נבחרה']});
   s+=`<rect x="40" y="98" width="${W-80}" height="30" rx="7" fill="#f3f5f9"/>`;
   [['פירים',P.shafts.length,'#142033'],['קומות נמדדו',dn+'/'+tt,'#142033'],['חריגות',w,w?'#a06c00':'#142033'],['חסרים / שגויים',b,b?'#d62f2f':'#142033']].forEach(([a,v,c],i)=>{const x=W-56-i*178;
    s+=T(x,118,a,11.5,'start','fill="#4a5568"')+T(x-a.length*5.7-10,118,String(v),13,'start',`font-weight="700" fill="${c}"`)});
-  let y=160;const cx=[W-40,W-260,W-400,W-540];
-  ['פיר','נמדדו','חריגות','חסרים'].forEach((a,i)=>s+=T(cx[i],y,a,11,'start','font-weight="700" fill="#6b778c"'));
+  let y=160;const cx=[W-40,W-260,W-390,W-500,W-610];
+  ['פיר','נמדדו','חריגות','חסרים','סביבה'].forEach((a,i)=>s+=T(cx[i],y,a,11,'start','font-weight="700" fill="#6b778c"'));
   s+=`<rect x="40" y="${y+7}" width="${W-80}" height="1.2" fill="#1c4e9d" opacity=".5"/>`;y+=28;
-  sr.forEach(r=>{if(y>=lim-200)return;r.forEach((v,i)=>s+=T(cx[i],y,String(v),12.5,'start',(i==2&&v?'fill="#a06c00" ':i==3&&v?'fill="#d62f2f" ':'')+(i?'':'font-weight="700"')));
+  sr.forEach(r=>{if(y>=lim-200)return;r.forEach((v,i)=>s+=T(cx[i],y,String(v),12.5,'start',(i==2&&v?'fill="#a06c00" ':i==3&&v?'fill="#d62f2f" ':i==4&&v=='⚠ ימית'?'fill="#d62f2f" ':i==4&&v=='לא נבחרה'?'fill="#a06c00" ':'')+(i&&!(i==4&&v=='⚠ ימית')?'':'font-weight="700"')));
    s+=`<line x1="40" x2="${W-40}" y1="${y+8}" y2="${y+8}" stroke="#e3e8ef" stroke-width=".8"/>`;y+=24});y+=22;
   if(il.length){s+=T(W-40,y,'בדיקות – לבירור לפני ייצור:',14,'start','font-weight="700"');y+=24;
    il.forEach(([lv,x],i)=>wrap((i+1)+'. '+x,80).forEach((l,j)=>{if(y<lim){s+=T(W-40-(j?18:0),y,l,13,'start',lv=='bad'?'fill="#d62f2f"':'fill="#a06c00"');y+=20}}));y+=16}
