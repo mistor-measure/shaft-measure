@@ -113,6 +113,9 @@ label.ck input:checked{background:var(--okb)}label.ck input:checked:before{trans
 .skbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 #skzl{margin-bottom:12px}
 .skw{display:flex;gap:12px;align-items:flex-start}.skw canvas{flex:1;min-width:0}
+.cvw{position:relative;flex:1;min-width:0}#skc.fs .cvw{flex:none}
+.sksel:not([hidden]){position:absolute;z-index:3;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;flex-wrap:wrap;justify-content:center;padding:5px;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:0 6px 24px rgba(20,40,80,.22);width:max-content;max-width:calc(100% - 16px)}
+.sksel button{min-height:40px;padding:0 10px;font-size:15px}
 .skbar button.on{background:var(--pr);color:var(--prt);border-color:var(--pr)}
 .cmpr{display:inline-flex}.cmpr button{width:44px;padding:0;font-size:19px}.cmpr button:first-child{border-radius:0 10px 10px 0}.cmpr button:last-child{border-radius:10px 0 0 10px;margin-right:-1.5px}
 /* מסך מלא לסקיצה: רק הציור + סרגל כלים דק בכל צד; בטלפון עומד המסך מסובב (כשאין נעילת כיוון) */
@@ -165,6 +168,7 @@ details.sec>.pad{padding:4px 14px 14px}
 .fix{padding:8px 12px;border-radius:10px;font-size:13.5px;background:var(--soft);border:1px solid var(--bd)}
 .fix.warn{background:var(--wn);border-color:transparent;border-inline-start:4px solid var(--wnb)}
 .fix.bad{background:var(--bad);border-color:transparent;border-inline-start:4px solid var(--badb)}
+.fix .okd{display:flex;margin-top:6px;min-height:34px;font-size:12.5px;padding:0 10px}.fix.acc{opacity:.75}.fix.acc .okd{background:var(--ok);color:var(--okb);border-color:var(--okb)}
 .fix.okk{background:var(--ok);border-color:transparent;border-inline-start:4px solid var(--okb)}
 td.envm{color:var(--badb);font-weight:700}td.envn{color:var(--wnb);font-weight:600}
 .allok{display:inline-flex;align-items:center;gap:6px;color:var(--okb);background:var(--ok);font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px}
@@ -319,8 +323,13 @@ function covSvg(k){if(!COV[k])return''; // חתך: קיר, פודסט עליון
  return`<svg viewBox="0 0 80 96" width="60" height="72" style="flex:none"><rect x="4" y="2" width="6" height="92" ${R}/><rect x="10" y="10" width="44" height="12" ${R}/><rect x="10" y="70" width="44" height="12" ${R}/>
  <line x1="${x}" y1="${a}" x2="${x}" y2="${b}" stroke="var(--ln)" stroke-width="4" stroke-linecap="round"/>${[0,1,2,3,4,5].map(i=>`<line x1="${x}" x2="${x+(k=='stop'?-6:6)}" y1="${a+4+i*(b-a-8)/5}" y2="${a+i*(b-a-8)/5}" stroke="var(--ln)" stroke-width="1.5"/>`).join('')}</svg>`}
 const MODES=['','ישב מלא','1/2 גובה','באוויר','פנים-חוץ'],DIRS=['','צפונית','דרומית','מזרחית','מערבית'];
-const HF=[['code','מק״ט פרויקט'],['company','שם חברה'],['site','אתר'],['addr','כתובת אתר'],['pm','מנהל פרויקט באתר + טלפון'],['wk','מנהל עבודה + טלפון'],['surveyor','מודד'],['form','מס׳ טופס מדידה'],['due','תאריך מסירה לתכנון','date'],['next','צפי למדידה נוספת','date'],['date','תאריך מדידה','date'],['ral','גוון (RAL)'],['gap','מרווח אור'],['model','דגם מסתור'],['shade','הצללה']];
-const HG_W=['company','site','addr','pm','wk']; // שדות ארוכים – שורה מלאה בטלפון
+const HF=[['code','מק״ט פרויקט'],['company','שם חברה'],['site','אתר'],['addr','כתובת אתר'],['pm','מנהל פרויקט באתר + טלפון'],['wk','מנהל עבודה + טלפון'],['eng','מהנדס ביצוע + טלפון'],['surveyor','מודד'],['form','מס׳ טופס מדידה'],['due','תאריך מסירה לתכנון','date'],['next','צפי למדידה נוספת','date'],['date','תאריך מדידה','date'],['ral','גוון (RAL)'],['gap','מרווח אור (ס״מ)'],['model','דגם מסתור'],['shade','הצללה']];
+const HG_W=['company','site','addr','pm','wk','eng']; // שדות ארוכים – שורה מלאה בטלפון
+const cmT=v=>{v=String(v??'').trim();return/^\d+([.,]\d+)?$/.test(v)?v+' ס״מ':v}; // מרווח אור: מספר בלבד → מוסיפים ס״מ
+const POSTS=[['','—'],['rnd','עמוד פינה מעוגל'],['sq','עמוד פינה מרובע'],['ang','זווית פינה (ללא עמוד)']]; // סוג העמוד בפינה של ר / ח
+const postT=S=>{const k=S.post||cur.post||'';return k?POSTS.find(p=>p[0]==k)[1]:''};
+const noteL=v=>String(v||'').split('\n').map(x=>x.trim().replace(/^\d+\s*[.)\-]\s*/,'')).filter(Boolean).map(x=>/[.!?:]$/.test(x)?x:x+'.'); // הערות: כל שורה = הערה ממוספרת שמסתיימת בנקודה
+const noteN=v=>noteL(v).map((x,i)=>(i+1)+'. '+x);
 const NOTES=[['plan','הנחיות לתכנון'],['prod','הנחיות לייצור'],['integ','הנחיות לאינטגרציה'],['inst','הנחיות להתקנה'],['gen','הערות כלליות']];
 const WTOL=3,HTOL=25; // סטייה מותרת (ס״מ): רוחב מול חציון הפיר, גובה מול קומות סמוכות
 let DB=[],cur=null,shaft=0,tab='d',saveT;
@@ -328,7 +337,9 @@ const $=s=>document.querySelector(s);
 const med=a=>{a=a.slice().sort((x,y)=>x-y);return a.length?(a[(a.length-1)>>1]+a[a.length>>1])/2:null};
 const ty=(S,c)=>(c&&c.t)||S.t||cur.type;
 const rn=S=>S.run||cur.run||'';
-const env=S=>S.env||cur.env||'',envT=S=>env(S)?(env(S)=='ימית'?'⚠ סביבה ימית':'סביבה '+env(S)):''; // ימית מודגשת – משפיעה על החומרים
+function setEnv(v){cur.shafts.forEach(S=>delete S.env);if(v)cur.env=v;else delete cur.env;save()} // סביבה אחת לכל הפרויקט
+const marine=()=>cur.env=='ימית'||cur.shafts.some(S=>S.env=='ימית'); // פיר אחד בסביבה ימית → כל הפרויקט ימי
+const env=S=>marine()?'ימית':S.env||cur.env||'',envT=S=>env(S)=='ימית'?'⚠ סביבה ימית':''; // סביבה רגילה לא נכתבת בפלטים
 const eh=(S,c)=>{const e=v=>v===''||v==null;if(e(c.h)&&S.fh)c={...c,h:S.fh};if(e(c.p)&&pT(S))c={...c,p:pT(S)};return c}; // גובה קבוע / עובי פודסט של הפיר – חלים על כל קומה שלא הוזן בה ערך משלה
 const own=(c,F)=>F.some(k=>c[k]!==''&&c[k]!=null); // האם הוזן בקומה ערך כלשהו (לא כולל גובה קבוע)
 function tot(S){if(!S.th)return null; // גובה כולל לפיר (מדידת לייזר) בטווח קומות, מול סכום גובהי הקומות
@@ -378,11 +389,11 @@ function ask(title,msg,btns){return new Promise(res=>{const d=$('#ask'); // חל
  $('#ask-t').textContent=title;$('#ask-m').textContent=msg;const f=$('#ask-b');f.innerHTML='';
  btns.forEach(([v,l,cls])=>{const b=document.createElement('button');b.textContent=l;if(cls)b.className=cls;b.onclick=()=>{res(v);d.close()};f.append(b)});
  d.onclose=()=>res(null);d.showModal()})}
-function askText(title,ph){return new Promise(res=>{const d=$('#ask'); // שדה טקסט בתוך האפליקציה (prompt() חסום בקישור המפורסם)
+function askText(title,ph,init){return new Promise(res=>{const d=$('#ask'); // שדה טקסט בתוך האפליקציה (prompt() חסום בקישור המפורסם)
  if(!d.showModal){res(prompt(title));return}
- $('#ask-t').textContent=title;const m=$('#ask-m'),i=document.createElement('input');m.textContent='';i.id='ask-in';i.placeholder=ph||'';i.setAttribute('aria-label',title);m.append(i);
+ $('#ask-t').textContent=title;const m=$('#ask-m'),i=document.createElement('input');m.textContent='';i.id='ask-in';i.placeholder=ph||'';i.value=init||'';i.setAttribute('aria-label',title);m.append(i);
  const f=$('#ask-b'),ok=document.createElement('button'),cn=document.createElement('button');let v=null;f.innerHTML='';
- ok.className='p';ok.textContent='הוספה';ok.onclick=()=>{v=i.value;d.close()};cn.textContent='ביטול';cn.onclick=()=>d.close();f.append(ok,cn);
+ ok.className='p';ok.textContent=init?'שמירה':'הוספה';ok.onclick=()=>{v=i.value;d.close()};cn.textContent='ביטול';cn.onclick=()=>d.close();f.append(ok,cn);
  i.onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();ok.click()}};d.onclose=()=>res(v);d.showModal();i.focus()})}
 const HOSTED=()=>!!(window.claude&&window.claude.use); // בקישור המפורסם ב-Claude: שמירת קבצים דרך אישור של Claude; הדפסה ושיתוף מערכת חסומים
 $('#sel').onchange=e=>{flush();cur=DB[e.target.value];shaft=0;all()};
@@ -408,37 +419,43 @@ function all(){selRender();renderD();renderM();if(tab=='s')summary()}
 /* ---------- פרטים ---------- */
 function renderD(){
  const el=$('#t-d');
- const hf=k=>{const[,l,tp]=HF.find(x=>x[0]==k);return`<label${HG_W.includes(k)?' class="w"':''}>${l}<input data-h="${k}" type="${tp||'text'}"${k=='form'?' inputmode="numeric"':''}></label>`};
- el.innerHTML=`<div class="card"><h2>פרטי פרויקט</h2><div class="g">${['code','form','company','site','addr','pm','wk','surveyor'].map(hf).join('')}</div></div>
+ const hf=k=>{const[,l,tp]=HF.find(x=>x[0]==k);return`<label${HG_W.includes(k)?' class="w"':''}>${l}<input data-h="${k}" type="${tp||'text'}"${k=='form'?' inputmode="numeric"':k=='gap'?' inputmode="decimal" placeholder="ס״מ"':''}></label>`};
+ el.innerHTML=`<div class="card"><h2>פרטי פרויקט</h2><div class="g">${['code','form','company','site','addr','pm','wk','eng','surveyor'].map(hf).join('')}</div></div>
  <div class="card"><h2>ברירות מחדל לפירים <small>חלות על כל פיר שלא הוגדר אחרת</small></h2><div class="g">
  <label>סוג פיר<select id="ty">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
  <label>רציף / בודד<select id="run">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label>
  <label>סביבה<select id="env" title="סביבה ימית משפיעה על החומרים">${ENVS.map(m=>`<option>${m}</option>`).join('')}</select></label>
  <label class="w">מיקום ביחס לפודסט<select id="cov"><option value=""></option>${Object.entries(COV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
- <label>עובי פודסט<input id="pt" type="number" inputmode="numeric" placeholder="ס״מ"></label></div></div>
+ <label>עובי פודסט<input id="pt" type="number" inputmode="numeric" placeholder="ס״מ"></label>
+ <label title="בפירי ר / ח – העמוד בפינה בין החזית לצד">סוג עמוד (ר / ח)<select id="post">${POSTS.map(([k,l])=>`<option value="${k}">${k?l:''}</option>`).join('')}</select></label></div></div>
  <div class="card"><h2>מועדים ומפרט</h2><div class="g">${['date','due','next','ral','gap','model','shade'].map(hf).join('')}</div>
  <div class="tgs"><label class="ck">מדידה סופית<input type="checkbox" data-h="final"></label>
  <label class="ck">מעקה טכנאי<input type="checkbox" data-h="rail"></label><label class="ck">הזמנת חומר<input type="checkbox" data-h="order"></label></div></div>
  <div class="card" id="skc" role="region" aria-label="סקיצת אתר"><h2>סקיצת אתר</h2><div class="skin"><div class="skbar"><button id="fsb" aria-pressed="false"></button>
  <button id="cmp" aria-pressed="false" title="הצגת חיצי צפון / דרום / מזרח / מערב בשולי הסקיצה">🧭 כיוונים</button><span class="cmpr" id="cmpr"><button id="cmpl" title="סובב את הכיוונים רבע סיבוב נגד כיוון השעון" aria-label="סובב את הכיוונים רבע סיבוב נגד כיוון השעון">↺</button><button id="cmpg" title="סובב את הכיוונים רבע סיבוב עם כיוון השעון" aria-label="סובב את הכיוונים רבע סיבוב עם כיוון השעון">↻</button></span>
  <label class="btn">📷 הוסף תמונה<input type="file" id="skf" accept="image/*" hidden></label>
+ <span class="cmpr" title="הגדלת אזור בסקיצה לפרטים קטנים (גם בשתי אצבעות)"><button id="vzo" aria-label="הקטנת התצוגה">−</button><button id="vz0" aria-label="חזרה לגודל מלא" style="width:auto;padding:0 8px;font-size:14px">100%</button><button id="vzi" aria-label="הגדלת התצוגה">+</button></span>
  <button id="und">↶ בטל</button><button id="clr">נקה ציור</button><button id="skr" class="dng">הסר תמונה</button></div>
  <label id="skzl">גודל תמונה<input type="range" id="skz" min="5" max="400"></label>
  <div class="skw"><div class="tools" id="tools" role="toolbar" aria-label="כלי ציור">${SKT.map(([k,i,l])=>`<button data-tool="${k}" title="${l}" aria-label="${l}">${i}</button>`).join('')}<span class="sep"></span>
  ${SKC.map((c,i)=>`<button class="sw" data-col="${c}" style="background:${c}" title="צבע ${SKCN[i]}" aria-label="צבע ${SKCN[i]}"></button>`).join('')}<span class="sep"></span>
  ${SKW.map((w,i)=>`<button data-w="${w}" title="עובי קו ${['דק','בינוני','עבה'][i]}" aria-label="עובי קו ${['דק','בינוני','עבה'][i]}"><i aria-hidden="true" style="display:block;margin:auto;width:${w*2+2}px;height:${w*2+2}px;border-radius:50%;background:currentColor"></i></button>`).join('')}<span class="sep"></span>
  <button id="auto" title="יישור וחיבור אוטומטי" aria-label="יישור וחיבור אוטומטי">📐</button></div>
- <canvas id="cv" width="900" height="400" role="img" aria-label="סקיצת אתר – ציור באצבע או בעכבר" aria-describedby="skmsg"></canvas></div><div id="skmsg" class="hintx" aria-live="polite"></div>
+ <div class="cvw"><canvas id="cv" width="900" height="400" role="img" aria-label="סקיצת אתר – ציור באצבע או בעכבר" aria-describedby="skmsg"></canvas>
+ <div class="sksel" id="sksel" role="toolbar" aria-label="עריכת הפריט שנבחר" hidden><button data-sa="edit" title="עריכת הטקסט">✏️ ערוך</button><button data-sa="zm" title="הקטנה" aria-label="הקטנה">A−</button><button data-sa="zp" title="הגדלה" aria-label="הגדלה">A+</button><button data-sa="rl" title="סיבוב נגד כיוון השעון" aria-label="סיבוב נגד כיוון השעון">⟲</button><button data-sa="rr" title="סיבוב עם כיוון השעון" aria-label="סיבוב עם כיוון השעון">⟳</button><button data-sa="del" class="dng" title="מחיקה" aria-label="מחיקה">🗑</button><button data-sa="ok" class="p" title="סיום" aria-label="סיום">✓</button></div>
+ <div class="sksel" id="skpoly" role="toolbar" aria-label="צורת בניין" hidden><button data-pa="undo">↶ נקודה</button><button data-pa="open">סיום בלי לסגור</button><button data-pa="close" class="p">✓ סגור צורה</button><button data-pa="cancel" aria-label="ביטול הצורה">✕</button></div></div></div><div id="skmsg" class="hintx" aria-live="polite"></div>
  <div class="rail r1" role="toolbar" aria-label="כלי ציור"><button class="x" data-p="#fsb" title="יציאה ממסך מלא" aria-label="יציאה ממסך מלא">✕</button><span class="sep"></span>
  ${SKT.map(([k,i,l])=>`<button data-p="#tools [data-tool=${k}]" title="${l}" aria-label="${l}">${i}</button>`).join('')}</div>
  <div class="rail r2" role="toolbar" aria-label="צבע, עובי וכיוונים"><button id="rcol" title="צבע" aria-label="בחירת צבע" aria-haspopup="true"><i></i></button><button id="rw" title="עובי קו" aria-label="בחירת עובי קו" aria-haspopup="true"><i></i></button>
  <button data-p="#auto" title="יישור וחיבור אוטומטי" aria-label="יישור וחיבור אוטומטי">📐</button><button data-p="#und" title="בטל" aria-label="ביטול הפעולה האחרונה">↶</button><span class="sep"></span>
+ <button data-p="#vzi" title="הגדלת התצוגה" aria-label="הגדלת התצוגה">🔍</button><button data-p="#vzo" title="הקטנת התצוגה" aria-label="הקטנת התצוגה">−</button><span class="sep"></span>
  <button data-p="#cmp" title="כיווני אוויר" aria-label="הצגת כיווני אוויר">🧭</button><button data-p="#cmpg" title="סובב את הכיוונים" aria-label="סובב את הכיוונים">↻</button></div><div class="fly" id="fly" hidden></div></div></div>
- <div class="card"><h2>הנחיות והערות</h2><div class="g">${NOTES.map(([k,l])=>`<label class="w">${l}<textarea data-n="${k}"></textarea></label>`).join('')}</div></div>`;
+ <div class="card"><h2>הנחיות והערות <small>כל שורה = הערה ממוספרת (1. 2. 3.) – הנקודה בסוף נוספת לבד</small></h2><div class="g">${NOTES.map(([k,l])=>`<label class="w">${l}<textarea data-n="${k}" placeholder="הערה ראשונה&#10;הערה שנייה"></textarea></label>`).join('')}</div></div>`;
  $('#ty').value=cur.type;
  $('#ty').onchange=e=>{cur.type=e.target.value;save();renderM()};
  $('#run').value=cur.run||'';$('#run').onchange=e=>{cur.run=e.target.value;save();renderM()};
- $('#env').value=cur.env||'';$('#env').onchange=e=>{cur.env=e.target.value;save();renderM()};
+ $('#env').value=marine()?'ימית':cur.env||'';$('#env').onchange=e=>{setEnv(e.target.value);renderD();renderM()};
+ $('#post').value=cur.post||'';$('#post').onchange=e=>{cur.post=e.target.value;if(!cur.post)delete cur.post;save();renderM()};
  $('#cov').value=cur.cov||'';$('#cov').onchange=e=>{cur.cov=e.target.value;save();renderM()};
  $('#pt').value=cur.pt||'';$('#pt').onchange=e=>{const v=+e.target.value;if(v>0)cur.pt=v;else delete cur.pt;save();renderM()};
  el.querySelectorAll('[data-h]').forEach(i=>{const k=i.dataset.h;if(i.type=='checkbox'){i.checked=!!cur.h[k];i.onchange=()=>{cur.h[k]=i.checked;save()}}else{i.value=cur.h[k]||'';i.oninput=()=>{cur.h[k]=i.value;save();if(k=='code'||k=='company')selRender()}}});
@@ -446,11 +463,22 @@ function renderD(){
  sketch();
 }
 /* ---------- סקיצה: כלי ציור ---------- */
-const SKT=[['free','✏️','ציור חופשי'],['line','╱','קו ישר'],['rect','▭','מלבן'],['ell','◯','עיגול / אליפסה'],['arrow','➜','חץ'],['text','T','טקסט / מידה'],['move','✋','הזזת תמונה']];
+const SKT=[['sel','👆','בחירה, הזזה ועריכה (טקסט, סימון פיר, קווים)'],['free','✏️','ציור חופשי'],['line','╱','קו ישר'],['rect','▭','מלבן'],['poly','⬠','צורת בניין – נקודה בכל פינה (גם עם מגרעות)'],['ell','◯','עיגול / אליפסה'],['arrow','➜','חץ'],['text','T','טקסט / מידה'],['pin','📍','סימון מיקום פיר (ישר / ר / ח + מספר)'],['move','✋','הזזת תמונה']];
+const PINL=34,txz=s=>(14+s.w*4)*(s.z||1);
+// סימון פיר: קו החזית לאורך הקיר; בר / ח הצדדים נכנסים לבניין (כלפי מעלה לפני סיבוב); המספר בתיבה לבנה שלא מסתירה ולא נבלעת
+function pinDraw(g,s){const[x,y]=s.p[0],k=s.k||'s',L=PINL*(s.z||1),d=L*.55;g.save();g.translate(x,y);g.rotate((s.a||0)*Math.PI/180);g.lineWidth=Math.max(5,s.w*1.6);g.strokeStyle=s.c;g.lineCap='round';g.lineJoin='round';g.beginPath();
+ if(k=='u'||k=='rl'){g.moveTo(-L/2,-d);g.lineTo(-L/2,0)}else g.moveTo(-L/2,0);g.lineTo(L/2,0);if(k=='u'||k=='rr')g.lineTo(L/2,-d);g.stroke();
+ g.beginPath();g.arc(0,0,4,0,7);g.fillStyle=s.c;g.fill();g.restore();
+ const lp=s.lp||[0,-L],lx=x+lp[0],ly=y+lp[1];g.save();g.font=`800 ${18*(s.z||1)}px Heebo,Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.direction='rtl';
+ const tw=g.measureText(s.s).width+14,th=26*(s.z||1);g.strokeStyle=s.c;g.lineWidth=1.5;g.setLineDash([3,3]);g.beginPath();g.moveTo(x,y);g.lineTo(lx,ly);g.stroke();g.setLineDash([]);
+ g.beginPath();g.roundRect?g.roundRect(lx-tw/2,ly-th/2,tw,th,8):g.rect(lx-tw/2,ly-th/2,tw,th);g.fillStyle='#fff';g.fill();g.lineWidth=2;g.stroke();g.fillStyle=s.c;g.fillText(s.s,lx,ly+1);g.restore()}
 const SKC=['#1c4e9d','#1a2433','#d62f2f','#2e9e57','#e07b00'],SKCN=['כחול','שחור','אדום','ירוק','כתום'],SKW=[2,4,7];
 let SK={tool:'free',col:SKC[0],w:4,auto:true};
 function shape(g,s){const p=s.p;g.save();g.strokeStyle=g.fillStyle=s.c;g.lineWidth=s.w;g.lineCap=g.lineJoin='round';g.beginPath();
- if(s.t=='text'){g.font=`bold ${14+s.w*4}px Heebo,Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.direction='rtl';g.fillText(s.s,p[0][0],p[0][1])}
+ if(s.t=='text'){const z=txz(s);g.translate(p[0][0],p[0][1]);if(s.r)g.rotate(s.r*Math.PI/180);g.font=`bold ${z}px Heebo,Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.direction='rtl';
+  g.lineWidth=Math.max(3,z/5);g.strokeStyle='rgba(255,255,255,.9)';g.strokeText(s.s,0,0);g.fillText(s.s,0,0)} // הילה לבנה – קריא גם מעל קווים ותמונה
+ else if(s.t=='pin')pinDraw(g,s);
+ else if(s.t=='poly'){g.moveTo(...p[0]);p.slice(1).forEach(q=>g.lineTo(...q));if(s.cl)g.closePath();g.stroke()}
  else if(s.t=='rect')g.strokeRect(Math.min(p[0][0],p[1][0]),Math.min(p[0][1],p[1][1]),Math.abs(p[1][0]-p[0][0]),Math.abs(p[1][1]-p[0][1]));
  else if(s.t=='ell'){g.ellipse((p[0][0]+p[1][0])/2,(p[0][1]+p[1][1])/2,Math.abs(p[1][0]-p[0][0])/2,Math.abs(p[1][1]-p[0][1])/2,0,0,Math.PI*2);g.stroke()}
  else{g.moveTo(...p[0]);p.forEach(q=>g.lineTo(...q));g.stroke();
@@ -462,34 +490,56 @@ const rdp=(p,e)=>{if(p.length<3)return p;const a=p[0],b=p[p.length-1];let i0=0,d
  return dm>e?rdp(p.slice(0,i0+1),e).slice(0,-1).concat(rdp(p.slice(i0),e)):[a,b]};
 const ortho=(a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],g=Math.abs(Math.atan2(dy,dx)*180/Math.PI)%90; // קרוב לאופקי/אנכי → מיישר
  return g<8||g>82?(Math.abs(dx)>Math.abs(dy)?[b[0],a[1]]:[a[0],b[1]]):b};
-const corners=s=>s.t=='rect'?[s.p[0],[s.p[1][0],s.p[0][1]],s.p[1],[s.p[0][0],s.p[1][1]]]:s.t=='line'||s.t=='arrow'?s.p:s.t=='free'?(s.p.length<=8?s.p:[s.p[0],s.p[s.p.length-1]]):[];
-function sketch(){ // שכבת תמונה (הזזה/הגדלה) + צורות וקטוריות (cur.shapes); cur.sketch = ציור ישן כתמונה
- const P=cur,cv=$('#cv'),cx=cv.getContext('2d');P.shapes=P.shapes||[];
- let im=null,base=null,live=null,mark=null;const ptr=new Map(),msg=t=>$('#skmsg').textContent=t;SKO='';
- const mv=()=>SK.tool=='move'&&!!P.skImg,kp=()=>{const r=cv.getBoundingClientRect();return cv.width/(skRot?r.height:r.width)}; // פיקסלי קנבס לכל פיקסל מסך (במסך מלא מסובב – הקנבס על הצד)
- const draw=()=>{cx.clearRect(0,0,cv.width,cv.height);const k=P.skImg;
-  if(im&&k){const f=Math.min(cv.width/im.width,cv.height/im.height)*k.s,w=im.width*f,h=im.height*f;cx.drawImage(im,k.x-w/2,k.y-h/2,w,h)}
-  if(base)cx.drawImage(base,0,0);P.shapes.forEach(s=>shape(cx,s));if(live)shape(cx,live);if(P.cmp)compass(cx,P.cmp);
-  if(mark){cx.beginPath();cx.arc(mark[0],mark[1],10,0,7);cx.strokeStyle='#ff4fa3';cx.lineWidth=3;cx.stroke()}};
- const out=()=>{if(P!=cur)return;if(!P.skImg&&!P.sketch&&!P.shapes.length&&!P.cmp){SKO='';return}const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;
-  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(cv,0,0);try{SKO=c.toDataURL('image/jpeg',.85)}catch(e){}};
+const corners=s=>s.t=='poly'?s.p:s.t=='rect'?[s.p[0],[s.p[1][0],s.p[0][1]],s.p[1],[s.p[0][0],s.p[1][1]]]:s.t=='line'||s.t=='arrow'?s.p:s.t=='free'?(s.p.length<=8?s.p:[s.p[0],s.p[s.p.length-1]]):[];
+function sketch(){ // שכבת תמונה (הזזה/הגדלה) + צורות וקטוריות (cur.shapes); cur.sketch = ציור ישן כתמונה; SK.v = זום התצוגה (לא משפיע על הפלט)
+ const P=cur,cv=$('#cv'),cx=cv.getContext('2d');P.shapes=P.shapes||[];const V=SK.v=SK.v||{z:1,x:0,y:0};SK.sel=-1;
+ let im=null,base=null,live=null,mark=null,gest=null,drag=null,pl=null,plh=null;const ptr=new Map(),msg=t=>$('#skmsg').textContent=t;SKO='';
+ const mv=()=>SK.tool=='move'&&!!P.skImg,kp=()=>{const r=cv.getBoundingClientRect();return cv.width/(skRot?r.height:r.width)},kw=()=>kp()/V.z; // פיקסלי ציור לכל פיקסל מסך
+ const toW=c=>[(c[0]-V.x)/V.z,(c[1]-V.y)/V.z];
+ const txb=s=>{cx.save();cx.font=`bold ${txz(s)}px Heebo,Arial,sans-serif`;const w=cx.measureText(s.s).width+10;cx.restore();return w};
+ const labBox=s=>{const L=PINL*(s.z||1),lp=s.lp||[0,-L],x=s.p[0][0]+lp[0],y=s.p[0][1]+lp[1];cx.save();cx.font=`800 ${18*(s.z||1)}px Heebo,Arial,sans-serif`;const w=cx.measureText(s.s).width+14,h=26*(s.z||1);cx.restore();return[x-w/2,y-h/2,x+w/2,y+h/2]};
+ const bbox=s=>{const p=s.p;if(s.t=='text'){const w=txb(s)/2,h=txz(s)/2,a=(s.r||0)*Math.PI/180,C=Math.cos(a),S=Math.sin(a),q=[[-w,-h],[w,-h],[w,h],[-w,h]].map(([x,y])=>[p[0][0]+x*C-y*S,p[0][1]+x*S+y*C]);
+   return[Math.min(...q.map(v=>v[0])),Math.min(...q.map(v=>v[1])),Math.max(...q.map(v=>v[0])),Math.max(...q.map(v=>v[1]))]}
+  if(s.t=='pin'){const r=PINL*(s.z||1)*.62,b=labBox(s);return[Math.min(p[0][0]-r,b[0]),Math.min(p[0][1]-r,b[1]),Math.max(p[0][0]+r,b[2]),Math.max(p[0][1]+r,b[3])]}
+  return[Math.min(...p.map(v=>v[0])),Math.min(...p.map(v=>v[1])),Math.max(...p.map(v=>v[0])),Math.max(...p.map(v=>v[1]))]};
+ const inB=(b,q,m)=>q[0]>=b[0]-m&&q[0]<=b[2]+m&&q[1]>=b[1]-m&&q[1]<=b[3]+m,ovl=(a,b)=>a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3];
+ const sd=(q,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],L=dx*dx+dy*dy,t=L?Math.max(0,Math.min(1,((q[0]-a[0])*dx+(q[1]-a[1])*dy)/L)):0;return Math.hypot(q[0]-a[0]-t*dx,q[1]-a[1]-t*dy)};
+ const hit=q=>{const m=10*kw();for(let i=P.shapes.length-1;i>=0;i--){const s=P.shapes[i];
+   if(s.t=='text'||s.t=='pin'||s.t=='ell'){if(inB(bbox(s),q,m*.6))return i;continue}
+   const c=s.t=='rect'?[...corners(s),s.p[0]]:s.t=='poly'&&s.cl?[...s.p,s.p[0]]:s.p;for(let j=1;j<c.length;j++)if(sd(q,c[j-1],c[j])<m)return i;if(c.length==1&&Math.hypot(q[0]-c[0][0],q[1]-c[0][1])<m)return i}return-1};
+ const scene=(g,lv)=>{const k=P.skImg;
+  if(im&&k){const f=Math.min(cv.width/im.width,cv.height/im.height)*k.s,w=im.width*f,h=im.height*f;g.drawImage(im,k.x-w/2,k.y-h/2,w,h)}
+  if(base)g.drawImage(base,0,0);P.shapes.forEach(s=>shape(g,s));
+  if(lv){if(live)shape(g,live);if(pl||plh){const q=[...(pl||[]),...(plh?[plh]:[])];if(q.length)shape(g,{t:'poly',p:q.length>1?q:[q[0],q[0]],c:SK.col,w:SK.w})}}};
+ const draw=()=>{cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,cv.width,cv.height);cx.setTransform(V.z,0,0,V.z,V.x,V.y);scene(cx,1);const s=P.shapes[SK.sel],u=1/V.z;
+  if(s){const b=bbox(s);cx.save();cx.setLineDash([6*u,4*u]);cx.strokeStyle='#ff4fa3';cx.lineWidth=2*u;cx.strokeRect(b[0]-6,b[1]-6,b[2]-b[0]+12,b[3]-b[1]+12);cx.restore()}
+  if(pl&&pl.length){cx.beginPath();cx.arc(pl[0][0],pl[0][1],12*u,0,7);cx.strokeStyle='#2e9e57';cx.lineWidth=3*u;cx.stroke()}
+  if(mark){cx.beginPath();cx.arc(mark[0],mark[1],10*u,0,7);cx.strokeStyle='#ff4fa3';cx.lineWidth=3*u;cx.stroke()}
+  cx.setTransform(1,0,0,1,0,0);if(P.cmp)compass(cx,P.cmp);const z=$('#vz0');if(z)z.textContent=Math.round(V.z*100)+'%'};
+ const out=()=>{if(P!=cur)return;if(!P.skImg&&!P.sketch&&!P.shapes.length&&!P.cmp){SKO='';return}const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height; // הפלט תמיד בגודל מלא, בלי זום ובלי סימון בחירה
+  const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);scene(g);if(P.cmp)compass(g,P.cmp);try{SKO=c.toDataURL('image/jpeg',.85)}catch(e){}};
  const commit=()=>{save();draw();out()};
+ const selUi=()=>{const s=P.shapes[SK.sel],b=$('#sksel');if(!b)return;b.hidden=!s;if(!s)return;const tx=s.t=='text'||s.t=='pin';
+  b.querySelectorAll('[data-sa=edit],[data-sa=zm],[data-sa=zp],[data-sa=rl],[data-sa=rr]').forEach(x=>x.hidden=!tx)};
+ const polyUi=()=>{const b=$('#skpoly');if(b)b.hidden=!(pl&&pl.length)};
  const ui=()=>{const has=!!P.skImg,tb=$('#tools');$('#skr').hidden=$('#skzl').hidden=!has;if(!has&&SK.tool=='move')SK.tool='free';
   tb.querySelector('[data-tool=move]').hidden=!has;
   const on=(b,v)=>{b.classList.toggle('on',v);b.setAttribute('aria-pressed',v)};
   tb.querySelectorAll('[data-tool]').forEach(b=>on(b,b.dataset.tool==SK.tool));
   tb.querySelectorAll('[data-col]').forEach(b=>on(b,b.dataset.col==SK.col));
   tb.querySelectorAll('[data-w]').forEach(b=>on(b,+b.dataset.w==SK.w));
-  on($('#auto'),SK.auto);cv.style.cursor=mv()?'move':SK.tool=='text'?'text':'crosshair';
+  on($('#auto'),SK.auto);cv.style.cursor=mv()||SK.tool=='sel'?'move':SK.tool=='text'?'text':'crosshair';
   if(has)$('#skz').value=Math.round(P.skImg.s*100);on($('#cmp'),!!P.cmp);$('#cmpr').hidden=!P.cmp;
-  rsync();msg(P.cmp&&SK.cmpTip?'🧭 ↺ ↻ מסובבים את הכיוונים – הצפון עובר לצד הבא של הסקיצה':mv()?'גרור להזזה · שתי אצבעות או גלגלת לשינוי גודל':SK.tool=='text'?'לחץ על הסקיצה כדי להוסיף טקסט':SK.auto?'📐 יישור אוטומטי: קווים מתיישרים ומתחברים לנקודות קרובות':'')};
+  rsync();selUi();polyUi();msg(P.cmp&&SK.cmpTip?'🧭 ↺ ↻ מסובבים את הכיוונים – הצפון עובר לצד הבא של הסקיצה':mv()?'גרור להזזה · שתי אצבעות או גלגלת לשינוי גודל':SK.tool=='text'?'לחץ על הסקיצה כדי להוסיף טקסט · לחיצה על טקסט קיים – הזזה, הגדלה, סיבוב ועריכה'
+   :SK.tool=='sel'?'👆 לחיצה על פריט בוחרת אותו · גרירה מזיזה · בחלונית: עריכה, גודל, סיבוב ומחיקה':SK.tool=='pin'?'📍 לחצו במקום הפיר על הבניין ובחרו איזה פיר – הסימן (ישר / ר / ח) והמספר נוספים לבד':SK.tool=='poly'?'⬠ הקישו נקודה בכל פינה של הבניין (גם במגרעות) · הקשה על הנקודה הראשונה סוגרת את הצורה'
+   :SK.auto?'📐 יישור אוטומטי: קווים מתיישרים ומתחברים לנקודות קרובות · 🔍 + להגדלת אזור לפרטים קטנים':'')};
  const loadImg=async()=>{const k=P.skImg;if(!k)return;
   if(skCache.id!=k.id){try{const b=await IDB.get(k.id);if(!b)throw 0;skCache={id:k.id,img:await b2img(b)}}catch(e){msg('התמונה לא נמצאה במכשיר זה');return}}
   im=skCache.img;draw();out()};
  if(P.sketch){const i=new Image();i.onload=()=>{base=i;draw();out()};i.src=P.sketch}
  loadImg();ui();draw();out();
- const snap=q=>{let b=null,bd=16*kp();P.shapes.forEach(s=>corners(s).forEach(a=>{const d=Math.hypot(a[0]-q[0],a[1]-q[1]);if(d<bd){bd=d;b=a}}));return b&&[b[0],b[1]]};
- const straighten=s=>{const k=kp(),xs=s.p.map(q=>q[0]),ys=s.p.map(q=>q[1]);
+ const snap=q=>{let b=null,bd=16*kw();const t=a=>{const d=Math.hypot(a[0]-q[0],a[1]-q[1]);if(d<bd){bd=d;b=a}};P.shapes.forEach(s=>corners(s).forEach(t));if(pl)pl.forEach(t);return b&&[b[0],b[1]]};
+ const straighten=s=>{const k=kw(),xs=s.p.map(q=>q[0]),ys=s.p.map(q=>q[1]);
   if(Math.hypot(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))<50*k)return; // קטן (כתב יד/מספרים) – משאירים כמו שהוא
   const q=rdp(s.p,7*k);if(q.length>6)return; // עקום מדי – נשאר חופשי
   q[0]=snap(q[0])||q[0];for(let i=1;i<q.length;i++)q[i]=ortho(q[i-1],q[i]);
@@ -499,42 +549,79 @@ function sketch(){ // שכבת תמונה (הזזה/הגדלה) + צורות ו�
   return[Math.round((e.clientX-r.left)*cv.width/r.width),Math.round((e.clientY-r.top)*cv.height/r.height)]};
  const cmpRot=d=>{P.cmp.a=((Math.round((+P.cmp.a||0)/90)*90+d)%360+360)%360;SK.cmpTip=0;commit();ui()};
  const zoom=f=>{P.skImg.s=Math.max(.05,Math.min(4,P.skImg.s*f))};
- cv.onpointerdown=e=>{try{cv.setPointerCapture(e.pointerId)}catch(err){}const p=pt(e);ptr.set(e.pointerId,p);
-  if(mv())return;
-  if(ptr.size>1){live=mark=null;draw();return} // אצבע שנייה מבטלת את הקו הנוכחי
-  const T=SK.tool;
-  if(T=='text'){ptr.delete(e.pointerId);const st={c:SK.col,w:SK.w};askText('טקסט על הסקיצה','למשל מידה').then(s=>{if(s&&s.trim()&&P==cur){P.shapes.push({t:'text',p:[p],s:s.trim(),...st});commit()}});return}
+ const clampV=()=>{V.z=Math.max(1,Math.min(6,V.z));V.x=Math.min(0,Math.max(cv.width*(1-V.z),V.x));V.y=Math.min(0,Math.max(cv.height*(1-V.z),V.y))};
+ const zoomV=(f,c)=>{c=c||[cv.width/2,cv.height/2];const w=toW(c);V.z*=f;V.z=Math.max(1,Math.min(6,V.z));V.x=c[0]-w[0]*V.z;V.y=c[1]-w[1]*V.z;clampV();draw()};
+ const placeLab=s=>{const L=PINL*(s.z||1),o=P.shapes.filter(x=>x!=s&&(x.t=='pin'||x.t=='text')).flatMap(x=>x.t=='pin'?[labBox(x),[x.p[0][0]-L*.6,x.p[0][1]-L*.6,x.p[0][0]+L*.6,x.p[0][1]+L*.6]]:[bbox(x)]); // מספר הפיר במקום פנוי – לא על טקסט אחר
+  const me=[s.p[0][0]-L*.6,s.p[0][1]-L*.6,s.p[0][0]+L*.6,s.p[0][1]+L*.6],C=[[0,-L],[0,L],[L*1.3,0],[-L*1.3,0],[L,-L],[-L,-L],[L,L],[-L,L],[0,-L*2],[0,L*2]];
+  for(const lp of C){const b=labBox({...s,lp});if(b[0]>=0&&b[1]>=0&&b[2]<=cv.width&&b[3]<=cv.height&&!ovl(me,b)&&!o.some(x=>ovl(x,b)))return lp}return C[0]};
+ const pickShaft=async()=>{const r=await ask('סימון פיר','איזה פיר נמצא כאן?',cur.shafts.map((S,i)=>[String(i),S.name||'פיר '+(i+1)]).concat([['x','אחר…'],[null,'ביטול']]));
+  if(r==null)return null;if(r=='x'){const t=await askText('שם / מספר הפיר','למשל פיר 3');return t&&t.trim()?{s:t.trim(),k:'s'}:null}
+  const S=cur.shafts[+r];return{s:S.name||'פיר '+(+r+1),k:ty(S,{})}};
+ const finishPoly=cl=>{if(pl&&pl.length>1)P.shapes.push({t:'poly',p:pl,cl:!!cl&&pl.length>2,c:SK.col,w:SK.w});pl=plh=mark=null;polyUi();commit()};
+ cv.onpointerdown=e=>{try{cv.setPointerCapture(e.pointerId)}catch(err){}const c=pt(e);ptr.set(e.pointerId,c);
+  if(ptr.size==2&&!mv()){live=mark=plh=drag=null;const[a,b]=[...ptr.values()];gest={d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,m:[(a[0]+b[0])/2,(a[1]+b[1])/2],z:V.z,x:V.x,y:V.y};draw();return} // שתי אצבעות = זום והזזה של התצוגה
+  if(ptr.size>1||mv())return;
+  const p=toW(c),T=SK.tool;
+  if(T=='sel'||T=='text'||T=='pin'){const i=hit(p);if(i>=0&&(T=='sel'||['text','pin'].includes(P.shapes[i].t))){SK.sel=i;const s=P.shapes[i];drag={i,o:p,lab:s.t=='pin'&&inB(labBox(s),p,4*kw()),mv:0};selUi();draw();return}
+   if(T=='sel'){SK.sel=-1;selUi();drag={pan:1,o:c};draw();return}}
+  if(SK.sel>=0){SK.sel=-1;selUi()}
+  if(T=='text'){ptr.delete(e.pointerId);const st={c:SK.col,w:SK.w};askText('טקסט על הסקיצה','למשל מידה').then(s=>{if(s&&s.trim()&&P==cur){P.shapes.push({t:'text',p:[p],s:s.trim(),...st});SK.sel=P.shapes.length-1;selUi();commit()}});return}
+  if(T=='pin'){ptr.delete(e.pointerId);const st={c:SK.col,w:SK.w};pickShaft().then(r=>{if(!r||P!=cur)return;const s={t:'pin',p:[p],k:r.k,a:0,s:r.s,...st};s.lp=placeLab(s);P.shapes.push(s);SK.sel=P.shapes.length-1;selUi();commit()});return}
+  if(T=='poly'){plh=SK.auto&&snap(p)||(SK.auto&&pl&&pl.length?ortho(pl[pl.length-1],p):p);draw();return}
   const a=SK.auto&&T!='free'&&T!='ell'&&snap(p)||p;
   live={t:T=='move'?'free':T,c:SK.col,w:SK.w,p:T=='free'||T=='move'?[p]:[a,a]};mark=null;draw()};
- cv.onpointermove=e=>{if(!ptr.has(e.pointerId))return;const p=pt(e),o=ptr.get(e.pointerId);ptr.set(e.pointerId,p);
+ cv.onpointermove=e=>{if(!ptr.has(e.pointerId))return;const c=pt(e),o=ptr.get(e.pointerId);ptr.set(e.pointerId,c);
+  if(gest){if(ptr.size<2)return;const[a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]),m=[(a[0]+b[0])/2,(a[1]+b[1])/2],w=[(gest.m[0]-gest.x)/gest.z,(gest.m[1]-gest.y)/gest.z];
+   V.z=Math.max(1,Math.min(6,gest.z*d/gest.d));V.x=m[0]-w[0]*V.z;V.y=m[1]-w[1]*V.z;clampV();draw();return}
   if(mv()){const k=P.skImg;
-   if(ptr.size==1){k.x+=p[0]-o[0];k.y+=p[1]-o[1]}
-   else{const q=[...ptr].find(([i])=>i!=e.pointerId)[1],d0=Math.hypot(o[0]-q[0],o[1]-q[1]),d1=Math.hypot(p[0]-q[0],p[1]-q[1]);if(d0>5)zoom(d1/d0)}
+   if(ptr.size==1){k.x+=(c[0]-o[0])/V.z;k.y+=(c[1]-o[1])/V.z}
+   else{const q=[...ptr].find(([i])=>i!=e.pointerId)[1],d0=Math.hypot(o[0]-q[0],o[1]-q[1]),d1=Math.hypot(c[0]-q[0],c[1]-q[1]);if(d0>5)zoom(d1/d0)}
    draw();ui();return}
+  const p=toW(c);
+  if(drag){if(drag.pan){V.x+=c[0]-drag.o[0];V.y+=c[1]-drag.o[1];drag.o=c;clampV();draw();return}
+   const s=P.shapes[drag.i],dx=p[0]-drag.o[0],dy=p[1]-drag.o[1];if(!drag.mv&&Math.hypot(dx,dy)<4*kw())return;drag.mv=1;drag.o=p;
+   if(drag.lab){const l=s.lp||[0,-PINL];s.lp=[l[0]+dx,l[1]+dy]}else s.p=s.p.map(q=>[q[0]+dx,q[1]+dy]);draw();return}
+  if(plh){let b=p;mark=null;if(SK.auto){const s=snap(p);if(s)b=mark=s;else if(pl&&pl.length)b=ortho(pl[pl.length-1],p)}plh=b;draw();return}
   if(!live)return;
   if(live.t=='free')live.p.push(p);
   else{let b=p;mark=null;if(SK.auto&&live.t!='ell'){const s=snap(p);if(s)b=mark=s;else if(live.t!='rect')b=ortho(live.p[0],p)}live.p[1]=b}
   draw()};
  cv.onpointerup=cv.onpointercancel=e=>{if(!ptr.delete(e.pointerId))return;
+  if(gest){if(!ptr.size)gest=null;return}
   if(mv()){save();out();return}
+  if(drag){const m=drag.mv&&!drag.pan;drag=null;if(m)commit();return}
+  if(plh){const q=plh;plh=mark=null;pl=pl||[];if(pl.length>2&&Math.hypot(q[0]-pl[0][0],q[1]-pl[0][1])<20*kw()){finishPoly(true);return}
+   if(!pl.length||Math.hypot(q[0]-pl[pl.length-1][0],q[1]-pl[pl.length-1][1])>3*kw())pl.push(q);polyUi();draw();return}
   if(!live)return;const s=live;live=mark=null;
   if(s.t=='free'){if(s.p.length<2)s.p.push(s.p[0].slice());else if(SK.auto)straighten(s)}
-  else if(Math.hypot(s.p[1][0]-s.p[0][0],s.p[1][1]-s.p[0][1])<4){draw();return}
+  else if(Math.hypot(s.p[1][0]-s.p[0][0],s.p[1][1]-s.p[0][1])<4*kw()){draw();return}
   P.shapes.push(s);commit()};
- cv.onwheel=e=>{if(!mv())return;e.preventDefault();zoom(e.deltaY<0?1.1:1/1.1);draw();ui();save();out()};
- $('#tools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.tool)SK.tool=b.dataset.tool;if(b.dataset.col)SK.col=b.dataset.col;if(b.dataset.w)SK.w=+b.dataset.w;if(b.id=='auto')SK.auto=!SK.auto;ui()};
+ cv.onwheel=e=>{if(mv()){e.preventDefault();zoom(e.deltaY<0?1.1:1/1.1);draw();ui();save();out();return}
+  if(!e.ctrlKey&&V.z<=1)return;e.preventDefault();zoomV(e.deltaY<0?1.15:1/1.15,pt(e))}; // ctrl+גלגלת / צביטה במשטח מגע = זום לתצוגה
+ $('#tools').onclick=e=>{const b=e.target.closest('button');if(!b)return;const s=P.shapes[SK.sel];
+  if(b.dataset.tool){if(pl&&b.dataset.tool!='poly')finishPoly(false);SK.tool=b.dataset.tool;if(!['sel','text','pin'].includes(SK.tool)){SK.sel=-1;draw()}}
+  if(b.dataset.col){SK.col=b.dataset.col;if(s){s.c=SK.col;commit()}}if(b.dataset.w){SK.w=+b.dataset.w;if(s){s.w=SK.w;commit()}}if(b.id=='auto')SK.auto=!SK.auto;ui()};
+ $('#sksel').onclick=async e=>{const b=e.target.closest('button'),s=P.shapes[SK.sel];if(!b||!s)return;const a=b.dataset.sa,tx=s.t=='text';
+  if(a=='edit'){const v=await askText(tx?'עריכת טקסט':'שם / מספר הפיר','',s.s);if(v&&v.trim()&&P==cur)s.s=v.trim()}
+  else if(a=='zm'||a=='zp')s.z=Math.max(.4,Math.min(4,(s.z||1)*(a=='zp'?1.2:1/1.2)));
+  else if(a=='rl'||a=='rr'){const d=a=='rr'?1:-1;if(tx)s.r=(((s.r||0)+d*15)%360+360)%360;else s.a=(((s.a||0)+d*45)%360+360)%360}
+  else if(a=='del'){P.shapes.splice(SK.sel,1);SK.sel=-1}
+  else if(a=='ok')SK.sel=-1;
+  selUi();commit()};
+ $('#skpoly').onclick=e=>{const b=e.target.closest('button');if(!b||!pl)return;const a=b.dataset.pa;
+  if(a=='undo'){pl.pop();if(!pl.length)pl=null;polyUi();draw()}else if(a=='cancel'){pl=plh=null;polyUi();draw()}else finishPoly(a=='close')};
+ $('#vzi').onclick=()=>zoomV(1.5);$('#vzo').onclick=()=>zoomV(1/1.5);$('#vz0').onclick=()=>{V.z=1;V.x=V.y=0;draw()};
  $('#cmp').onclick=()=>{if(P.cmp)P.cmp=null;else{P.cmp={a:0};SK.cmpTip=1}commit();ui()};
  $('#cmpl').onclick=()=>cmpRot(-90);$('#cmpg').onclick=()=>cmpRot(90);
  $('#fsb').onclick=()=>skFs(!SKFS);skFit();
- $('#und').onclick=()=>{if(P.shapes.length){P.shapes.pop();commit()}else toast('אין מה לבטל')};
+ $('#und').onclick=()=>{if(pl){pl.pop();if(!pl.length)pl=null;polyUi();draw()}else if(P.shapes.length){P.shapes.pop();SK.sel=-1;selUi();commit()}else toast('אין מה לבטל')};
  $('#skz').oninput=e=>{P.skImg.s=e.target.value/100;draw();save()};$('#skz').onchange=out;
  $('#skf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;msg('טוען תמונה…');
   try{const b=await shrink(f,1600,.82),id='sk'+Date.now();await IDB.put(id,b);if(P.skImg)IDB.del(P.skImg.id).catch(()=>{});
    P.skImg={id,x:cv.width/2,y:cv.height/2,s:1};skCache={id,img:await b2img(b)};im=skCache.img;SK.tool='move';save();draw();ui();out()}
   catch(err){msg('לא ניתן לטעון את התמונה')}};
  $('#skr').onclick=async()=>{if(await ask('הסרת תמונה','להסיר את התמונה מהסקיצה?',[['ok','הסר','dng'],[null,'ביטול']])!='ok')return;IDB.del(P.skImg.id).catch(()=>{});P.skImg=null;im=null;ui();commit()};
- $('#clr').onclick=async()=>{if(await ask('ניקוי ציור','לנקות את כל הציור?',[['ok','נקה','dng'],[null,'ביטול']])!='ok')return;P.shapes=[];P.sketch='';base=null;commit()};
+ $('#clr').onclick=async()=>{if(await ask('ניקוי ציור','לנקות את כל הציור?',[['ok','נקה','dng'],[null,'ביטול']])!='ok')return;P.shapes=[];P.sketch='';base=null;SK.sel=-1;pl=null;selUi();polyUi();commit()};
 }
 /* ---------- סקיצה: כיווני אוויר (4 חצים בשולי הציור) ומסך מלא ---------- */
 const DIRN=['צפון','מזרח','דרום','מערב']; // cmp.a = באיזה צד הצפון: 0 למעלה, 90 ימין, 180 למטה, 270 שמאל
@@ -576,12 +663,18 @@ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement
 document.addEventListener('keydown',e=>{if(e.key=='Escape'&&SKFS){const f=$('#fly');if(f&&!f.hidden)f.hidden=true;else skFs(false)}});
 
 /* ---------- מדידות ---------- */
-function svgFor(c,t){const N=v=>Math.max(0,Math.min(1,(+v||0)/320));
+function svgFor(c,t,po){const N=v=>Math.max(0,Math.min(1,(+v||0)/320));
  const s='stroke="var(--ln)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"';
  const F=TYPES[t].f;
- if(F.includes('f')){const l=8+N(c.l)*52,r=8+N(c.r)*52,w=8+N(c.f)*48; // ח / ר: חזית למעלה, צדדים יורדים
-  return`<svg viewBox="0 0 64 68"><polyline ${s} points="${F.includes('l')?`4,${6+l} `:''}4,6 ${4+w},6${F.includes('r')?` ${4+w},${6+r}`:''}"/></svg>`}
+ if(F.includes('f')){const l=8+N(c.l*2.5)*48,r=8+N(c.r*2.5)*48,w=8+N(c.f)*48,hl=F.includes('l'),hr=F.includes('r'); // ח / ר במבט מהחזית: החזית למטה, הצדדים נכנסים פנימה = כלפי מעלה
+  return`<svg viewBox="0 0 64 68"><path ${s} d="${frPath(4,62,w,hl?l:0,hr?r:0,po)}"/>${postDots(4,62,w,hl,hr,po)}</svg>`}
  const h=8+N(c.h)*54,w=6+N(c.w)*52;return`<svg viewBox="0 0 64 68"><polyline ${s} points="4,${64-h} 4,64 ${4+w},64"/></svg>`}
+// מסלול ר / ח: x0 = פינה שמאלית, y0 = קו החזית, w = רוחב חזית, l/r = עומק הצד (0 = אין); עמוד מעוגל = פינה מעוגלת
+function frPath(x0,y0,w,l,r,po){const q=po=='rnd'?Math.min(7,w/4,(l||r||28)/3):0,P=[];
+ if(l)P.push(`M${x0} ${y0-l}L${x0} ${y0-q}`+(q?`Q${x0} ${y0} ${x0+q} ${y0}`:''));else P.push(`M${x0} ${y0}`);
+ P.push(`L${x0+w-(r?q:0)} ${y0}`);if(r)P.push((q?`Q${x0+w} ${y0} ${x0+w} ${y0-q}`:'')+`L${x0+w} ${y0-r}`);return P.join('')}
+const postDots=(x0,y0,w,hl,hr,po,z)=>{if(po!='sq')return'';z=z||5;return[hl&&x0,hr&&x0+w].filter(v=>v!==false).map(x=>`<rect x="${x-z/2}" y="${y0-z/2}" width="${z}" height="${z}" fill="#1a2433"/>`).join('')}; // עמוד מרובע = ריבוע מלא בפינה
+const pOf=S=>S.post??cur.post??'';
 function renderM(){
  const el=$('#t-m');if(shaft>=cur.shafts.length)shaft=0;
  const S=cur.shafts[shaft];
@@ -591,7 +684,7 @@ function renderM(){
  <button id="dupS" class="ib" title="פיר חדש עם אותן הגדרות"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>שכפל</button>
  <button id="delS" class="ib dng" title="מחק פיר" aria-label="מחק פיר"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6"/></svg></button></div>
  <div class="g"><label>בניין<input id="sb"></label><label>כיוון<select id="sd">${DIRS.map(m=>`<option>${m}</option>`).join('')}</select></label>
- <label>סוג פיר<select id="st">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label><label>רציף / בודד<select id="sr">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label><label>סביבה<select id="se" title="סביבה ימית משפיעה על החומרים">${ENVS.map(m=>`<option>${m}</option>`).join('')}</select></label>
+ <label>סוג פיר<select id="st">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label><label>רציף / בודד<select id="sr">${RUNS.map(m=>`<option>${m}</option>`).join('')}</select></label><label>סביבה<select id="se" title="סביבה ימית – חלה על כל הפרויקט">${ENVS.map(m=>`<option>${m}</option>`).join('')}</select></label><label id="spol">סוג עמוד<select id="spo">${POSTS.map(([k,l])=>`<option value="${k}">${k?l:''}</option>`).join('')}</select></label>
  <label class="w">ציון חשוב<select id="sm">${MODES.map(m=>`<option>${m}</option>`).join('')}</select></label></div>
  <div class="secs"><details class="sec" data-k="pod"><summary><span>פודסט וגבהים</span><span class="hint">${E([covT(S),S.fh?'קבוע '+S.fh:'',S.th?'כולל '+S.th:''].filter(Boolean).join(' · ')||'לא הוגדר')}</span></summary><div class="pad"><div class="g">
  <label class="w" title="איפה יושב המסתור ביחס לפודסט – קובע את חישוב גובה המסתור">מיקום ביחס לפודסט<select id="scv"><option value=""></option>${Object.entries(COV).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select></label>
@@ -620,13 +713,14 @@ function renderM(){
  $('#sap').value=S.angp||'';$('#sap').oninput=e=>{S.angp=e.target.value;if(!S.angp)delete S.angp;save()};
  [['spt','pt'],['sgp','gap']].forEach(([i,k])=>$('#'+i).onchange=e=>{const v=+e.target.value;if(v>0)S[k]=v;else delete S[k];save();renderM()});
  el.querySelectorAll('.shafts [data-i]').forEach(b=>b.onclick=()=>{shaft=+b.dataset.i;renderM()});
- const addS=cp=>{cur.shafts.push({name:'פיר '+(cur.shafts.length+1),bld:cp?S.bld:'',mode:cp?S.mode:'',dir:cp?S.dir:'',t:cp?S.t:undefined,run:cp?S.run:undefined,env:cp?S.env:undefined,fh:cp?S.fh:undefined,th:cp?S.th:undefined,tb:cp?S.tb:undefined,tt:cp?S.tt:undefined,cov:cp?S.cov:undefined,pt:cp?S.pt:undefined,gap:cp?S.gap:undefined,ang:cp&&S.ang?{...S.ang}:undefined,angp:cp?S.angp:undefined,fl:{}});shaft=cur.shafts.length-1;save();renderM();window.scrollTo(0,0)};
+ const addS=cp=>{cur.shafts.push({name:'פיר '+(cur.shafts.length+1),bld:cp?S.bld:'',mode:cp?S.mode:'',dir:cp?S.dir:'',t:cp?S.t:undefined,run:cp?S.run:undefined,env:cp?S.env:undefined,fh:cp?S.fh:undefined,th:cp?S.th:undefined,tb:cp?S.tb:undefined,tt:cp?S.tt:undefined,cov:cp?S.cov:undefined,pt:cp?S.pt:undefined,gap:cp?S.gap:undefined,ang:cp&&S.ang?{...S.ang}:undefined,angp:cp?S.angp:undefined,post:cp?S.post:undefined,fl:{}});shaft=cur.shafts.length-1;save();renderM();window.scrollTo(0,0)};
  $('#addS').onclick=()=>addS();$('#dupS').onclick=()=>addS(1);
  $('#delS').onclick=async()=>{if(cur.shafts.length<2){toast('חייב להישאר לפחות פיר אחד','bad');return}
   if(await ask('מחיקת פיר','למחוק את "'+(S.name||'פיר')+'" וכל המדידות שלו?',[['del','מחק','dng'],[null,'ביטול']])!='del')return;
   cur.shafts.splice(shaft,1);shaft=Math.max(0,shaft-1);save();renderM();toast('הפיר נמחק')};
  $('#sn').oninput=e=>{S.name=e.target.value;save();el.querySelector('.shafts .on').textContent=S.name||'פיר'};
- $('#sb').oninput=e=>{S.bld=e.target.value;save()};$('#sm').onchange=e=>{S.mode=e.target.value;save()};$('#sd').onchange=e=>{S.dir=e.target.value;save()};$('#st').onchange=e=>{S.t=e.target.value;save();renderM()};$('#sr').onchange=e=>{S.run=e.target.value;if(S.run==(cur.run||''))delete S.run;save()};$('#se').onchange=e=>{S.env=e.target.value;if(S.env==(cur.env||''))delete S.env;save()};
+ $('#sb').oninput=e=>{S.bld=e.target.value;save()};$('#sm').onchange=e=>{S.mode=e.target.value;save()};$('#sd').onchange=e=>{S.dir=e.target.value;save()};$('#st').onchange=e=>{S.t=e.target.value;save();renderM()};$('#sr').onchange=e=>{S.run=e.target.value;if(S.run==(cur.run||''))delete S.run;save()};$('#se').onchange=e=>{setEnv(e.target.value);renderD();renderM()};
+ const hasFr=ty(S,{})!='s'||fl().some(n=>S.fl[n]&&S.fl[n].t&&S.fl[n].t!='s');$('#spol').hidden=!hasFr;$('#spo').value=S.post??cur.post??'';$('#spo').onchange=e=>{S.post=e.target.value;if(S.post==(cur.post||''))delete S.post;save();flags()};
  $('#sfh').onchange=e=>{const v=+e.target.value;if(v>0)S.fh=v;else delete S.fh;save();renderM()};
  $('#sth').onchange=e=>{const v=+e.target.value;if(v>0)S.th=v;else delete S.th;save();renderM()};
  [['stb','tb'],['stt','tt']].forEach(([i,k])=>$('#'+i).onchange=e=>{const v=e.target.value.trim();if(v==='')delete S[k];else if(!/^-?\d+$/.test(v)){toast('יש להזין מספר קומה (אפשר עם מינוס למרתף)','bad');e.target.value=S[k]??'';return}else S[k]=+v;save();flags()});
@@ -671,22 +765,24 @@ function check(S){ // מחזיר {n:{lv,msgs}}
    else if(k=='h'){const nb=[fls[idx-2],fls[idx-1],fls[idx+1],fls[idx+2]].map(x=>x!=null&&S.fl[x]&&!S.fl[x].skip&&own(S.fl[x],['h','w','f','r','l'])&&eh(S,S.fl[x]).h?+eh(S,S.fl[x]).h:null).filter(x=>x!=null&&x>=30&&x<=700);const md=med(nb); // שכן עם טעות יחידות לא נכנס לחציון
     if(md!=null&&Math.abs(v-md)>HTOL){if(lv!='bad')lv='warn';m.push(lb(S,'h')+' '+v+' שונה מהקומות הסמוכות ('+md+')')}}});
   if(c0.ang)ANG.forEach(([k,l])=>{const v=+c0.ang[k];if(has(c0.ang[k])&&(v<0||v>60)){lv='bad';m.push('זווית '+l+' '+c0.ang[k]+' – בדוק יחידות (ס״מ)')}});
-  R[n]={lv:lv||'ok',m}});
+  R[n]={lv:lv||'ok',m,acc:!!c0.okd}});
  return R}
+const pdfHide=(P,r)=>r.lv=='warn'&&(r.acc||P.hideDev); // חריגה שאושרה (או הסתרת כל החריגות) – מוצגת באפליקציה אבל לא ב-PDF
 function flags(){
  const S=cur.shafts[shaft],R=check(S),fx=[];
  document.querySelectorAll('#gr .cell').forEach(cell=>{const n=cell.dataset.n,r=R[n]||{lv:'',m:[]},c=S.fl[n]||{};
-  cell.className='cell '+r.lv+(c.mark?' mk':'');cell.querySelector('.sv').innerHTML=svgFor(eh(S,c),ty(S,c));
+  cell.className='cell '+r.lv+(c.mark?' mk':'');cell.querySelector('.sv').innerHTML=svgFor(eh(S,c),ty(S,c),pOf(S));
   cell.querySelector('.skp').setAttribute('aria-pressed',!!c.skip);cell.querySelector('.mkb').setAttribute('aria-pressed',!!c.mark);
   cell.setAttribute('aria-label','קומה '+n+(r.lv=='bad'?' – נתון חסר או שגוי':r.lv=='warn'?' – חריגה לבדיקה':r.lv=='ok'?' – תקין':r.lv=='skip'?' – ללא מסתור':''));
   const v=c.skip?null:ph(S,c);cell.querySelector('.phv').textContent=v!=null?'גובה מסתור '+v:'';
   const ab=cell.querySelector('.angb'),at=angT(angOf(S,c));ab.classList.toggle('on',!!at);ab.textContent=at?'∟ זווית ✓':'∟ זווית';ab.title=at||'זווית סגירה לקומה זו';
-  r.m.forEach(t=>fx.push(`<div class="fix ${r.lv=='bad'?'bad':'warn'}">קומה ${n}: ${esc(t)}</div>`))});
+  r.m.forEach((t,i)=>fx.push(`<div class="fix ${r.lv=='bad'?'bad':'warn'}${r.lv=='warn'&&r.acc?' acc':''}">קומה ${n}: ${esc(t)}${r.lv=='warn'&&!i?`<button class="okd" data-okd="${n}" aria-pressed="${!!r.acc}">${r.acc?'✓ תקין – לא יוצג ב-PDF':'זה תקין – לא להציג ב-PDF'}</button>`:''}</div>`))});
  const T=tot(S);if(T){const bad=T.d!=null&&Math.abs(T.d)>HTOL;
   fx.unshift(`<div class="fix ${bad?'warn':''}">📏 גובה כולל ${S.th} · קומות ${T.a}–${T.b} (${T.n} קומות) · ממוצע לקומה ${T.avg}`+(T.op!=null?` (פתח ${T.op} · ${T.n-1} פודסטים של ${pT(S)} ביניהן)`:'')+(T.d!=null?` · סכום הקומות${T.P?' כולל פודסטים':''} ${T.sum} (הפרש ${T.d>0?'+':''}${T.d})`:` · חסר ${T.P?'גובה או עובי פודסט':'גובה'} ב-${T.miss} קומות`)+'</div>')}
  if(cvk(S)=='out'&&S.th)fx.unshift(`<div class="fix okk">🧱 ${outT(S)}</div>`);
  if(env(S)=='ימית')fx.unshift('<div class="fix bad">⚠ סביבה ימית – ברגים, פרופילים וצביעה לסביבה ימית</div>');else if(!env(S))fx.unshift('<div class="fix warn">לא נבחרה סביבה (רגילה / ימית) – בוחרים בלשונית פרטים או כאן בפיר</div>');
  $('#fix').innerHTML=fx.join('')||'<span class="allok">✓ אין התראות בפיר זה</span>';
+ $('#fix').querySelectorAll('[data-okd]').forEach(b=>b.onclick=()=>{const c=S.fl[b.dataset.okd];if(c.okd)delete c.okd;else c.okd=true;save();flags()});
  const L=Object.values(R).map(r=>r.lv),nw=L.filter(v=>v=='warn'||v=='bad').length,nf=L.filter(v=>v&&v!='skip').length,ns=L.filter(v=>v=='skip').length;
  $('#fxn').textContent=nw||'';$('#fxn').classList.toggle('b',L.includes('bad'));
  $('#flp').textContent=`${nf} מתוך ${L.length-ns} מולאו`+(ns?` · ${ns} ללא`:'')}
@@ -695,13 +791,13 @@ const covT=S=>{const k=cvk(S);return k?COV[k].a+(COV[k].k&&pT(S)?' · פודסט
 
 /* ---------- סיכום ---------- */
 function text(){const h=cur.h;
- let t=`טופס מדידה – ${TYPES[cur.type].n}\nמק״ט: ${h.code||''} | ${h.company||''} | ${h.site||''}\nכתובת: ${h.addr||''}\nמנהל פרויקט: ${h.pm||''} | מנהל עבודה: ${h.wk||''}\nתאריך: ${fmtD(h.date)} | מודד: ${h.surveyor||''} | ${h.final?'מדידה סופית':'מדידה לא סופית'}\nגוון: ${h.ral||''} | מרווח אור: ${h.gap||''} | מעקה טכנאי: ${h.rail?'כן':'לא'}\n`;
- cur.shafts.forEach(S=>{t+=`\n▪ ${S.name}${S.bld?' (בניין '+S.bld+')':''}${S.dir?' · '+S.dir:''}${rn(S)?' · '+rn(S):''}${envT(S)?' · '+envT(S):''}${S.fh?' · גובה קבוע '+S.fh:''}${S.th?' · '+totT(S):''}${covT(S)?' · '+covT(S):''}${angT(angOf(S,{}),S.angp)?' · '+angT(angOf(S,{}),S.angp):''}${S.mode?' – '+S.mode:''}\n`;
+ let t=`טופס מדידה – ${TYPES[cur.type].n}\nמק״ט: ${h.code||''} | ${h.company||''} | ${h.site||''}\nכתובת: ${h.addr||''}\n${marine()?'⚠ סביבה ימית (כל הפירים)\n':''}מנהל פרויקט: ${h.pm||''} | מנהל עבודה: ${h.wk||''}${h.eng?' | מהנדס ביצוע: '+h.eng:''}\nתאריך: ${fmtD(h.date)} | מודד: ${h.surveyor||''} | ${h.final?'מדידה סופית':'מדידה לא סופית'}\nגוון: ${h.ral||''} | מרווח אור: ${cmT(h.gap)} | מעקה טכנאי: ${h.rail?'כן':'לא'}\n`;
+ cur.shafts.forEach(S=>{t+=`\n▪ ${S.name}${S.bld?' (בניין '+S.bld+')':''}${S.dir?' · '+S.dir:''}${rn(S)?' · '+rn(S):''}${ty(S,{})!='s'&&postT(S)?' · '+postT(S):''}${S.fh?' · גובה קבוע '+S.fh:''}${S.th?' · '+totT(S):''}${covT(S)?' · '+covT(S):''}${angT(angOf(S,{}),S.angp)?' · '+angT(angOf(S,{}),S.angp):''}${S.mode?' – '+S.mode:''}\n`;
   if(cvk(S)=='out'&&S.th)t+=outT(S)+'\n';
   fl().forEach(n=>{const c0=S.fl[n]||{},F=FF(S,c0);if(c0.skip){t+=`קומה ${n}: ללא${c0.note?' – '+c0.note:''}\n`;return}
    if(!own(c0,F)&&!c0.note&&!c0.mark&&!angOwn(c0))return;const c=eh(S,c0),v=ph(S,c0);
    t+=`קומה ${n}${c.t?' ('+TYPES[c.t].a+')':''}: `+F.map(k=>lb(S,k)+' '+(has(c[k])?c[k]:'?')).join(' | ')+(v!=null?' → מסתור '+v:'')+(angOwn(c0)?' · '+(angT(angOf(S,c0))||'בלי זווית סגירה'):'')+(c.mark?' [הפרעה]':'')+(c.note?' – '+c.note:'')+'\n'})});
- NOTES.forEach(([k,l])=>{if(cur.n[k])t+=`\n${l}: ${cur.n[k]}`});
+ NOTES.forEach(([k,l])=>{const x=noteN(cur.n[k]);if(x.length)t+=`\n*${l}:*\n${x.join('\n')}\n`});
  if(cur.info)t+=`\nמידע נוסף: ${cur.info}`;
  if((cur.att||[]).length)t+=`\nמסמכים מצורפים: `+cur.att.map(x=>x.name+(x.cap?' ('+x.cap+')':'')).join(', ');
  return t}
@@ -715,7 +811,8 @@ function summary(){
  <div class="stats"><div class="stat"><b>${done}/${tot}</b><span>קומות נמדדו</span></div><div class="stat w"><b>${w}</b><span>חריגות</span></div><div class="stat b"><b>${b}</b><span>חסרים / שגויים</span></div></div>
  <div class="banner ${st[0]}">${st[1]}</div>${mar.length?`<div class="banner bad">⚠ סביבה ימית${mar.length<cur.shafts.length?' – '+esc(mar.map(S=>S.name).join(', ')):''}: ברגים, פרופילים וצביעה לסביבה ימית</div>`:''}${noe.length?`<div class="banner warn">לא נבחרה סביבה (רגילה / ימית)${noe.length<cur.shafts.length?' ב-'+esc(noe.map(S=>S.name).join(', ')):''}</div>`:''}
  <div class="tblw"><table><thead><tr><th>פיר</th><th>נמדדו</th><th>חריגות</th><th>חסרים</th><th>סביבה</th></tr></thead><tbody>${rows}</tbody></table></div></div>
- <div class="card"><h2>דוח PDF <small>נתוני הפרויקט נשמרים בתוך הקובץ – אפשר לטעון אותו חזרה ולערוך</small></h2><div class="sendacts"><button class="p wide" id="pdf">⬇ הורדת PDF</button><button class="p" id="shr" hidden>📤 שיתוף PDF</button><button id="pv">👁 תצוגה מקדימה</button><button id="imp2">📂 ייבוא PDF לעריכה</button></div></div>
+ <div class="card"><h2>דוח PDF <small>נתוני הפרויקט נשמרים בתוך הקובץ – אפשר לטעון אותו חזרה ולערוך</small></h2><div class="sendacts"><button class="p wide" id="pdf">⬇ הורדת PDF</button><button class="p" id="shr" hidden>📤 שיתוף PDF</button><button id="pv">👁 תצוגה מקדימה</button><button id="imp2">📂 ייבוא PDF לעריכה</button></div>
+ <div class="tgs"><label class="ck">להסתיר את כל החריגות ב-PDF<input type="checkbox" id="hdv"></label></div></div>
  <div class="card"><h2>חתימת לקוח <small>מופיעה בדף הסיכום בסוף ה-PDF</small></h2><button type="button" class="sigbox" id="sigb"></button><div class="sigmeta" id="sigm"></div></div>
  <div class="card"><h2>שליחה וייצוא</h2><div class="sendacts"><button class="p wide" id="sh">📤 שתף עם קבצים</button><button class="p" id="cp">📋 העתק טקסט</button><button id="prn">🖨 הדפסה</button><button id="xl" class="p">📊 ייצוא Excel</button><button id="ex">⬇ סרטוט SVG</button></div><span id="ms" role="status" aria-live="polite"></span>
  <details class="sec" data-k="tx"><summary><span>טקסט ההודעה</span><span class="hint">ניתן לערוך לפני שליחה</span></summary><div class="pad"><textarea id="tx"></textarea></div></details></div>
@@ -742,6 +839,7 @@ function summary(){
  $('#prn').onclick=async()=>{$('#pr').innerHTML=(await allPages()).join('');try{window.print()}catch(e){}};$('#ex').onclick=exportSVG;if(HOSTED())$('#prn').hidden=$('#sh').hidden=true;$('#xl').onclick=()=>runXlsx($('#xl'));
  $('#bk').onclick=()=>runBackup($('#bk'));$('#rs').onclick=()=>$('#rsf').click();$('#rsf').onchange=e=>{const f=e.target.files[0];e.target.value='';restoreBackup(f)};bkNote();
  sigCard();$('#sigb').onclick=openSig;
+ $('#hdv').checked=!!cur.hideDev;$('#hdv').onchange=e=>{if(e.target.checked)cur.hideDev=true;else delete cur.hideDev;save()};
  $('#pdf').onclick=()=>runPdf($('#pdf'),'dl');$('#pv').onclick=openPreview;$('#imp2').onclick=()=>$('#pdff').click();
  if(canShareFiles()){$('#shr').hidden=false;$('#shr').onclick=()=>runPdf($('#shr'),'share')}}
 let attURLs=[];
@@ -776,6 +874,7 @@ function sample(){
 const LOGO=`<image href="data:image/png;base64,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" x="40" y="12" width="160" height="42" preserveAspectRatio="xMinYMid meet"/>`; // לוגו קבוע בראש כל דף מיוצא (SVG / הדפסה / PDF)
 const E=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const T=(x,y,s,z,a,x2)=>`<text x="${x}" y="${y}" font-size="${z||12}" text-anchor="${a||'start'}" ${x2||''}>${E(s)}</text>`;
+const fitT=(x,y,v,z,w,a,x2)=>{v=String(v||'');const est=v.length*z*.56;return T(x,y,v,z,a,(x2||'')+(est>w?` textLength="${w}" lengthAdjust="spacingAndGlyphs"`:''))}; // טקסט ארוך נדחס לרוחב העמודה במקום לעלות על השכן
 const wrap=(s,n)=>String(s).split('\n').flatMap(l=>l.match(new RegExp(`.{1,${n}}(\\s|$)`,'g'))||['']);
 // בלוק "אישור וחתימת הלקוח" (גובה SIGH, מ-y0): שם + תאריך משמאל לתוויות, ריבוע חתימה בצד שמאל – לחיץ בתצוגה המקדימה (data-sig)
 const SIGH=130;
@@ -793,18 +892,24 @@ async function allPages(){ // דפי הסרטוט + דפים נוספים: מי�
   +LOGO+T(W-40,50,t,20,'start','font-weight="700"')+T(W-40,72,'מק״ט '+(P.h.code||'')+' · '+(P.h.site||''),12)+T(40,72,'§PG§',12,'end');
  const img=(t,u)=>head(t)+`<image href="${E(u)}" x="40" y="90" width="${W-80}" height="${H-130}" preserveAspectRatio="xMidYMin meet"/></svg>`;
  const IS={},il=[]; // קומות עם בעיה (חסר / חריג) – ממוספרות בסרטוט ומפורטות בדף הבדיקות
- P.shafts.forEach((S,si)=>{const R=check(S);fl().forEach(n=>{const r=R[n];if(r&&r.m.length){il.push([r.lv,`${S.name} · קומה ${n}: ${r.m.join(' · ')}`]);IS[si+':'+n]={lv:r.lv,i:il.length}}})});
+ P.shafts.forEach((S,si)=>{const R=check(S);fl().forEach(n=>{const r=R[n];if(r&&r.m.length&&!pdfHide(P,r)){il.push([r.lv,`${S.name} · קומה ${n}: ${r.m.join(' · ')}`]);IS[si+':'+n]={lv:r.lv,i:il.length}}})});
  const pg=buildPages(IS);
+ // הנחיות והערות: דף משלהן, מודגשות, כל הערה ממוספרת בשורה נפרדת; טקסט ארוך נשבר לשורות וממשיך לדף נוסף במקום לעלות על דברים אחרים
+ {const it=NOTES.filter(([q])=>noteL(P.n[q]).length).map(([q,l])=>[l,noteN(P.n[q])]);if(pg.long.length)it.push(['הערות לקומות (המלל המלא)',pg.long.map((x,i)=>(i+1)+'. '+x)]);if(it.length){const TT='הנחיות והערות';let s=head(TT),y=116;const np=()=>{pg.push(s+'</svg>');s=head(TT+' (המשך)');y=116};
+  it.forEach(([l,xs])=>{if(y>H-120)np();s+=T(W-40,y,l,15,'start','font-weight="800" fill="#1c4e9d"')+`<rect x="40" y="${y+8}" width="${W-80}" height="1.2" fill="#1c4e9d" opacity=".4"/>`;y+=32;
+   xs.forEach(x=>{const ls=wrap(x,84).map(t=>t.trim()).filter(Boolean);if(y+ls.length*21>H-50)np();ls.forEach((t,j)=>{s+=T(W-40-(j?24:0),y,t,13.5,'start','font-weight="700" fill="#142033"');y+=21});y+=7});y+=18});
+  pg.push(s+'</svg>')}}
  if(SK&&P.skImg)pg.push(img('סקיצת אתר',SK));
  ex.forEach(([t,u])=>pg.push(img(t,u)));
  // דף אחרון קבוע: "סיכום ואישור" – סטטוס, טבלת פירים, בדיקות, מידע ומסמכים, ובתחתיתו חתימת הלקוח
  {let s=head('סיכום ואישור'),lim=H-SIGH-50,w=0,b=0,dn=0,tt=0;
-  const sr=P.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')ww++;if(r.lv=='bad')bb++});w+=ww;b+=bb;dn+=d;tt+=t;return[S.name+(S.bld?' · '+S.bld:''),d+'/'+t,ww,bb,env(S)=='ימית'?'⚠ ימית':env(S)||'לא נבחרה']});
+  const sr=P.shafts.map(S=>{const R=check(S);let d=0,t=0,ww=0,bb=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn'&&!pdfHide(P,r))ww++;if(r.lv=='bad')bb++});w+=ww;b+=bb;dn+=d;tt+=t;return[S.name+(S.bld?' · '+S.bld:''),d+'/'+t,ww,bb]});
   s+=`<rect x="40" y="98" width="${W-80}" height="30" rx="7" fill="#f3f5f9"/>`;
   [['פירים',P.shafts.length,'#142033'],['קומות נמדדו',dn+'/'+tt,'#142033'],['חריגות',w,w?'#a06c00':'#142033'],['חסרים / שגויים',b,b?'#d62f2f':'#142033']].forEach(([a,v,c],i)=>{const x=W-56-i*178;
    s+=T(x,118,a,11.5,'start','fill="#4a5568"')+T(x-a.length*5.7-10,118,String(v),13,'start',`font-weight="700" fill="${c}"`)});
   let y=160;const cx=[W-40,W-260,W-390,W-500,W-610];
-  ['פיר','נמדדו','חריגות','חסרים','סביבה'].forEach((a,i)=>s+=T(cx[i],y,a,11,'start','font-weight="700" fill="#6b778c"'));
+  if(marine()){s+=`<rect x="40" y="134" width="${W-80}" height="22" rx="6" fill="#fde7e7"/>`+T(W-52,149,'⚠ סביבה ימית – ברגים, פרופילים וצביעה לסביבה ימית (כל הפירים)',12,'start','font-weight="700" fill="#d62f2f"');y+=14}
+  ['פיר','נמדדו','חריגות','חסרים'].forEach((a,i)=>s+=T(cx[i],y,a,11,'start','font-weight="700" fill="#6b778c"'));
   s+=`<rect x="40" y="${y+7}" width="${W-80}" height="1.2" fill="#1c4e9d" opacity=".5"/>`;y+=28;
   sr.forEach(r=>{if(y>=lim-200)return;r.forEach((v,i)=>s+=T(cx[i],y,String(v),12.5,'start',(i==2&&v?'fill="#a06c00" ':i==3&&v?'fill="#d62f2f" ':i==4&&v=='⚠ ימית'?'fill="#d62f2f" ':i==4&&v=='לא נבחרה'?'fill="#a06c00" ':'')+(i&&!(i==4&&v=='⚠ ימית')?'':'font-weight="700"')));
    s+=`<line x1="40" x2="${W-40}" y1="${y+8}" y2="${y+8}" stroke="#e3e8ef" stroke-width=".8"/>`;y+=24});y+=22;
@@ -815,13 +920,13 @@ async function allPages(){ // דפי הסרטוט + דפים נוספים: מי�
   pg.push(s+sigSvg(H-SIGH-25,W)+'</svg>')}
  return pg.map((s,i)=>s.replace('§PG§','דף '+(i+1)+' מתוך '+pg.length))}
 function buildPages(IS){ // IS = בעיות לפי 'אינדקס פיר:קומה' → {lv,i}
- const P=cur,h=P.h,fls=fl(),W=794,H=1123,CW=140,GY=345,pg=[],cols=[],rows=[],SK=SKO||P.sketch;
+ const P=cur,h=P.h,fls=fl(),W=794,H=1123,CW=140,GY=345,pg=Object.assign([],{long:[]}),cols=[],rows=[],SK=SKO||P.sketch;
  const N=(v,m)=>Math.max(0,Math.min(1,(+v||0)/m));
  for(let i=0;i<P.shafts.length;i+=5)cols.push(P.shafts.slice(i,i+5));
  for(let i=0;i<fls.length;i+=10)rows.push(fls.slice(i,i+10));
  const total=cols.length*rows.length,fd=v=>/^\d{4}-\d\d-\d\d$/.test(v||'')?v.split('-').reverse().join('.'):(v||''); // 2026-10-27 → 27.10.2026
- const l1=[['מק״ט פרויקט',h.code],['שם חברה',h.company],['אתר',h.site],['כתובת',h.addr],['מנהל פרויקט',h.pm],['מנהל עבודה',h.wk]],
- l2=[['תאריך מדידה',fd(h.date)],['מודד',h.surveyor],['גוון RAL',h.ral],['מרווח אור',h.gap],['דגם',h.model],['מס׳ טופס',h.form]];
+ const l1=[['מק״ט פרויקט',h.code],...(marine()?[['סביבה','⚠ סביבה ימית']]:[]),['שם חברה',h.company],['אתר',h.site],['כתובת',h.addr],['מנהל פרויקט',h.pm],['מנהל עבודה',h.wk],...(h.eng?[['מהנדס ביצוע',h.eng]]:[])],
+ l2=[['תאריך מדידה',fd(h.date)],['מודד',h.surveyor],['גוון RAL',h.ral],['מרווח אור',cmT(h.gap)],['דגם',h.model],['מס׳ טופס',h.form]],LS=Math.min(22,110/(Math.max(l1.length,l2.length)-1)); // יותר שורות → מרווח קטן יותר, לא נכנס לפס שמתחת
  // כותרת הדף: תווית אפורה קטנה + ערך מודגש על קו מילוי; ערך ארוך מוקטן/נדחס כדי לא לחרוג מהעמודה
  const hv=(x,y,v,w,z0)=>{v=String(v||'');z0=z0||13;if(!v)return'';const est=v.length*7.1*z0/13;let z=z0,ex='';
   if(est>w){z=Math.max(11,z0*w/est);if(est*z/z0>w)ex=`textLength="${w}" lengthAdjust="spacingAndGlyphs"`}
@@ -829,7 +934,7 @@ function buildPages(IS){ // IS = בעיות לפי 'אינדקס פיר:קומה
  HC=SK?[[W-40,234],[500,210]]:[[W-40,347],[387,347]],LW=76,
  HD=[[l1,'פרטי פרויקט'],[l2,'פרטי מדידה']].map(([ls,ttl],c)=>{const[x,w]=HC[c];
   let o=T(x,92,ttl,11,'start','font-weight="700" fill="#1c4e9d"')+`<rect x="${x-w}" y="97" width="${w}" height="1.5" fill="#1c4e9d" opacity=".5"/>`;
-  ls.forEach(([a,v],i)=>{const y=119+i*22;o+=T(x,y,a,11,'start','fill="#6b778c"')+hv(x-LW,y,v,w-LW-2)+`<line x1="${x-w}" x2="${x-LW+4}" y1="${y+6}" y2="${y+6}" stroke="#cfd6e0" stroke-width=".8"/>`});return o}).join('')
+  ls.forEach(([a,v],i)=>{const y=119+i*LS,mr=a=='סביבה';o+=T(x,y,a,11,'start','fill="#6b778c"')+(mr?T(x-LW,y,v,13,'start','font-weight="800" fill="#d62f2f"'):hv(x-LW,y,v,w-LW-2))+`<line x1="${x-w}" x2="${x-LW+4}" y1="${y+6}" y2="${y+6}" stroke="#cfd6e0" stroke-width=".8"/>`});return o}).join('')
   +(()=>{const y=262;let o=`<rect x="40" y="244" width="${W-80}" height="28" rx="7" fill="#f3f5f9"/>`,xr=W-52;
    const lab=(t,x)=>T(x,y,t,11.5,'start','fill="#4a5568"'),off=t=>t.length*5.7+8,sep=x=>`<line x1="${x}" x2="${x}" y1="${y-12}" y2="${y+3}" stroke="#cfd6e0"/>`;
    [['מדידה סופית',h.final],['הזמנת חומר',h.order],['מעקה טכנאי',h.rail]].forEach(([t,on])=>{const px=xr-off(t)-30;
@@ -844,29 +949,32 @@ function buildPages(IS){ // IS = בעיות לפי 'אינדקס פיר:קומה
   s+=HD;
   k++;if(SK&&k==1)s+=`<rect x="40" y="100" width="230" height="104" fill="none" stroke="#999"/><image href="${SK}" x="40" y="100" width="230" height="104" preserveAspectRatio="xMidYMid meet"/>`+T(155,216,'סקיצת אתר',11,'middle');
   cs.forEach((S,j)=>{const cx=70+j*CW,TT=tot(S); // כותרת פיר: שורות קצרות שנערמות כלפי מעלה כדי לא לחרוג מרוחב העמודה
-   const ls=[[S.dir,rn(S),envT(S),S.mode].filter(Boolean).join(' · '),covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?`כולל ${S.th} (קומות ${TT.a}–${TT.b})`:'',...angRows(angOf(S,{}),S.angp)].filter(Boolean);
-   ls.forEach((x,i)=>s+=T(cx+CW/2,GY-12-(ls.length-1-i)*11,x,10,'middle','fill="#555"'));s+=T(cx+CW/2,GY-16-ls.length*11,S.name+(S.bld?' · '+S.bld:''),14,'middle','font-weight="700"')});
+   const ls=[S.bld?'בניין '+S.bld:'',[rn(S),S.mode].filter(Boolean).join(' · '),ty(S,{})!='s'&&postT(S),covT(S),S.fh?'גובה קבוע '+S.fh:'',TT?`כולל ${S.th} (קומות ${TT.a}–${TT.b})`:'',...angRows(angOf(S,{}),S.angp)].filter(Boolean);
+   ls.forEach((x,i)=>s+=fitT(cx+CW/2,GY-12-(ls.length-1-i)*11,x,10,CW-6,'middle',i==0&&S.bld?'fill="#142033" font-weight="700"':'fill="#555"'));s+=fitT(cx+CW/2,GY-16-ls.length*11,S.name+(S.dir?' · '+S.dir:''),14,CW-4,'middle','font-weight="700"')}); // שם הפיר והכיוון באותה שורה, הבניין מתחת
   fr.forEach((n,i)=>{const y=GY+i*RH;s+=`<line x1="30" x2="${W-30}" y1="${y}" y2="${y}" stroke="#d5dbe5"/>`+T(40,y+RH/2+7,n,20,'middle','font-weight="700"');
    cs.forEach((S,j)=>{const c0=S.fl[n]||{},c=eh(S,c0),t=ty(S,c),cx=70+j*CW,ox=cx+34,oy=y+RH-20,mh=RH-34,qm=v=>v===''||v==null?'?':v,is=IS&&IS[P.shafts.indexOf(S)+':'+n],ic=is&&(is.lv=='bad'?'#d62f2f':'#e0a100');let pts,tx='';
     if(c0.skip){s+=`<path d="M${cx+20} ${y+8}L${cx+CW-20} ${y+RH-8}M${cx+CW-20} ${y+8}L${cx+20} ${y+RH-8}" stroke="#d62f2f" stroke-width="3"/>`+T(cx+CW/2,y+RH/2+4,'ללא'+(c0.note?' – '+c0.note:''),12,'middle','font-weight="700" fill="#d62f2f" paint-order="stroke" stroke="#fff" stroke-width="4"');return}
     if(!['h','w','f','r','l'].some(q=>c0[q])){if(c0.note||c0.mark){const m=(c0.mark?'הפרעה':'')+(c0.mark&&c0.note?' – ':'')+(c0.note||'');s+=T(cx+CW/2,y+RH/2+4,m.length>42?m.slice(0,41)+'…':m,12,'middle','font-weight="700" fill="#b07400" paint-order="stroke" stroke="#fff" stroke-width="4"')}return} // קומה בלי מידות אבל עם הערה/הפרעה – ההערה לא נעלמת מה-PDF
     if(is)s+=`<rect x="${cx+2}" y="${y+2}" width="${CW-4}" height="${RH-4}" rx="6" fill="${is.lv=='bad'?'#fde7e7':'#fff4d6'}" stroke="${ic}" stroke-dasharray="5 3"/>`; // קומה עם בעיה – מסומנת וממוספרת, הפירוט בדף הבדיקות
-    const TF=TYPES[t].f,hl=TF.includes('l'),hr=TF.includes('r');
-    if(TF.includes('f')){const ww=Math.min(CW-70,N(c.f,320)*(CW-70)*1.5),t0=y+24,l=hl?N(c.l,120)*mh:0,r=hr?N(c.r,120)*mh:0; // ח / ר: חזית למעלה, צדדים יורדים
-     pts=(hl?`${ox},${t0+l} `:'')+`${ox},${t0} ${ox+ww},${t0}`+(hr?` ${ox+ww},${t0+r}`:'');
-     tx=T(ox+ww/2,t0+16,qm(c.f),14,'middle',B)+(hl?`<text transform="translate(${ox-7},${t0+l/2}) rotate(-90)" font-size="13" text-anchor="middle" ${B}>${E(qm(c.l))}</text>`:'')+(hr?`<text transform="translate(${ox+ww+13},${t0+r/2}) rotate(-90)" font-size="13" text-anchor="middle" ${B}>${E(qm(c.r))}</text>`:'')+T(ox+ww/2,y+13,'גובה '+qm(c.h),11,'middle','fill="#555"')}
-    else{const hh=N(c.h,320)*mh,ww=Math.min(CW-70,N(c.w,320)*(CW-70)*1.5);pts=`${ox},${oy-hh} ${ox},${oy} ${ox+ww},${oy}`;
-     tx=`<text transform="translate(${ox-7},${oy-hh/2}) rotate(-90)" font-size="14" text-anchor="middle" ${B}>${E(qm(c.h))}</text>`+T(ox+ww/2,oy+14,qm(c.w),14,'middle',B)}
-    if(c.mark)s+=`<polyline points="${pts}" stroke="#ff4fa3" stroke-width="9" opacity=".55" fill="none" stroke-linecap="round"/>`;
-    s+=`<polyline points="${pts}" ${L}/>`+tx;
-    if(c.note)s+=T(cx+CW-4,y+13,c.note,10,'start','fill="#555"');
-    if(angOwn(c0)){const al=angRows(angOf(S,c0));(al.length?al:['בלי זווית סגירה']).forEach((x,i)=>s+=T(cx+CW-4,y+(c.note?25:13)+i*11,x,9,'start','fill="#c25e00" font-weight="700" paint-order="stroke" stroke="#fff" stroke-width="3"'))}
+    const TF=TYPES[t].f,hl=TF.includes('l'),hr=TF.includes('r'),po=pOf(S),fa=fr[i-1],ca=fa!=null&&S.fl[fa]||null,cont=rn(S)=='רציף'&&ca&&!ca.skip&&ty(S,ca)==t&&['h','w','f','r','l'].some(q=>ca[q]||S.fh); // רציף: מחברים לקומה שמעל באותו דף
+    let d,nw;
+    if(TF.includes('f')){const ww=Math.max(24,Math.min(CW-70,N(c.f,320)*(CW-70)*1.5)),l=hl?Math.max(12,N(c.l,120)*mh):0,r=hr?Math.max(12,N(c.r,120)*mh):0,ll=cont?RH:l,rr=cont?RH:r; // ח / ר במבט מהחזית: החזית למטה, הצדדים נכנסים פנימה כלפי מעלה
+     d=frPath(ox,oy,ww,hl?ll:0,hr?rr:0,po);nw=60;
+     tx=T(ox+ww/2,oy+14,qm(c.f),14,'middle',B)+(hl?`<text transform="translate(${ox-7},${oy-Math.min(ll,mh)/2}) rotate(-90)" font-size="13" text-anchor="middle" ${B}>${E(qm(c.l))}</text>`:'')+(hr?`<text transform="translate(${ox+ww+13},${oy-Math.min(rr,mh)/2}) rotate(-90)" font-size="13" text-anchor="middle" ${B}>${E(qm(c.r))}</text>`:'')
+      +T(cx+24,y+13,'גובה '+qm(c.h),11,'end','fill="#555"')+postDots(ox,oy,ww,hl,hr,po,6)}
+    else{const hh=N(c.h,320)*mh,ww=Math.max(24,Math.min(CW-70,N(c.w,320)*(CW-70)*1.5)),sh=cont?RH:hh;nw=CW-34;
+     d=`M${ox} ${oy-sh}L${ox} ${oy}L${ox+ww} ${oy}`+(rn(S)=='רציף'?`M${ox+ww} ${oy-sh}L${ox+ww} ${oy}`+(cont?'':`M${ox} ${oy-sh}L${ox+ww} ${oy-sh}`):''); // רציף: עמודה אחת סגורה לכל הגובה, קו בין קומה לקומה
+     tx=`<text transform="translate(${ox-7},${oy-sh/2}) rotate(-90)" font-size="14" text-anchor="middle" ${B}>${E(qm(c.h))}</text>`+(rn(S)=='רציף'?T(ox+ww/2,oy-7,qm(c.w),13,'middle',B):T(ox+ww/2,oy+14,qm(c.w),14,'middle',B))}
+    if(c.mark)s+=`<path d="${d}" stroke="#ff4fa3" stroke-width="9" opacity=".55" fill="none" stroke-linecap="round"/>`;
+    s+=`<path d="${d}" ${L}/>`+tx;
+    let ny=13;if(c.note){const z=10,cpl=Math.max(8,Math.floor(nw/(z*.5))),wl=wrap(c.note,cpl).map(x=>x.trim()).filter(Boolean),nl=wl.slice(0,3);if(wl.length>3){nl[2]=nl[2].slice(0,cpl-4)+'… (המשך בהערות)';pg.long.push(`${S.name} · קומה ${n}: ${c.note}`)} // הערה: עד 2 שורות בתוך העמודה, לא עולה על השכן
+     nl.forEach(x=>{s+=fitT(cx+CW-4,y+ny,x,z,nw,'start','fill="#555" paint-order="stroke" stroke="#fff" stroke-width="3"');ny+=11})}
+    if(angOwn(c0)){const al=angRows(angOf(S,c0));(al.length?al:['בלי זווית סגירה']).forEach((x,i)=>s+=fitT(cx+CW-4,y+ny+i*11,x,9,nw,'start','fill="#c25e00" font-weight="700" paint-order="stroke" stroke="#fff" stroke-width="3"'))}
     const pv=c0.skip?null:ph(S,c0); // גובה מסתור: בפיר ישר – מעל קו הרוחב בתוך ה-L (לא על מספר הרוחב); עובי פודסט רק כשהקומה שונה מהפיר
     if(pv!=null){const py=TF.includes('f')?y+RH-4:oy-6,G='fill="#2e9e57" font-weight="700" paint-order="stroke" stroke="#fff" stroke-width="3"';s+=T(cx+CW-4,py,'מסתור '+pv,10,'start',G);
      if(COV[cvk(S)].k&&+c.p!=+pT(S))s+=T(cx+CW-4,py-11,'פודסט '+c.p,9,'start',G)}
     if(is)s+=`<circle cx="${cx+11}" cy="${y+13}" r="9" fill="${ic}"/>`+T(cx+11,y+17,is.i,11,'middle','fill="#fff" font-weight="700"')});
    });
-  if(k==total){let yy=H-130;NOTES.forEach(([q,l])=>{if(P.n[q])(l+': '+P.n[q]).replace(/\n/g,' ').match(/.{1,75}(\s|$)/g).forEach(x=>{if(yy<H-20){s+=T(W-40,yy,x,12);yy+=17}})})}
   pg.push(s+'</svg>')}));
  return pg}
 async function exportSVG(){const pg=await allPages(),H=1123,m=$('#ms');
@@ -925,7 +1033,7 @@ function xlSummary(P){const h=P.h,rows=[],mg=[],ht={0:40},N=8,L=N-1;
  sec('פירים');const hr=rows.length;rows.push(['פיר','בניין','כיוון','סוג פיר','מיקום ביחס לפודסט','נמדדו','חריגות','חסרים / שגויים'].map(v=>({v,s:4})));ht[hr]=30;
  P.shafts.forEach(S=>{const R=check(S);let d=0,t=0,w=0,b=0;Object.values(R).forEach(r=>{if(r.lv=='skip')return;t++;if(r.lv=='ok'||r.lv=='warn')d++;if(r.lv=='warn')w++;if(r.lv=='bad')b++});
   rows.push([{v:S.name||'',s:3},{v:S.bld||'',s:5},{v:S.dir||'',s:5},{v:TYPES[ty(S,{})].a,s:5},{v:covT(S),s:6},{v:d+'/'+t,s:5},{v:w,s:w?9:5},{v:b,s:b?9:5}])});
- const tx=NOTES.filter(([k])=>P.n[k]).map(([k,l])=>[l,P.n[k]]);if(P.info)tx.push(['מידע נוסף',P.info]);if((P.att||[]).length)tx.push(['מסמכים מצורפים',P.att.map(x=>x.name+(x.cap?' ('+x.cap+')':'')).join(', ')]);
+ const tx=NOTES.filter(([k])=>noteL(P.n[k]).length).map(([k,l])=>[l,noteN(P.n[k]).join('\n')]);if(P.info)tx.push(['מידע נוסף',P.info]);if((P.att||[]).length)tx.push(['מסמכים מצורפים',P.att.map(x=>x.name+(x.cap?' ('+x.cap+')':'')).join(', ')]);
  if(cur.sig&&cur.sig.name)tx.push(['אושר על ידי',cur.sig.name+(cur.sig.at?' · '+fmtD(cur.sig.at.slice(0,10)):'')]);
  if(tx.length){sec('הנחיות והערות');tx.forEach(([l,v])=>{const r=rows.length;rows.push([{v:l,s:2},{v:String(v),s:6},...Array(L-1).fill({s:6})]);mg.push(`B${r+1}:${xcol(L)}${r+1}`);
   ht[r]=Math.max(20,15*String(v).split('\n').reduce((s,x)=>s+Math.ceil((x.length||1)/95),0)+4)})}
